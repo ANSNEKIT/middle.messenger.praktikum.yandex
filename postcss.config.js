@@ -1,6 +1,7 @@
 import postcssNesting from 'postcss-nesting';
 import postcssPresetEnv from 'postcss-preset-env';
 import autoprefixer from 'autoprefixer';
+import postcssImport from 'postcss-import';
 
 export default {
     map: false,
@@ -8,5 +9,6 @@ export default {
         autoprefixer(),
         postcssNesting(),
         postcssPresetEnv(),
+        postcssImport(),
     ],
 };
