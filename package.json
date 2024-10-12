@@ -11,14 +11,13 @@
   "devDependencies": {
     "@types/node": "^22.7.5",
     "autoprefixer": "^10.4.20",
-    "postcss-nesting": "^13.0.0",
+    "postcss-nested": "^6.2.0",
     "postcss-preset-env": "^10.0.6",
     "typescript": "^5.6.2",
     "vite": "^5.4.8"
   },
   "dependencies": {
-    "handlebars": "^4.7.8",
-    "postcss-import": "^16.1.0"
+    "handlebars": "^4.7.8"
   },
   "engines": {
     "node": ">=20.0.0",

@@ -1,14 +1,12 @@
-import postcssNesting from 'postcss-nesting';
+import postcssNested from 'postcss-nested';
 import postcssPresetEnv from 'postcss-preset-env';
 import autoprefixer from 'autoprefixer';
-import postcssImport from 'postcss-import';
 
 export default {
     map: false,
     plugins: [
         autoprefixer(),
-        postcssNesting(),
+        postcssNested(),
         postcssPresetEnv(),
-        postcssImport(),
     ],
 };
