@@ -1,7 +1,7 @@
 <div class="main-page page page-center">
     {{> PageTitle title=title class="page__title" }}
 
-{{#each pages}}
-   {{> Link href=this.href dataPage=this.dataPage linkName=this.name }}
-{{/each}}
+    {{#each pages}}
+        {{> Link href=this.href dataPage=this.dataPage linkName=this.name }}
+    {{/each}}
 </div>
