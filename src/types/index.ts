@@ -1,6 +1,9 @@
 export enum EPages {
-    mainPage = 'mainPage',
     loginPage = 'loginPage',
+    registerPage = 'registerPage',
+    chatsPage = 'chatsPage',
+    notFoundPage = 'notFoundPage',
+    serverErrorPage = 'serverErrorPage',
 }
 
 export type TPageValues = keyof Record<EPages, string>;

@@ -1,5 +1,7 @@
-<div>
-    <h1>Список страниц</h1>
+<div class="main-page page page-center">
+    {{> PageTitle title=title class="page__title" }}
 
-    <a href="/login" class="page-link" data-page="loginPage">Войти</a>
+{{#each pages}}
+   {{> Link href=this.href dataPage=this.dataPage linkName=this.name }}
+{{/each}}
 </div>

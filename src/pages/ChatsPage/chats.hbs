@@ -1,0 +1,16 @@
+<div class="chat">
+    <aside class="chat__aside">
+        <h2>Левая колонка</h2>
+    </aside>
+    <div class="chat__main">
+        {{#if currentChat}}
+            <header class="chat__main-header">Хедер чата</header>
+            <main class="chat__main-body">Тело чата</main>
+
+        {{else}}
+            <div class="chat__main-empty">
+                <h2>Пустой чат</h2>
+            </div>
+        {{/if}}
+    </div>
+</div>
