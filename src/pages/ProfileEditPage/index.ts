@@ -7,6 +7,13 @@ const profileEditPageData = {
     title: 'Редактировать профиль',
     items: [
         {
+            id: 'avatar',
+            label: 'Изменить аватар',
+            type: 'file',
+            name: 'avatar',
+            required: true,
+        },
+        {
             id: 'email',
             label: 'Почта',
             type: 'email',
@@ -46,6 +53,27 @@ const profileEditPageData = {
             label: 'Телефон',
             type: 'tel',
             name: 'phone',
+            required: true,
+        },
+        {
+            id: 'old-password',
+            label: 'Старый пароль',
+            type: 'password',
+            name: 'oldPassword',
+            required: true,
+        },
+        {
+            id: 'new-password',
+            label: 'Новый пароль',
+            type: 'password',
+            name: 'newPassword',
+            required: true,
+        },
+        {
+            id: 'new-password-repeat',
+            label: 'Повторите новый пароль',
+            type: 'password',
+            name: 'newPassword',
             required: true,
         },
     ],
