@@ -10,6 +10,8 @@
     </form>
     <div class="auth-form__actions">
         {{> Button id=submitBtn.id text=submitBtn.name class="auth-form__submit-btn" }}
-        {{> Link href=link.href dataPage=link.dataPage linkName=link.name }}
+        {{#if link}}
+            {{> Link href=link.href dataPage=link.dataPage linkName=link.name }}
+        {{/if}}
     </div>
 </div>

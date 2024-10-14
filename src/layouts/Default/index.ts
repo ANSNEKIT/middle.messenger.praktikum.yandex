@@ -21,6 +21,16 @@ const defaultLayoutData = {
             name: 'Чаты',
         },
         {
+            href: '#profile',
+            dataPage: 'profilePage',
+            name: 'Профиль',
+        },
+        {
+            href: '#profile-edit',
+            dataPage: 'profileEditPage',
+            name: 'Редактировать профиль',
+        },
+        {
             href: '#not-found',
             dataPage: 'notFoundPage',
             name: '404 ошибка',

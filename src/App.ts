@@ -1,6 +1,6 @@
 import { renderPage } from './utils/index';
 import Handlebars from 'handlebars';
-import {LoginPage, RegisterPage, ChatsPage, NotFoundPage, ServerErrorPage} from './pages/index';
+import {LoginPage, RegisterPage, ChatsPage, NotFoundPage, ServerErrorPage, ProfilePage, ProfileEditPage } from './pages/index';
 import { EPages, TPageValues } from './types';
 import Avatar from '@/components/Avatar/index';
 import Button from '@/components/Button/index';
@@ -84,6 +84,16 @@ export default class App {
 
         if (page === EPages.chatsPage) {            
             mainEl.innerHTML = renderPage(ChatsPage.template, ChatsPage.data);
+            return;
+        }
+
+        if (page === EPages.profilePage) {            
+            mainEl.innerHTML = renderPage(ProfilePage.template, ProfilePage.data);
+            return;
+        }
+
+        if (page === EPages.profileEditPage) {            
+            mainEl.innerHTML = renderPage(ProfileEditPage.template, ProfileEditPage.data);
             return;
         }
 
