@@ -4,7 +4,11 @@ import './chats.pcss';
 
 const chatsPageTemplate = Handlebars.compile(ChatsPage);
 const chatsPageData = {
-
+    profile: {
+        href: '#profile',
+        dataPage: 'profilePage',
+        name: 'Профиль',
+    }
 }
 
 
