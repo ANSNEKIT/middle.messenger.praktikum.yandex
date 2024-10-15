@@ -1,0 +1,17 @@
+<div class="auth-form">
+    {{> PageTitle title=title }}
+
+    <form action="" class="auth-form__form">
+        {{#each items }}
+            <div class="auth-form__form-item">
+                {{> Input id=this.id label=this.label name=this.name required=this.required }}
+            </div>
+        {{/each }}
+    </form>
+    <div class="auth-form__actions">
+        {{> Button id=submitBtn.id text=submitBtn.name class="auth-form__submit-btn" }}
+        {{#if link}}
+            {{> Link href=link.href dataPage=link.dataPage linkName=link.name }}
+        {{/if}}
+    </div>
+</div>
