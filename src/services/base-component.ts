@@ -11,12 +11,13 @@ export class BaseComponent {
     private _props: TProps;
     private _children: TChildren;
     private _events: TEvents;
+    private _lists: Record<string, BaseComponent[]>;
     private _id: string;
     private _eventBus: EventBus;
 
 
     constructor(tagName = 'div', propsAndChilds: TProps = {}) {
-        const { props, children } = this.getPropsAndChildren(propsAndChilds);
+        const { props, children, lists } = this.getPropsAndChildren(propsAndChilds);
         this._eventBus = new EventBus();
         this._meta = {
             tagName,
@@ -26,9 +27,10 @@ export class BaseComponent {
         this._id = uuidv4();
         this._props = this._makeProxy({...props, __id: this._id});
         this._children = this._makeProxy(children);
+        this._lists = this._makeProxy(lists);
         this._events = {};
         this.registerEvents();
-        this._eventBus.emit(Event.INIT);
+        this._eventBus.emit(Event.INIT);        
     }
 
     public registerEvents() {
@@ -56,16 +58,19 @@ export class BaseComponent {
     public getPropsAndChildren(propsWithChilds: TProps) {
         const props: TProps = {};
         const children: TChildren = {};
+        const lists: Record<string, BaseComponent[]> = {};
 
         Object.keys(propsWithChilds).forEach((key) => {
             if (propsWithChilds[key] instanceof BaseComponent) {
                 children[key] = propsWithChilds[key];
-            } else {
+            } else if (Array.isArray(propsWithChilds[key]) && propsWithChilds[key].every((child) => child instanceof BaseComponent)) {
+                lists[key] = propsWithChilds[key];
+            }else {
                 props[key] = propsWithChilds[key];
             }
         });
 
-        return { props, children };
+        return { props, children, lists };
     }
 
     private _onRender() {
@@ -76,11 +81,7 @@ export class BaseComponent {
             if (block) {
                 if (Object.keys(this._children).length === 0) {
                     this._element.append(block);
-                    console.log(111, this._element);
-                    
-                    this._element = this._element.firstElementChild as HTMLElement || null;
-                    console.log(222, this._element);
-                    
+                    this._element = this._element.firstElementChild as HTMLElement || null;                    
                 } else {
                     this._element.append(block);
                 }
@@ -135,7 +136,7 @@ export class BaseComponent {
             return;
         }
 
-        const {props = {}, children = {}} = this.getPropsAndChildren(newProps);        
+        const {props = {}, children = {}, lists = {}} = this.getPropsAndChildren(newProps);        
 
         if (Object.values(props).length) {
             Object.assign(this._props, props);            
@@ -143,6 +144,10 @@ export class BaseComponent {
 
         if (Object.values(children).length) {
             Object.assign(this._children, children);
+        }
+
+        if (Object.values(lists).length) {
+            Object.assign(this._lists, lists);
         }
         
     }
@@ -182,14 +187,18 @@ export class BaseComponent {
         const propsAndStubs = !props ? this._props : structuredClone(props); 
         
         Object.entries(this._children).forEach(([key, child]) => {
-            console.log('compile child', key);
             propsAndStubs[key] = `<div data-id="${child._id}"></div>`;
+        });
+
+        Object.entries(this._lists).forEach(([key, listItem]) => {
+            propsAndStubs[key] = listItem.map((listChild) => {
+                return `<div data-id="list-id-${listChild._id}"></div>`;
+            });
         });
 
         const fragment = this.createDocumentElement('template') as HTMLTemplateElement;
         fragment.innerHTML = Handlebars.compile(template)(propsAndStubs); 
         
-        console.log('===compile=== ', template);
         
 
         Object.values(this._children).forEach((child) => {
@@ -197,6 +206,15 @@ export class BaseComponent {
             if (stub) {
                 stub.replaceWith(child.getContent() || '');
             }
+        });
+
+        Object.values(this._lists).forEach((list) => {
+            list.forEach((listChild) => {
+                const stub = fragment.content.querySelector(`[data-id="list-id-${listChild._id}"]`);
+                if (stub) {
+                    stub.replaceWith(listChild.getContent() || '');
+                }
+            });
         });
 
         return fragment.content;
@@ -218,9 +236,7 @@ export class BaseComponent {
                     const oldTarget = {...target};
 
                     // @ts-expect-error ругается на T
-                    target[prop] = value;
-                    console.log('-makeProxy set');
-                    
+                    target[prop] = value;                    
 
                     this._eventBus.emit(Event.UPDATED, oldTarget, target);
         
