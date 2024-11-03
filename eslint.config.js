@@ -1,4 +1,4 @@
-import globals from "globals";
+import globals from 'globals';
 import importPlugin from 'eslint-plugin-import';
 import arbnbPlugin from 'eslint-config-airbnb-base';
 import eslintPluginPrettier from 'eslint-plugin-prettier';
@@ -21,7 +21,7 @@ export default [
         ignores: [
             '.github',
             '.idea',
-'            .vscode',
+            '            .vscode',
             'node_modules',
             'public',
             'dist',
@@ -35,6 +35,21 @@ export default [
             arbnbPlugin,
             eslintPluginPrettier,
         },
-        rules: {},
-    }
+        rules: {
+            semi: ['error', 'always'],
+            'eol-last': ['error', 'always'],
+            '@typescript-eslint/no-unused-vars': [
+                'error',
+                {
+                    args: 'all',
+                    argsIgnorePattern: '^_',
+                    caughtErrors: 'all',
+                    caughtErrorsIgnorePattern: '^_',
+                    destructuredArrayIgnorePattern: '^_',
+                    varsIgnorePattern: '^_',
+                    ignoreRestSiblings: true,
+                },
+            ],
+        },
+    },
 ];
