@@ -1,18 +1,11 @@
-import Handlebars from 'handlebars';
-import ChatsPage from './chats.hbs?raw';
+import chatsPageTemplate from './chats.hbs?raw';
 import './chats.pcss';
+import { BaseComponent } from '@/services/base-component';
 
-const chatsPageTemplate = Handlebars.compile(ChatsPage);
-const chatsPageData = {
-    profile: {
-        href: '#profile',
-        dataPage: 'profilePage',
-        name: 'Профиль',
+
+export default class ChatsPage extends BaseComponent {
+    render() {
+        console.log('render ChatsPage');
+        return this.compile(chatsPageTemplate);
     }
-}
-
-
-export {
-    chatsPageTemplate as template,
-    chatsPageData as data,
 }

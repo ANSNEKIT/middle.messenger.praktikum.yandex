@@ -1,7 +1,7 @@
 <div class="chat">
     <aside class="chat__aside chat-aside">
         <div class="chat-aside__profile">
-            {{> Link href=profile.href dataPage=profile.dataPage linkName=profile.name }}
+            {{{ profileLink }}}
         </div>
         <div class="chat-aside__chats">
             Список чатов
@@ -18,9 +18,9 @@
             </div>
         {{/if}}
         <form class="chat-main__submit-form">
-            {{> Button class='button-icon' id="button-link" text="Прикрепить файл"}}
-            <input id="input-message" class="chat-main__submit-form-input" type="text" name="message" >
-            {{> Button class='button-icon' id="button-submit" text="Отправить"}}
+            {{{ buttonAttachFile }}}
+            {{{ inputSendMessage }}}
+            {{{ buttonSubmit }}}
         </div>
     </div>
 </div>

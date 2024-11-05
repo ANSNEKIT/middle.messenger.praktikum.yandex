@@ -1,17 +1,13 @@
-import * as LoginPage from './LoginPage';
-import * as RegisterPage from './RegisterPage';
-import * as ChatsPage from './ChatsPage';
-import * as ProfilePage from './ProfilePage';
-import * as ProfileEditPage from './ProfileEditPage';
-import NotFoundPage from './NotFoundPage';
-import ServerErrorPage from './ServerErrorPage';
+import AuthPage from './AuthPage';
+import ProfilePage from './ProfilePage';
+import ChatsPage from './ChatsPage';
+import ProfileEditPage from './ProfileEditPage';
+import StubPage from './StubPage';
 
 export {
-    LoginPage,
-    RegisterPage,
+    AuthPage,
     ChatsPage,
     ProfilePage,
     ProfileEditPage,
-    NotFoundPage,
-    ServerErrorPage,
-}
+    StubPage,
+};

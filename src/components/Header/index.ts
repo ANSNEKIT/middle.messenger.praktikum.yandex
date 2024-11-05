@@ -5,6 +5,8 @@ import './header.pcss';
 
 export default class Header extends BaseComponent {
     render() {
+        console.log('render Header');
+        
         return this.compile(HeaderTemplate);
     }
-} 
+}

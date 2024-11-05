@@ -1,48 +1,11 @@
-import Handlebars from 'handlebars';
-import ProfilePage from './profile.hbs?raw';
+import profilePageTemplate from './profile.hbs?raw';
+import { BaseComponent } from '@/services/base-component';
 import './profile.pcss';
 
-const profilePageTemplate = Handlebars.compile(ProfilePage);
-const profilePageData = {
-    profile: {
-        image: '',
-        userName: 'Артемий Лебедев',
-        fields: [
-            {
-                name: 'Почта',
-                value: 't@t.ru',
-            },
-            {
-                name: 'Логин',
-                value: 'asdf',
-            },
-            {
-                name: 'Имя',
-                value: 'Артемий',
-            },
-            {
-                name: 'Фамилия',
-                value: 'Лебедев',
-            },
-            {
-                name: 'Имя в чате',
-                value: 'art',
-            },
-            {
-                name: 'Телефон',
-                value: '+7999',
-            },
-        ],
-        editLink: {
-            href: '#editProfile',
-            dataPage: 'profileEditPage',
-            name: 'Редактировать профиль',
-        }
+
+export default class ProfilePage extends BaseComponent {
+    render() {
+        console.log('render ProfilePage');
+        return this.compile(profilePageTemplate);
     }
-}
-
-
-export {
-    profilePageTemplate as template,
-    profilePageData as data,
 }

@@ -183,8 +183,20 @@ export class BaseComponent {
         });        
     }
 
-    public compile(template: string, props?: Record<string, unknown>): DocumentFragment {
-        const propsAndStubs = !props ? this._props : structuredClone(props); 
+    public compile(template: string, props?: TProps): DocumentFragment {
+        let propsAndStubs = {} as TProps;
+
+        if (!props) {
+            propsAndStubs = this._props;
+        } else {
+            Object.keys(props).forEach((key) => {
+                if (props[key] instanceof BaseComponent) {
+                    propsAndStubs[key] = props[key];
+                } else {
+                    propsAndStubs[key] = structuredClone(props[key]);
+                }
+            });
+        }
         
         Object.entries(this._children).forEach(([key, child]) => {
             propsAndStubs[key] = `<div data-id="${child._id}"></div>`;
