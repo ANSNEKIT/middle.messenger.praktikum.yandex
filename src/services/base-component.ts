@@ -1,9 +1,8 @@
 import { TCallback, TChildren, TEvents, TIterableObject, TMeta, TProps } from '@/types';
 import Handlebars from 'handlebars';
-import {v4 as uuidv4} from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import { Event } from '@/types';
 import { EventBus } from './event-bus';
-
 
 export class BaseComponent {
     private _element: HTMLElement | null;
@@ -15,9 +14,8 @@ export class BaseComponent {
     private _id: string;
     private _eventBus: EventBus;
 
-
     constructor(tagName = 'div', propsAndChilds: TProps = {}) {
-        const { props, children, lists } = this.getPropsAndChildren(propsAndChilds);
+        const { props, children, lists, events } = this.getPropsAndChildren(propsAndChilds);
         this._eventBus = new EventBus();
         this._meta = {
             tagName,
@@ -25,12 +23,12 @@ export class BaseComponent {
         };
         this._element = null;
         this._id = uuidv4();
-        this._props = this._makeProxy({...props, __id: this._id});
+        this._props = this._makeProxy({ ...props, __id: this._id });
         this._children = this._makeProxy(children);
         this._lists = this._makeProxy(lists);
-        this._events = {};
+        this._events = events;
         this.registerEvents();
-        this._eventBus.emit(Event.INIT);        
+        this._eventBus.emit(Event.INIT);
     }
 
     public registerEvents() {
@@ -40,7 +38,7 @@ export class BaseComponent {
         this._eventBus.on(Event.UPDATED, this._onUpdated.bind(this));
     }
 
-    public onInit() {        
+    public onInit() {
         this._element = this.createDocumentElement(this._meta?.tagName);
         this._eventBus.emit(Event.RENDER);
     }
@@ -59,46 +57,49 @@ export class BaseComponent {
         const props: TProps = {};
         const children: TChildren = {};
         const lists: Record<string, BaseComponent[]> = {};
+        const events: TEvents = {};
 
         Object.keys(propsWithChilds).forEach((key) => {
             if (propsWithChilds[key] instanceof BaseComponent) {
                 children[key] = propsWithChilds[key];
             } else if (Array.isArray(propsWithChilds[key]) && propsWithChilds[key].every((child) => child instanceof BaseComponent)) {
                 lists[key] = propsWithChilds[key];
-            }else {
+            } else if (key.charAt(0) === '@') {
+                events[key] = propsWithChilds[key] as TCallback;
+            } else {
                 props[key] = propsWithChilds[key];
             }
         });
 
-        return { props, children, lists };
+        return { props, children, lists, events };
     }
 
     private _onRender() {
         const block = this.render();
         this.removeEvents();
+
         if (this._element) {
             this._element.innerHTML = '';
             if (block) {
                 if (Object.keys(this._children).length === 0) {
                     this._element.append(block);
-                    this._element = this._element.firstElementChild as HTMLElement || null;                    
+                    this._element = (this._element.firstElementChild as HTMLElement) || null;
                 } else {
                     this._element.append(block);
                 }
             }
         }
+        
         this.addAttribute();
         this.addEvents();
     }
 
-    private _onMounted() {        
+    private _onMounted() {
         this.mounted();
         Object.values(this._children).forEach((child) => child.dispatchOnMounted());
     }
 
-    public mounted() {
-        
-    }
+    public mounted() {}
 
     public dispatchOnMounted() {
         this._eventBus.emit(Event.MOUNTED);
@@ -108,8 +109,7 @@ export class BaseComponent {
         }
     }
 
-    private _onUpdated(oldProps: TProps, newProps: TProps) {  
-        
+    private _onUpdated(oldProps: TProps, newProps: TProps) {
         const isRerender = this.hasUpdated(oldProps, newProps);
         console.log('_onUpdated', isRerender);
 
@@ -121,11 +121,10 @@ export class BaseComponent {
         }
     }
 
-    public hasUpdated(oldProps: TProps, newProps: TProps) {        
+    public hasUpdated(oldProps: TProps, newProps: TProps) {
         return Object.keys(oldProps).some((oldKey) => oldProps[oldKey] !== newProps[oldKey]);
         // return false;
     }
-
 
     public render(): DocumentFragment | undefined {
         return;
@@ -136,10 +135,10 @@ export class BaseComponent {
             return;
         }
 
-        const {props = {}, children = {}, lists = {}} = this.getPropsAndChildren(newProps);        
+        const { props = {}, children = {}, lists = {} } = this.getPropsAndChildren(newProps);
 
         if (Object.values(props).length) {
-            Object.assign(this._props, props);            
+            Object.assign(this._props, props);
         }
 
         if (Object.values(children).length) {
@@ -149,22 +148,18 @@ export class BaseComponent {
         if (Object.values(lists).length) {
             Object.assign(this._lists, lists);
         }
-        
     }
 
-
     public addEvents() {
-        Object.entries(this._props)
-            .filter(([key, _]) => key.charAt(0) === '@')
-            .forEach((event) => {
-                const [key, cb] = event as [string, TCallback];
-                const eventName = key.slice(1);
-                this._events[eventName] = cb;
+        Object.entries(this._events).forEach((event) => {
+            const [key, cb] = event as [string, TCallback];
+            const eventName = key.slice(1);
+            this._events[eventName] = cb;
 
-                if (this._element) {                    
-                    this._element.addEventListener(eventName, cb);
-                }
-            });
+            if (this._element) {
+                this._element.addEventListener(eventName, cb);
+            }
+        });
     }
 
     public removeEvents() {
@@ -174,13 +169,13 @@ export class BaseComponent {
     }
 
     public addAttribute() {
-        const attrs = this._props?.attrs as object ?? {};
+        const attrs = (this._props?.attrs as object) ?? {};
 
         Object.entries(attrs as object).forEach(([key, value]) => {
             if (this._element) {
                 this._element.setAttribute(key, value);
             }
-        });        
+        });
     }
 
     public compile(template: string, props?: TProps): DocumentFragment {
@@ -197,7 +192,7 @@ export class BaseComponent {
                 }
             });
         }
-        
+
         Object.entries(this._children).forEach(([key, child]) => {
             propsAndStubs[key] = `<div data-id="${child._id}"></div>`;
         });
@@ -209,9 +204,7 @@ export class BaseComponent {
         });
 
         const fragment = this.createDocumentElement('template') as HTMLTemplateElement;
-        fragment.innerHTML = Handlebars.compile(template)(propsAndStubs); 
-        
-        
+        fragment.innerHTML = Handlebars.compile(template)(propsAndStubs);
 
         Object.values(this._children).forEach((child) => {
             const stub = fragment.content.querySelector(`[data-id="${child._id}"]`);
@@ -232,33 +225,31 @@ export class BaseComponent {
         return fragment.content;
     }
 
-    
-
     private _makeProxy<T extends TIterableObject>(props: T) {
         const proxyOptions = {
             get(target: T, prop: string): unknown {
                 const value = target[prop];
-                return (typeof value === 'function') ? value.bind(target) : value;
+                return typeof value === 'function' ? value.bind(target) : value;
             },
-        
+
             set: (target: T, prop: string, value: unknown): boolean => {
                 if (prop.startsWith('_')) {
-                    throw new Error("Нет прав");
+                    throw new Error('Нет прав');
                 } else {
-                    const oldTarget = {...target};
+                    const oldTarget = { ...target };
 
                     // @ts-expect-error ругается на T
-                    target[prop] = value;                    
+                    target[prop] = value;
 
                     this._eventBus.emit(Event.UPDATED, oldTarget, target);
-        
+
                     return true;
                 }
             },
-        
+
             deleteProperty(target: T, prop: string): boolean {
                 if (prop.startsWith('_')) {
-                    throw new Error("Нет прав");
+                    throw new Error('Нет прав');
                 } else {
                     delete target[prop];
                     return true;

@@ -1,5 +1,6 @@
 import Link from "@/components/Link";
 
+
 export const headerProps = {
     attrs: {
         class: 'header',

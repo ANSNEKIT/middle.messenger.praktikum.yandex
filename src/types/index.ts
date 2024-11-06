@@ -21,11 +21,7 @@ export enum EPages {
     profileEditPage = 'profileEditPage',
     notFoundPage = 'notFoundPage',
     serverErrorPage = 'serverErrorPage',
-    testPage = 'testPage',
 }
-
-export type TPageValues = keyof Record<EPages, string>;
-
 
 export enum Event {
     INIT = 'init',
