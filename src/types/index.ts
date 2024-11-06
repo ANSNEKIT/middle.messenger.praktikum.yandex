@@ -23,6 +23,11 @@ export enum EPages {
     serverErrorPage = 'serverErrorPage',
 }
 
+export enum LoginFormInputs {
+    login = 'login',
+    password = 'password',
+}
+
 export enum Event {
     INIT = 'init',
     MOUNTED = 'mounted',

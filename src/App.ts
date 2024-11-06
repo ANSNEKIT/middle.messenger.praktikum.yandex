@@ -52,7 +52,6 @@ function onClickLayout(evt: MouseEvent) {
         const pageName = link.getAttribute('data-page') as EPages;
 
         if (pageName) {
-            console.log(pageName);
             layoutDefault.setProps({ page: Pages[pageName] });
         }
     }

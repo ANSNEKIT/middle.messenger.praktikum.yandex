@@ -157,7 +157,11 @@ export class BaseComponent {
             this._events[eventName] = cb;
 
             if (this._element) {
-                this._element.addEventListener(eventName, cb);
+                if (eventName === 'blur') {
+                    this._element.addEventListener(eventName, cb, true);
+                } else {
+                    this._element.addEventListener(eventName, cb);
+                }
             }
         });
     }
