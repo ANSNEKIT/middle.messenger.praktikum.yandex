@@ -1,4 +1,4 @@
-import { ErrorText, InputRegExp } from "@/constants/validate";
+import Input from "@/components/Input";
 
 export const uppercase = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 
@@ -11,11 +11,12 @@ export const validateWithMessage = (value: string | File, regexp: RegExp, errTex
     return true;
 };
 
-export const validateInput = (name: keyof typeof InputRegExp, value: string) => {
-    const inpRegExp = InputRegExp[name];
-    return validateWithMessage(value, inpRegExp, ErrorText[name]);
-};
 
 export const validate = (rules: Record<string, string | true>) => {
-    return Object.values(rules).every((formItemValidation) => formItemValidation === true);
+    return Object.values(rules).every((validate) => validate === true);
 };
+
+export const setInputValidationState = (input: Input, value: string, errorText: string) => {    
+    return input.setProps({value, error: errorText});
+};
+

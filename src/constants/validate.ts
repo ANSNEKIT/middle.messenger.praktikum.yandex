@@ -32,3 +32,5 @@ export const InputRegExp = {
     avatar: regExpAvatar,
     display_name: regExpPersonName,
 };
+
+export type TInputName = keyof typeof InputRegExp;

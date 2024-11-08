@@ -39,6 +39,7 @@ export type TProps = {
     [key: string]: unknown
     settings?: {
         withInternalId?: boolean
+        isSimple?: boolean
     }
     attrs?: object
 }

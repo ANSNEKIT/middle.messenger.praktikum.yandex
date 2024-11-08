@@ -13,6 +13,7 @@ export class BaseComponent {
     private _lists: Record<string, BaseComponent[]>;
     private _id: string;
     private _eventBus: EventBus;
+    private _setUpdate = false;
 
     constructor(tagName = 'div', propsAndChilds: TProps = {}) {
         const { props, children, lists, events } = this.getPropsAndChildren(propsAndChilds);
@@ -25,7 +26,7 @@ export class BaseComponent {
         this._id = uuidv4();
         this._props = this._makeProxy({ ...props, __id: this._id });
         this._children = this._makeProxy(children);
-        this._lists = this._makeProxy(lists);
+        this._lists = lists;
         this._events = events;
         this.registerEvents();
         this._eventBus.emit(Event.INIT);
@@ -81,7 +82,7 @@ export class BaseComponent {
         if (this._element) {
             this._element.innerHTML = '';
             if (block) {
-                if (Object.keys(this._children).length === 0) {
+                if (this._props?.settings?.isSimple) {
                     this._element.append(block);
                     this._element = (this._element.firstElementChild as HTMLElement) || null;
                 } else {
@@ -114,16 +115,15 @@ export class BaseComponent {
         console.log('_onUpdated', isRerender);
 
         if (isRerender) {
-            console.log('isRerender old', oldProps);
-            console.log('isRerender new', newProps);
-
             this._eventBus.emit(Event.RENDER);
         }
     }
 
     public hasUpdated(oldProps: TProps, newProps: TProps) {
-        return Object.keys(oldProps).some((oldKey) => oldProps[oldKey] !== newProps[oldKey]);
-        // return false;
+        console.log('hasUpdate old', oldProps);
+        console.log('hasUpdate new', newProps);
+
+        return false;
     }
 
     public render(): DocumentFragment | undefined {
@@ -135,6 +135,8 @@ export class BaseComponent {
             return;
         }
 
+        this._setUpdate = false;
+        const oldProps = {...this._props};
         const { props = {}, children = {}, lists = {} } = this.getPropsAndChildren(newProps);
 
         if (Object.values(props).length) {
@@ -147,6 +149,11 @@ export class BaseComponent {
 
         if (Object.values(lists).length) {
             Object.assign(this._lists, lists);
+        }
+
+        if (this._setUpdate) {
+            this._eventBus.emit(Event.UPDATED, oldProps, this._props);
+            this._setUpdate = false;
         }
     }
 
@@ -235,22 +242,19 @@ export class BaseComponent {
                 const value = target[prop];
                 return typeof value === 'function' ? value.bind(target) : value;
             },
-
             set: (target: T, prop: string, value: unknown): boolean => {
                 if (prop.startsWith('_')) {
                     throw new Error('Нет прав');
                 } else {
-                    const oldTarget = { ...target };
-
-                    // @ts-expect-error ругается на T
-                    target[prop] = value;
-
-                    this._eventBus.emit(Event.UPDATED, oldTarget, target);
+                    if (target[prop] !== value) {
+                        // @ts-expect-error ругается на T
+                        target[prop] = value;
+                        this._setUpdate = true;
+                    }
 
                     return true;
                 }
             },
-
             deleteProperty(target: T, prop: string): boolean {
                 if (prop.startsWith('_')) {
                     throw new Error('Нет прав');
@@ -266,6 +270,10 @@ export class BaseComponent {
 
     public getContent() {
         return this._element;
+    }
+
+    public getProps() {
+        return this._props;
     }
 
     public hide() {
