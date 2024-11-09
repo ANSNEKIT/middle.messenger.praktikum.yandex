@@ -5,7 +5,6 @@ import "./link.pcss";
 
 export default class Link extends BaseComponent {
     render() {
-        console.log('render Link');
         return this.compile(linkTemplate);
     }
 }

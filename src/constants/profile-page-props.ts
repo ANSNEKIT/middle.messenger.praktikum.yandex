@@ -7,10 +7,16 @@ export const profilePageProps = {
         class: 'page page-center profile',
     },
     pageTitle: new PageTitle('h1', {
+        settings: {
+            isSimple: true,
+        },
         class: 'profile__title',
         title: 'Профиль',
     }),
     avatar: new Avatar('div', {
+        settings: {
+            isSimple: true,
+        },
         class: 'profile__avatar',
         image: '',
     }),
@@ -44,6 +50,9 @@ export const profilePageProps = {
         ],
     },
     editLink: new Link('a', {
+        settings: {
+            isSimple: true,
+        },
         href: '/editProfile',
         dataPage: 'profileEditPage',
         linkName: 'Редактировать профиль',

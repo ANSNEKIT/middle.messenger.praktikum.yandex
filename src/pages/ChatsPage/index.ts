@@ -5,7 +5,6 @@ import { BaseComponent } from '@/services/base-component';
 
 export default class ChatsPage extends BaseComponent {
     render() {
-        console.log('render ChatsPage');
         return this.compile(chatsPageTemplate);
     }
 }

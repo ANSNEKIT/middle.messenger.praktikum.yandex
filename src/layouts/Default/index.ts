@@ -5,7 +5,6 @@ import './default-layout.pcss';
 
 export default class LayoutDefault extends BaseComponent {
     render() {
-        console.log('render LayoutDefault');
         return this.compile(defaultLayoutTemplate);
     }
 }

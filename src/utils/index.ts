@@ -11,7 +11,6 @@ export const validateWithMessage = (value: string | File, regexp: RegExp, errTex
     return true;
 };
 
-
 export const validate = (rules: Record<string, string | true>) => {
     return Object.values(rules).every((validate) => validate === true);
 };

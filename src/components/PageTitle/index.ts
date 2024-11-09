@@ -4,7 +4,6 @@ import './page-title.pcss';
 
 export default class PageTitle extends BaseComponent {
     render() {
-        console.log('render PageTitle');
         return this.compile(pateTitleTemplate);
     }
 }

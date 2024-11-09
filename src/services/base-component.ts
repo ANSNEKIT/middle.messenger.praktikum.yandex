@@ -123,7 +123,7 @@ export class BaseComponent {
         console.log('hasUpdate old', oldProps);
         console.log('hasUpdate new', newProps);
 
-        return false;
+        return true;
     }
 
     public render(): DocumentFragment | undefined {

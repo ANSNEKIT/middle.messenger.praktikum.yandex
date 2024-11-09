@@ -5,7 +5,6 @@ import './profile-edit.pcss';
 
 export default class ProfileEditPage extends BaseComponent {
     render() {
-        console.log('render ProfileEditPage');
         return this.compile(profileEditPageTemplate);
     }
 }

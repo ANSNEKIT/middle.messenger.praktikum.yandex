@@ -5,6 +5,9 @@ export const notFoundPageProps = {
         class: 'page page-center',
     },
     pageTitle: new PageTitle('h1', {
+        settings: {
+            isSimple: true,
+        },
         title: '404 страна не найдена',
     }),
 };
@@ -14,6 +17,9 @@ export const serverErrorsPageProps = {
         class: 'page page-center',
     },
     pageTitle: new PageTitle('h1', {
+        settings: {
+            isSimple: true,
+        },
         title: '500 ошибка',
     }),
 };
