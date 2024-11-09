@@ -115,6 +115,9 @@ const authFormProfileEdit = new AuthForm('div', {
     },
     formName: 'profileEdit',
     pageTitle: new PageTitle('h1', {
+        settings: {
+            isSimple: true,
+        },
         title: 'Редактировать профиль',
     }),
     items: inputs,

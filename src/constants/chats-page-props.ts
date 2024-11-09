@@ -6,7 +6,7 @@ import { onSendMessage } from "@/utils/events";
 
 const inputMessage = new Input('div', {
     attrs: {
-        class: 'input',
+        class: 'input chat-main__submit-form-input',
     },
     id: 'input-message',
     class: 'chat-main__submit-form-input',

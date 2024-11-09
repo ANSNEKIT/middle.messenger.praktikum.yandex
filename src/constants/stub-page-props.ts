@@ -2,7 +2,7 @@ import PageTitle from "@/components/PageTitle";
 
 export const notFoundPageProps = {
     attrs: {
-        class: 'page page-center',
+        class: 'page page-center justify-center',
     },
     pageTitle: new PageTitle('h1', {
         settings: {
@@ -14,7 +14,7 @@ export const notFoundPageProps = {
 
 export const serverErrorsPageProps = {
     attrs: {
-        class: 'page page-center',
+        class: 'page page-center justify-center',
     },
     pageTitle: new PageTitle('h1', {
         settings: {
