@@ -26,20 +26,20 @@ export class BaseComponent {
         this._id = uuidv4();
         this._props = this._makeProxy({ ...props, __id: this._id });
         this._children = this._makeProxy(children);
-        this._lists = lists;
+        this._lists = this._makeProxy(lists);
         this._events = events;
         this.registerEvents();
         this._eventBus.emit(Event.INIT);
     }
 
     public registerEvents() {
-        this._eventBus.on(Event.INIT, this.onInit.bind(this));
-        this._eventBus.on(Event.RENDER, this._onRender.bind(this));
-        this._eventBus.on(Event.MOUNTED, this._onMounted.bind(this));
-        this._eventBus.on(Event.UPDATED, this._onUpdated.bind(this));
+        this._eventBus.on(Event.INIT, this.init.bind(this));
+        this._eventBus.on(Event.RENDER, this._render.bind(this));
+        this._eventBus.on(Event.MOUNTED, this._mounted.bind(this));
+        this._eventBus.on(Event.UPDATED, this._updated.bind(this));
     }
 
-    public onInit() {
+    public init() {
         this._element = this.createDocumentElement(this._meta?.tagName);
         this._eventBus.emit(Event.RENDER);
     }
@@ -75,27 +75,7 @@ export class BaseComponent {
         return { props, children, lists, events };
     }
 
-    private _onRender() {
-        const block = this.render();
-        this.removeEvents();
-
-        if (this._element) {
-            this._element.innerHTML = '';
-            if (block) {
-                if (this._props?.settings?.isSimple) {
-                    this._element.append(block);
-                    this._element = (this._element.firstElementChild as HTMLElement) || null;
-                } else {
-                    this._element.append(block);
-                }
-            }
-        }
-        
-        this.addAttribute();
-        this.addEvents();
-    }
-
-    private _onMounted() {
+    private _mounted() {
         this.mounted();
         Object.values(this._children).forEach((child) => child.dispatchOnMounted());
     }
@@ -110,11 +90,12 @@ export class BaseComponent {
         }
     }
 
-    private _onUpdated(oldProps: TProps, newProps: TProps) {
+    private _updated(oldProps: TProps, newProps: TProps) {
         const isRerender = this.hasUpdated(oldProps, newProps);
-        console.log('_onUpdated', isRerender);
 
         if (isRerender) {
+            console.log('_updated', isRerender);
+
             this._eventBus.emit(Event.RENDER);
         }
     }
@@ -126,17 +107,13 @@ export class BaseComponent {
         return true;
     }
 
-    public render(): DocumentFragment | undefined {
-        return;
-    }
-
     public setProps(newProps: TProps) {
         if (!newProps) {
             return;
         }
 
         this._setUpdate = false;
-        const oldProps = {...this._props};
+        const oldProps = { ...this._props };
         const { props = {}, children = {}, lists = {} } = this.getPropsAndChildren(newProps);
 
         if (Object.values(props).length) {
@@ -189,51 +166,89 @@ export class BaseComponent {
         });
     }
 
-    public compile(template: string, props?: TProps): DocumentFragment {
-        let propsAndStubs = {} as TProps;
-
-        if (!props) {
-            propsAndStubs = this._props;
-        } else {
-            Object.keys(props).forEach((key) => {
-                if (props[key] instanceof BaseComponent) {
-                    propsAndStubs[key] = props[key];
-                } else {
-                    propsAndStubs[key] = structuredClone(props[key]);
-                }
-            });
-        }
+    public compile(tmpl: string): DocumentFragment {
+        const propsAndStubs = this._props;
+        const grandsons = [] as BaseComponent[];
 
         Object.entries(this._children).forEach(([key, child]) => {
             propsAndStubs[key] = `<div data-id="${child._id}"></div>`;
         });
 
         Object.entries(this._lists).forEach(([key, listItem]) => {
-            propsAndStubs[key] = listItem.map((listChild) => {
-                return `<div data-id="list-id-${listChild._id}"></div>`;
-            });
+            propsAndStubs[key] = listItem.map((child) => (
+                `<div data-id="list-id-${child._id}"></div>`
+            ));
+        });
+
+        Object.entries(this._lists).forEach(([key, listItem]) => {
+            propsAndStubs[key] = listItem.map((child) => (
+                `<div data-id="list-id-${child._id}"></div>`
+            ));
+        });
+
+        Object.keys(propsAndStubs).forEach((key) => {
+            if (Array.isArray(propsAndStubs[key])) {
+                propsAndStubs[key].forEach((el) => {
+                    if (el && typeof el === 'object') {
+                        Object.keys(el).forEach((childPropKey) => {
+                            if (Array.isArray(el[childPropKey]) && el[childPropKey].every((child) => child instanceof BaseComponent)) {
+                                el[childPropKey] = el[childPropKey].map((grandson) => {
+                                    grandsons.push(grandson);
+                                    
+                                    return `<div data-id="list-grand-id-${grandson._id}"></div>`;
+                                });
+                            }
+                        });
+                    }
+                });
+            }
         });
 
         const fragment = this.createDocumentElement('template') as HTMLTemplateElement;
-        fragment.innerHTML = Handlebars.compile(template)(propsAndStubs);
+        fragment.innerHTML = Handlebars.compile(tmpl)(propsAndStubs);
 
         Object.values(this._children).forEach((child) => {
             const stub = fragment.content.querySelector(`[data-id="${child._id}"]`);
-            if (stub) {
-                stub.replaceWith(child.getContent() || '');
-            }
+            stub?.replaceWith(child.getContent() || '');
         });
 
         Object.values(this._lists).forEach((list) => {
             list.forEach((listChild) => {
                 const stub = fragment.content.querySelector(`[data-id="list-id-${listChild._id}"]`);
-                if (stub) {
-                    stub.replaceWith(listChild.getContent() || '');
-                }
+                stub?.replaceWith(listChild.getContent() || '');
             });
         });
 
+        grandsons.forEach((grs) => {
+            const stub = fragment.content.querySelector(`[data-id="list-grand-id-${grs._id}"]`);
+            stub?.replaceWith(grs.getContent() || '');
+        });
+
         return fragment.content;
+    }
+
+    private _render() {
+        const $block = this.render();
+
+        this.removeEvents();
+
+        if (this._element) {
+            this._element.innerHTML = '';
+            if ($block) {
+                if (this._props?.settings?.isSimple) {
+                    this._element = $block.firstElementChild as HTMLElement;
+                } else {
+                    this._element.append($block);
+                }
+            }
+        }
+
+        this.addAttribute();
+        this.addEvents();
+    }
+
+    public render(): DocumentFragment | undefined {
+        return;
     }
 
     private _makeProxy<T extends TIterableObject>(props: T) {
