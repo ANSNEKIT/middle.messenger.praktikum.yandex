@@ -1,27 +1,34 @@
 import globals from 'globals';
-import importPlugin from 'eslint-plugin-import';
-import arbnbPlugin from 'eslint-config-airbnb-base';
-import eslintPluginPrettier from 'eslint-plugin-prettier';
 import eslintConfigPrettier from 'eslint-config-prettier';
-// @ts-check
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
+import importPlugin from 'eslint-plugin-import';
+import prettier from 'eslint-plugin-prettier/recommended';
 
-export default [
-    eslint.configs.recommended,
-    ...tseslint.configs.recommended,
-    eslintConfigPrettier,
+import { FlatCompat } from '@eslint/eslintrc';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
+
+const compat = new FlatCompat({
+    baseDirectory: dirname,
+});
+
+export default tseslint.config(
+    // eslint.configs.recommended,
+    // importPlugin.flatConfigs.recommended,
+    // ...compat.extends('airbnb-base'),
+    // ...tseslint.configs.recommendedTypeChecked,
+    // ...tseslint.configs.recommended,
+    // eslintConfigPrettier,
+    // eslintPluginPrettierRecommended,
     {
-        files: ['src/**/*.{js,mjs,cjs,ts}'],
-        languageOptions: {
-            globals: { ...globals.node },
-            ecmaVersion: 'latest',
-            sourceType: 'module',
-        },
         ignores: [
             '.github',
             '.idea',
-            '            .vscode',
+            '.vscode',
             'node_modules',
             'public',
             'dist',
@@ -30,11 +37,43 @@ export default [
             '**/*.d.ts',
             'server.mjs',
         ],
-        plugins: {
-            importPlugin,
-            arbnbPlugin,
-            eslintPluginPrettier,
+    },
+    {
+        files: ['src/**/*.{js,mjs,cjs,ts}'],
+        extends: [
+            eslint.configs.recommended,
+            ...tseslint.configs.recommended,
+            tseslint.configs.disableTypeChecked,
+            // importPlugin.flatConfigs.recommended,
+            eslintConfigPrettier,
+            prettier,
+        ],
+        languageOptions: {
+            ecmaVersion: 2023,
+            globals: globals.browser
         },
+        plugins: {
+            '@typescript-eslint': tseslint.plugin,
+        },
+        settings: {
+            'import/resolver': {
+                node: true,
+                typescript: {
+                    project: './tsconfig.json'
+                },
+            },
+            "import/extensions": [
+                ".js",
+                // ".ts",
+            ],
+            "import/ignore": [
+                "\.(scss|less|css|pcss)$",
+                "\.(hbs)$",
+                "\.(ts)$",
+            ],
+        },
+    },
+    {
         rules: {
             semi: ['error', 'always'],
             'eol-last': ['error', 'always'],
@@ -50,6 +89,7 @@ export default [
                     ignoreRestSiblings: true,
                 },
             ],
+            // 'import/newline-after-import': ['error', { count: 2 }],
         },
     },
-];
+);

@@ -1,11 +1,10 @@
-import AvatarMini from "@/components/AvatarMini";
-import Bubble from "@/components/Bubble";
-import Button from "@/components/Button";
-import Chat from "@/components/Chat";
-import Input from "@/components/Input";
-import Link from "@/components/Link";
-import { onSendMessage } from "@/utils/events";
-
+import AvatarMini from '@/components/AvatarMini';
+import Bubble from '@/components/Bubble';
+import Button from '@/components/Button';
+import Chat from '@/components/Chat';
+import Input from '@/components/Input';
+import Link from '@/components/Link';
+import { onSendMessage } from '@/utils/events';
 
 const inputMessage = new Input('div', {
     attrs: {
@@ -55,7 +54,7 @@ export const chatsPageProps = {
                 class: 'chat__avatar',
                 settings: {
                     isSimple: true,
-                }
+                },
             }),
         }),
         new Chat('li', {
@@ -66,8 +65,8 @@ export const chatsPageProps = {
                 class: 'chat__avatar',
                 settings: {
                     isSimple: true,
-                }
-            })
+                },
+            }),
         }),
         new Chat('li', {
             attrs: {
@@ -77,8 +76,8 @@ export const chatsPageProps = {
                 class: 'chat__avatar',
                 settings: {
                     isSimple: true,
-                }
-            })
+                },
+            }),
         }),
     ],
     messages: [

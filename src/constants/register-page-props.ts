@@ -5,7 +5,6 @@ import Link from '@/components/Link';
 import PageTitle from '@/components/PageTitle';
 import { onblur, onSubmit } from '@/utils/events';
 
-
 const inputs = [
     new Input('div', {
         attrs: {

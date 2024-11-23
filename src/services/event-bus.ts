@@ -1,4 +1,4 @@
-import { TCallback } from "@/types";
+import { TCallback } from '@/types';
 
 export class EventBus {
     listeners: Record<string, TCallback[]>;
@@ -22,7 +22,7 @@ export class EventBus {
 
         this.listeners[eventName] = this.listeners[eventName].filter((handlerCb) => handlerCb !== callback);
     }
-    
+
     emit(eventName: string, ...args: unknown[]) {
         if (!this.listeners[eventName]) {
             throw new Error(`Нет события: ${eventName}`);

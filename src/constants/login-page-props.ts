@@ -1,12 +1,11 @@
-import AuthForm from "@/components/AuthForm";
-import Button from "@/components/Button";
-import Input from "@/components/Input";
-import Link from "@/components/Link";
-import PageTitle from "@/components/PageTitle";
-import { onblur, onSubmit } from "@/utils/events";
+import AuthForm from '@/components/AuthForm';
+import Button from '@/components/Button';
+import Input from '@/components/Input';
+import Link from '@/components/Link';
+import PageTitle from '@/components/PageTitle';
+import { onblur, onSubmit } from '@/utils/events';
 
-
-const inputs =  [
+const inputs = [
     new Input('div', {
         attrs: {
             class: 'input',

@@ -175,15 +175,11 @@ export class BaseComponent {
         });
 
         Object.entries(this._lists).forEach(([key, listItem]) => {
-            propsAndStubs[key] = listItem.map((child) => (
-                `<div data-id="list-id-${child._id}"></div>`
-            ));
+            propsAndStubs[key] = listItem.map((child) => `<div data-id="list-id-${child._id}"></div>`);
         });
 
         Object.entries(this._lists).forEach(([key, listItem]) => {
-            propsAndStubs[key] = listItem.map((child) => (
-                `<div data-id="list-id-${child._id}"></div>`
-            ));
+            propsAndStubs[key] = listItem.map((child) => `<div data-id="list-id-${child._id}"></div>`);
         });
 
         Object.keys(propsAndStubs).forEach((key) => {
@@ -194,7 +190,7 @@ export class BaseComponent {
                             if (Array.isArray(el[childPropKey]) && el[childPropKey].every((child) => child instanceof BaseComponent)) {
                                 el[childPropKey] = el[childPropKey].map((grandson) => {
                                     grandsons.push(grandson);
-                                    
+
                                     return `<div data-id="list-grand-id-${grandson._id}"></div>`;
                                 });
                             }

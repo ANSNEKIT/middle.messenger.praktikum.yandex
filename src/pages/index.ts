@@ -4,10 +4,4 @@ import ChatsPage from './ChatsPage';
 import ProfileEditPage from './ProfileEditPage';
 import StubPage from './StubPage';
 
-export {
-    AuthPage,
-    ChatsPage,
-    ProfilePage,
-    ProfileEditPage,
-    StubPage,
-};
+export { AuthPage, ChatsPage, ProfilePage, ProfileEditPage, StubPage };

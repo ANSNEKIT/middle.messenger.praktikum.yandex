@@ -5,7 +5,6 @@ import Link from '@/components/Link';
 import PageTitle from '@/components/PageTitle';
 import { onblur, onSubmit } from '@/utils/events';
 
-
 const inputs = [
     new Input('div', {
         attrs: {
@@ -16,7 +15,7 @@ const inputs = [
         type: 'file',
         name: 'avatar',
         required: true,
-    }), 
+    }),
     new Input('div', {
         attrs: {
             class: 'input',
@@ -46,7 +45,7 @@ const inputs = [
         type: 'text',
         name: 'first_name',
         required: true,
-    }), 
+    }),
     new Input('div', {
         attrs: {
             class: 'input',
@@ -56,7 +55,7 @@ const inputs = [
         type: 'text',
         name: 'second_name',
         required: true,
-    }), 
+    }),
     new Input('div', {
         attrs: {
             class: 'input',
@@ -66,7 +65,7 @@ const inputs = [
         type: 'text',
         name: 'display_name',
         required: true,
-    }), 
+    }),
     new Input('div', {
         attrs: {
             class: 'input',
@@ -76,7 +75,7 @@ const inputs = [
         type: 'tel',
         name: 'phone',
         required: true,
-    }), 
+    }),
     new Input('div', {
         attrs: {
             class: 'input',
@@ -86,7 +85,7 @@ const inputs = [
         type: 'password',
         name: 'oldPassword',
         required: true,
-    }), 
+    }),
     new Input('div', {
         attrs: {
             class: 'input',
@@ -96,7 +95,7 @@ const inputs = [
         type: 'password',
         name: 'newPassword',
         required: true,
-    }), 
+    }),
     new Input('div', {
         attrs: {
             class: 'input',
@@ -106,7 +105,7 @@ const inputs = [
         type: 'password',
         name: 'newPassword',
         required: true,
-    }), 
+    }),
 ];
 
 const authFormProfileEdit = new AuthForm('div', {
