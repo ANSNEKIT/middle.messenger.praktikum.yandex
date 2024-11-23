@@ -5,7 +5,7 @@
 
 ## Ссылки
 - [Макет](https://www.figma.com/design/jF5fFFzgGOxQeB4CmKWTiE/Chat_external_link?node-id=0-1&node-type=canvas&t=MCYvBYcriLqDxmgU-0)
-- [Демо проекта](https://670c2027da100bcfd705ed15--ansnekit.netlify.app/)
+- [Демо проекта](https://ansnekit.netlify.app/)
 
 
 ## Функциональность
