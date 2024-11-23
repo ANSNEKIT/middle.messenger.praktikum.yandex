@@ -28,7 +28,7 @@ const layoutPageProps = {
         class: 'page',
     },
     header: header,
-    page: loginPage,
+    page: chatsPage,
     '@click': onClickLayout,
 };
 const layoutDefault = new LayoutDefault('div', layoutPageProps);

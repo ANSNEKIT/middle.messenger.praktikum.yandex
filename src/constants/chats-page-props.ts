@@ -1,4 +1,7 @@
+import AvatarMini from "@/components/AvatarMini";
+import Bubble from "@/components/Bubble";
 import Button from "@/components/Button";
+import Chat from "@/components/Chat";
 import Input from "@/components/Input";
 import Link from "@/components/Link";
 import { onSendMessage } from "@/utils/events";
@@ -17,6 +20,9 @@ const inputMessage = new Input('div', {
 });
 
 export const chatsPageProps = {
+    attrs: {
+        class: 'chats-page',
+    },
     profileLink: new Link('a', {
         settings: {
             isSimple: true,
@@ -25,6 +31,96 @@ export const chatsPageProps = {
         dataPage: 'profilePage',
         linkName: 'Профиль',
     }),
+    currentChat: 'one',
+    avatarMini: new AvatarMini('div', {
+        settings: {
+            isSimple: true,
+        },
+        class: 'tab__header-avatar',
+    }),
+    headerMenuBtn: new Button('button', {
+        settings: {
+            isSimple: true,
+        },
+        id: 'header-button-menu',
+        class: 'tab__header-menu-btn button-icon flex-center',
+        text: '...',
+    }),
+    chats: [
+        new Chat('li', {
+            attrs: {
+                class: 'chat',
+            },
+            avatarMini: new AvatarMini('div', {
+                class: 'chat__avatar',
+                settings: {
+                    isSimple: true,
+                }
+            }),
+        }),
+        new Chat('li', {
+            attrs: {
+                class: 'chat',
+            },
+            avatarMini: new AvatarMini('div', {
+                class: 'chat__avatar',
+                settings: {
+                    isSimple: true,
+                }
+            })
+        }),
+        new Chat('li', {
+            attrs: {
+                class: 'chat',
+            },
+            avatarMini: new AvatarMini('div', {
+                class: 'chat__avatar',
+                settings: {
+                    isSimple: true,
+                }
+            })
+        }),
+    ],
+    messages: [
+        {
+            groupName: 'One',
+            bubbles: [
+                new Bubble('div', {
+                    settings: {
+                        isSimple: true,
+                    },
+                    class: 'test',
+                    text: 'asdf 111',
+                }),
+                new Bubble('div', {
+                    settings: {
+                        isSimple: true,
+                    },
+                    class: 'test',
+                    text: 'asdf 111',
+                }),
+            ],
+        },
+        {
+            groupName: 'Two',
+            bubbles: [
+                new Bubble('div', {
+                    settings: {
+                        isSimple: true,
+                    },
+                    class: 'test',
+                    text: 'asdf 3333',
+                }),
+                new Bubble('div', {
+                    settings: {
+                        isSimple: true,
+                    },
+                    class: 'test',
+                    text: 'asdf 4444',
+                }),
+            ],
+        },
+    ],
     buttonAttachFile: new Button('button', {
         settings: {
             isSimple: true,
