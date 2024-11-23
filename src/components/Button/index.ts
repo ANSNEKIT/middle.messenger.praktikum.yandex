@@ -1,7 +1,9 @@
-import "./button.pcss";
+import { BaseComponent } from '@/services/base-component';
+import './button.pcss';
+import buttonTeplate from './button.hbs?raw';
 
-export default `<button id="{{id}}" class="button button--primary {{class}}" type="button" 
-{{#if disabled}}
-  disabled
-{{/if}}
->{{text}}</button>`;
+export default class Button extends BaseComponent {
+    render() {
+        return this.compile(buttonTeplate);
+    }
+}

@@ -1,13 +1,14 @@
+import { BaseComponent } from '@/services/base-component';
+import inputTemplate from './input.hbs?raw';
 import './input.pcss';
+import { TProps } from '@/types';
 
-export default `<div class="input">
-  <label for="{{id}}" class="input__label">{{label}}</label>
-  <input id="{{id}}" class="input__input" type="{{type}}" name="{{name}}" 
-  {{#if required}}
-  required
-{{/if}}
-{{#if disabled}}
-  disabled
-{{/if}}> 
-  <div class="input__error">{{error}}</div>
-</div>`;
+export default class Input extends BaseComponent {
+    render() {
+        return this.compile(inputTemplate);
+    }
+
+    hasUpdated(oldProps: TProps, newProps: TProps): boolean {
+        return oldProps['error'] !== newProps['error'];
+    }
+}

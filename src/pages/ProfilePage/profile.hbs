@@ -1,8 +1,8 @@
 <div class="page page-center profile">
     <div class="profile__wrap">
-        {{> PageTitle title="Профиль" class="profile__title"}}
-        {{> Avatar image=profile.image class="profile__avatar" }}
-        <h3 class="profile__user-name">{{profile.userName}}</h3>
+        {{{ pageTitle }}}
+        {{{ avatar }}}
+        <h3 class="profile__user-name">{{ profile.userName }}</h3>
 
         <div class="profile__fields">
             {{#each profile.fields}}
@@ -13,6 +13,6 @@
             {{/each}}
         </div>
 
-        {{> Link class="profile__link" href=profile.editLink.href dataPage=profile.editLink.dataPage linkName=profile.editLink.name }}
+        {{{ editLink }}}
     </div>
 </div>
