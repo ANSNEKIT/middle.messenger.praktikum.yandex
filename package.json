@@ -10,7 +10,7 @@
     "start": "vite build && node server.mjs",
     "lint": "eslint --fix \"src/**/*.{ts,js,json,pcss}\"",
     "prettier": "prettier --write \"src/**/*.{ts,js,json,pcss}\"",
-    "stylelint": "stylelint \"**/*.pcss\""
+    "stylelint": "stylelint --fix \"**/*.pcss\""
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
