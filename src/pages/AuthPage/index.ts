@@ -1,7 +1,7 @@
 import AuthPageTemplate from './auth.hbs?raw';
-import { BaseComponent } from '@/services/base-component';
+import { Block } from '@/services/base-component';
 
-export default class AuthPage extends BaseComponent {
+export default class AuthPage extends Block {
     render() {
         return this.compile(AuthPageTemplate);
     }

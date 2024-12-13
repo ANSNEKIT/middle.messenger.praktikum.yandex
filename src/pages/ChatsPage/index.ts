@@ -1,8 +1,8 @@
 import chatsPageTemplate from './chats.hbs?raw';
 import './chats.pcss';
-import { BaseComponent } from '@/services/base-component';
+import { Block } from '@/services/base-component';
 
-export default class ChatsPage extends BaseComponent {
+export default class ChatsPage extends Block {
     render() {
         return this.compile(chatsPageTemplate);
     }

@@ -1,8 +1,8 @@
 import profileEditPageTemplate from './profile-edit.hbs?raw';
-import { BaseComponent } from '@/services/base-component';
+import { Block } from '@/services/base-component';
 import './profile-edit.pcss';
 
-export default class ProfileEditPage extends BaseComponent {
+export default class ProfileEditPage extends Block {
     render() {
         return this.compile(profileEditPageTemplate);
     }

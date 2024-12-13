@@ -12,7 +12,7 @@ import {
     serverErrorsPageProps,
     notFoundPageProps,
 } from './constants';
-import { BaseComponent } from './services/base-component';
+import { Block } from './services/base-component';
 
 const header = new Header('header', headerProps);
 const loginPage = new AuthPage('div', loginPageProps);
@@ -33,7 +33,7 @@ const layoutPageProps = {
 };
 const layoutDefault = new LayoutDefault('div', layoutPageProps);
 
-const Pages: Record<EPages, BaseComponent> = {
+const Pages: Record<EPages, Block> = {
     loginPage: loginPage,
     registerPage: registerPage,
     profilePage: profilePage,

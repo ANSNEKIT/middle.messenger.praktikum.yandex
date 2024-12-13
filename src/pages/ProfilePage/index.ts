@@ -1,8 +1,8 @@
 import profilePageTemplate from './profile.hbs?raw';
-import { BaseComponent } from '@/services/base-component';
+import { Block } from '@/services/base-component';
 import './profile.pcss';
 
-export default class ProfilePage extends BaseComponent {
+export default class ProfilePage extends Block {
     render() {
         return this.compile(profilePageTemplate);
     }

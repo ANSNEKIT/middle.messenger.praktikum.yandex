@@ -1,4 +1,4 @@
-import { BaseComponent } from '@/services/base-component';
+import { Block } from '@/services/base-component';
 
 export enum Events {
     CLICK = 'click',
@@ -34,6 +34,14 @@ export enum Event {
     RENDER = 'render',
 }
 
+export interface IProps extends Record<string, unknown> {
+    settings?: {
+        withInternalId?: boolean;
+        isSimple?: boolean;
+    };
+    attrs?: object;
+}
+
 export type TProps = {
     [key: string]: unknown;
     settings?: {
@@ -47,7 +55,7 @@ export type TIterableObject = {
     [index: string]: unknown;
 };
 
-export type TChildren = Record<string, BaseComponent>;
+export type TChildren = Record<string, Block>;
 
 export type TMeta = {
     tagName: string;
