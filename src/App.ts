@@ -1,35 +1,66 @@
-import { renderPage } from './utils/index';
-import Handlebars from 'handlebars';
-import {LoginPage, RegisterPage, ChatsPage, NotFoundPage, ServerErrorPage, ProfilePage, ProfileEditPage } from './pages/index';
-import { EPages, TPageValues } from './types';
-import Avatar from '@/components/Avatar/index';
-import Button from '@/components/Button/index';
-import Input from '@/components/Input/index';
-import Link from '@/components/Link/index';
-import PageTitle from '@/components/PageTitle/index';
-import AuthForm from '@/partials/AuthForm';
-import Header from '@/partials/Header';
-import * as DefaultLayout from '@/layouts/Default';
+import { AuthPage, ProfileEditPage, ProfilePage, ChatsPage, StubPage } from './pages/index';
+import LayoutDefault from './layouts/Default';
+import { EPages } from './types';
+import Header from './components/Header';
+import {
+    headerProps,
+    loginPageProps,
+    registerPageProps,
+    profilePageProps,
+    profileEditPageProps,
+    chatsPageProps,
+    serverErrorsPageProps,
+    notFoundPageProps,
+} from './constants';
+import { BaseComponent } from './services/base-component';
 
-// Base components
-Handlebars.registerPartial('Avatar', Avatar);
-Handlebars.registerPartial('Button', Button);
-Handlebars.registerPartial('Input', Input);
-Handlebars.registerPartial('Link', Link);
-Handlebars.registerPartial('PageTitle', PageTitle);
+const header = new Header('header', headerProps);
+const loginPage = new AuthPage('div', loginPageProps);
+const registerPage = new AuthPage('div', registerPageProps);
+const profilePage = new ProfilePage('div', profilePageProps);
+const profileEditPage = new ProfileEditPage('div', profileEditPageProps);
+const chatsPage = new ChatsPage('div', chatsPageProps);
+const notFoundPage = new StubPage('div', notFoundPageProps);
+const serverErrorPage = new StubPage('div', serverErrorsPageProps);
 
+const layoutPageProps = {
+    attrs: {
+        class: 'page',
+    },
+    header: header,
+    page: chatsPage,
+    '@click': onClickLayout,
+};
+const layoutDefault = new LayoutDefault('div', layoutPageProps);
 
-//Partials
-Handlebars.registerPartial('AuthForm', AuthForm);
-Handlebars.registerPartial('Header', Header);
+const Pages: Record<EPages, BaseComponent> = {
+    loginPage: loginPage,
+    registerPage: registerPage,
+    profilePage: profilePage,
+    profileEditPage: profileEditPage,
+    chatsPage: chatsPage,
+    notFoundPage: notFoundPage,
+    serverErrorPage: serverErrorPage,
+};
 
+function onClickLayout(evt: MouseEvent) {
+    if ((evt?.target as HTMLElement)?.classList.contains('link')) {
+        const link = evt.target as HTMLLinkElement;
+
+        evt.preventDefault();
+
+        const pageName = link.getAttribute('data-page') as EPages;
+
+        if (pageName) {
+            layoutDefault.setProps({ page: Pages[pageName] });
+        }
+    }
+}
 
 export default class App {
     $rootEl: HTMLElement | null;
-    currentPage: EPages;
 
     constructor() {
-        this.currentPage = EPages.loginPage;
         this.$rootEl = document.getElementById('app');
     }
 
@@ -38,74 +69,10 @@ export default class App {
             return;
         }
 
-        this.$rootEl.innerHTML = renderPage(DefaultLayout.template, DefaultLayout.data);
-        const $mainEl = document.getElementById('main');        
+        const $defaultLayout = layoutDefault.getContent();
 
-        this.setTeplatePage(this.currentPage, $mainEl);
-        this.attachEventListeners();
-    }
-
-    attachEventListeners() {
-        const pageLinks = document.querySelectorAll('.link');
-        pageLinks.forEach((link) => {
-            link.addEventListener('click', (evt) => {                
-                evt.preventDefault();
-                const evtTarget = evt.target as HTMLLinkElement;
-                const pageName = evtTarget?.dataset?.page as TPageValues;
-
-                if (!pageName) {
-                    return;
-                }
-
-                this.changePage(pageName);
-            });
-        });
-    }
-
-    changePage(page: EPages) {
-        this.currentPage = EPages[page];
-        this.render();
-    }
-
-    setTeplatePage(page: EPages, mainEl: HTMLElement | null) {   
-        if (!page || !mainEl) {
-            return;
-        }
-
-        if (page === EPages.loginPage) {
-            mainEl.innerHTML = renderPage(LoginPage.template, LoginPage.data);
-            return;
-        }
-
-        if (page === EPages.registerPage) {            
-            mainEl.innerHTML = renderPage(RegisterPage.template, RegisterPage.data);
-            return;
-        }
-
-        if (page === EPages.chatsPage) {            
-            mainEl.innerHTML = renderPage(ChatsPage.template, ChatsPage.data);
-            return;
-        }
-
-        if (page === EPages.profilePage) {            
-            mainEl.innerHTML = renderPage(ProfilePage.template, ProfilePage.data);
-            return;
-        }
-
-        if (page === EPages.profileEditPage) {            
-            mainEl.innerHTML = renderPage(ProfileEditPage.template, ProfileEditPage.data);
-            return;
-        }
-
-        if (page === EPages.notFoundPage) {            
-            mainEl.innerHTML = renderPage(NotFoundPage, {});
-            return;
-        }
-
-        if (page === EPages.serverErrorPage) {            
-            mainEl.innerHTML = renderPage(ServerErrorPage, {});
-            return;
+        if ($defaultLayout) {
+            this.$rootEl.append($defaultLayout);
         }
     }
-
 }

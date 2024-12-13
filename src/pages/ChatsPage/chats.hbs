@@ -1,26 +1,48 @@
-<div class="chat">
-    <aside class="chat__aside chat-aside">
-        <div class="chat-aside__profile">
-            {{> Link href=profile.href dataPage=profile.dataPage linkName=profile.name }}
-        </div>
-        <div class="chat-aside__chats">
-            Список чатов
-        </div>
-    </aside>
-    <div class="chat__main chat-main">
-        {{#if currentChat}}
-            <header class="chat-main__header">Хедер чата</header>
-            <main class="chat-main__body">Тело чата</main>
-
-        {{else}}
-            <div class="chat-main__body">
-                <h2>Пустой чат</h2>
-            </div>
-        {{/if}}
-        <form class="chat-main__submit-form">
-            {{> Button class='button-icon' id="button-link" text="Прикрепить файл"}}
-            <input id="input-message" class="chat-main__submit-form-input" type="text" name="message" >
-            {{> Button class='button-icon' id="button-submit" text="Отправить"}}
-        </div>
+<aside class="chats-page__aside aside">
+    <div class="aside__profile">
+        {{{ profileLink }}}
     </div>
-</div>
+    <ul class="aside__chats">
+        {{#each chats }}
+            {{{ this }}}
+        {{/each }}
+    </ul>
+</aside>
+
+<section class="chats-page__main tab">
+    {{#if currentChat}}
+            <header class="tab__header">
+                <div class="tab__header-wrap flex-row">
+                    <div class="tab__header-chat-info">
+                        {{{ avatarMini }}}
+                        <h3 class="tab__header-title title-13-bold">
+                            Вася
+                        </h3>
+                    </div>
+                    <div class="tab__header-chat-utils">
+                        {{{ headerMenuBtn }}}
+                    </div>
+                </div>
+            </header>
+            <main class="tab__main">
+                {{#each messages }}
+                    <section class="tab__bubbls-date-groups">
+                        <h3 class="tab__bubbles-group-title text-12-medium">{{this.groupName}}</h3>
+                        {{#each this.bubbles }}
+                            {{{ this }}}
+                        {{/each }}
+                    </section>
+                {{/each }}
+            </main>
+    {{else}}
+        <main class="tab__main">
+            <h2>Пустой чат</h2>
+        </main>
+    {{/if}}
+    <form class="tab__submit-form">
+        {{{ buttonAttachFile }}}
+        {{{ inputSendMessage }}}
+        {{{ buttonSubmit }}}
+    </form>
+</section>
+

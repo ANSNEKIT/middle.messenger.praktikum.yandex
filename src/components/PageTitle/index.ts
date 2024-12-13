@@ -1,3 +1,9 @@
+import { BaseComponent } from '@/services/base-component';
+import pateTitleTemplate from './page-title.hbs?raw';
 import './page-title.pcss';
 
-export default `<h1 class="page-title {{class}}">{{title}}</h1>`;
+export default class PageTitle extends BaseComponent {
+    render() {
+        return this.compile(pateTitleTemplate);
+    }
+}
