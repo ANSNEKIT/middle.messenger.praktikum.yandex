@@ -9,7 +9,6 @@ export interface IRoute {
 }
 
 export interface IRouter {
-    __instance: Router | null;
     use(path: string, block: typeof Block): Router;
     go(pathName: string): void;
     back(): void;
