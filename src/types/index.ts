@@ -63,14 +63,3 @@ export type TMeta = {
 };
 
 export type TEvents = Record<string, TCallback>;
-
-export interface IRoute {
-    navigate: (path: string) => void;
-    render: () => void;
-    match: (path: string) => boolean;
-    leave: () => void;
-}
-
-export interface IRouteQuery {
-    rootQuery: string;
-}

@@ -1,12 +1,12 @@
-import { IRoute, IRouteQuery } from '@/types';
 import { Block } from './base-component';
 import { isEqual } from '@/utils';
+import { IRouteQuery, IRoute } from '@/types/router';
 
-class Route implements IRoute {
-    _pathname: string;
-    _blockClass: typeof Block;
-    _block: Block | null;
-    _props: IRouteQuery;
+export default class Route implements IRoute {
+    private _pathname: string;
+    private _blockClass: typeof Block;
+    private _block: Block | null;
+    private _props: IRouteQuery;
 
     constructor(pathname: string, view: typeof Block, props: IRouteQuery) {
         this._pathname = pathname;
@@ -32,7 +32,7 @@ class Route implements IRoute {
         return isEqual(pathname, this._pathname);
     }
 
-    _renderDom(query: string, block: Block) {
+    private _renderDom(query: string, block: Block) {
         const root = document.querySelector(query);
         if (root) {
             root.innerHTML = '';
@@ -51,5 +51,3 @@ class Route implements IRoute {
         this._block.mounted();
     }
 }
-
-export default Route;
