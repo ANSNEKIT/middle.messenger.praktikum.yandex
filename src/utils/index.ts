@@ -31,3 +31,5 @@ export const queryStringify = (data: unknown) => {
         return `${result}${key}=${param}${appendSymbol}`;
     }, '?');
 };
+
+export const isEqual = (lstr: string, rstr: string) => lstr === rstr;

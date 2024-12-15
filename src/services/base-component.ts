@@ -6,7 +6,7 @@ import { EventBus } from './event-bus';
 
 // @ts-expect-error - unknown is ok
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export abstract class Block<Props extends Record<string, any> = unknown> {
+export class Block<Props extends Record<string, any> = unknown> {
     private _element: HTMLElement | null;
     private _meta: TMeta;
     private _props: IProps;
