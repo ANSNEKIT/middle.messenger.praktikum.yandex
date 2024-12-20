@@ -33,7 +33,7 @@ export default class Router implements IRouter {
     }
 
     private _onRoute(pathName: string) {
-        const route = this.routes.find((r) => r.match(pathName));
+        const route = this.getRoute(pathName);
 
         if (!route) {
             return;

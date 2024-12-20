@@ -43,10 +43,8 @@ export default class Route implements IRoute {
     render() {
         if (!this._block) {
             this._block = new this._blockClass();
-            return;
         }
 
-        this._block.show();
         this._renderDom(this._props.rootQuery, this._block);
         this._block.mounted();
     }
