@@ -27,7 +27,7 @@ class NotFoundPage extends Block {
                     },
                     href: '#',
                     linkName: 'Назад',
-                    '@click': (_: Event) => props.router.go(ERouter.LOGIN),
+                    '@click': () => props.router.go(ERouter.LOGIN),
                 }),
             },
         });

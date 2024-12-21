@@ -5,6 +5,7 @@ export enum ERouter {
     REGISTRATION = '/sign-up',
     MESSENGER = '/messenger',
     SETTINGS = '/settings',
-    NOT_FOUND = '*',
+    PROFILE_EDIT = '/profile-edit',
     SERVER_ERROR = '/server-error',
+    NOT_FOUND = '*',
 }

@@ -11,6 +11,8 @@ export default class App {
             .use(ERouter.REGISTRATION, Pages.RegisterPage)
             .use(ERouter.MESSENGER, Pages.ChatsPage)
             .use(ERouter.SETTINGS, Pages.ProfilePage)
+            .use(ERouter.PROFILE_EDIT, Pages.ProfileEditPage)
+            .use(ERouter.SERVER_ERROR, Pages.ServerErrorPage)
             .use(ERouter.NOT_FOUND, Pages.NotFoundPage)
             .start();
     }
