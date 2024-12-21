@@ -1,8 +1,10 @@
 import { setInputValidationState, validate } from '@/utils';
 import Input from '@/components/Input';
 import { ErrorText, InputRegExp, TInputName } from '@/constants/validate';
-import { LoginFormInputs } from '@/types';
+import { IProps, LoginFormInputs, RequiredKeys } from '@/types';
 import { validateWithMessage } from '.';
+import { Block } from '@/services/base-component';
+import { ERouter } from '@/constants/router';
 
 export const onSubmit = (evt: MouseEvent, inputs: Input[]) => {
     evt.preventDefault();
@@ -71,4 +73,19 @@ export const onSendMessage = (evt: MouseEvent, input: Input) => {
     if (inputValue) {
         console.log('sendMessage', inputValue);
     }
+};
+
+export const onLinkClick = (evt: Event, props: RequiredKeys<IProps, 'router'>) => {
+    evt.preventDefault();
+    props.router.go(ERouter.LOGIN);
+};
+
+export const withRouter = <Cls extends typeof Block>(SomeBlock: Cls) => {
+    // @ts-expect-error is ok typeClass
+    return class extends SomeBlock {
+        constructor(props: IProps) {
+            // @ts-expect-error props extended
+            super({ ...props, router: window.router });
+        }
+    };
 };

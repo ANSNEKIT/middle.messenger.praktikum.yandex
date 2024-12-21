@@ -1,12 +1,35 @@
 import { Block } from '@/services/base-component';
-import { notFoundPageProps } from '@/constants';
 import stubTemplate from '@/components/Stub/stub.hbs?raw';
+import PageTitle from '@/components/PageTitle';
+import Link from '@/components/Link';
+import { withRouter } from '@/utils/events';
+import { IProps, RequiredKeys } from '@/types';
+import { ERouter } from '@/constants/router';
+import '@/components/Stub/stub.pcss';
 
-export default class NotFoundPage extends Block {
-    constructor(props = {}) {
+class NotFoundPage extends Block {
+    constructor(props = {} as RequiredKeys<IProps, 'router'>) {
         super('div', {
             ...props,
-            ...notFoundPageProps,
+            ...{
+                settings: {
+                    isSimple: true,
+                },
+                pageTitle: new PageTitle('h1', {
+                    settings: {
+                        isSimple: true,
+                    },
+                    title: '404 страна не найдена',
+                }),
+                GoHome: new Link('a', {
+                    settings: {
+                        isSimple: true,
+                    },
+                    href: '#',
+                    linkName: 'Назад',
+                    '@click': (_: Event) => props.router.go(ERouter.LOGIN),
+                }),
+            },
         });
     }
 
@@ -14,3 +37,5 @@ export default class NotFoundPage extends Block {
         return this.compile(stubTemplate);
     }
 }
+
+export default withRouter(NotFoundPage as typeof Block);

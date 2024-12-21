@@ -1,4 +1,7 @@
 import { Block } from '@/services/base-component';
+import { IRouter } from './router';
+
+export type RequiredKeys<T, K extends keyof T> = T & Required<Pick<T, K>>;
 
 export enum Events {
     CLICK = 'click',
@@ -40,6 +43,7 @@ export interface IProps extends Record<string, unknown> {
         isSimple?: boolean;
     };
     attrs?: object;
+    router?: IRouter;
 }
 
 export type TProps = {
