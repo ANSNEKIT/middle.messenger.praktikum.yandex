@@ -18,24 +18,31 @@ interface IOptions {
 }
 
 export class HTTPTransport {
-    get = (url: string, options: IOptions = {}) => {
-        return this.request(url, { ...options, method: METHOD.GET }, options.timeout);
-    };
+    private _apiUrl = '';
 
-    post = (url: string, options: IOptions = {}) => {
-        return this.request(url, { ...options, method: METHOD.POST }, options.timeout);
-    };
+    constructor(baseUrl: string) {
+        this._apiUrl = baseUrl;
+    }
 
-    put = (url: string, options: IOptions = {}) => {
-        return this.request(url, { ...options, method: METHOD.PUT }, options.timeout);
-    };
+    get(url: string, options: IOptions = {}): Promise<XMLHttpRequest> {
+        return this.request(`${this._apiUrl}${url}`, { ...options, method: METHOD.GET }, options.timeout);
+    }
 
-    delete = (url: string, options: IOptions = {}) => {
-        return this.request(url, { ...options, method: METHOD.DELETE }, options.timeout);
-    };
+    post(url: string, options: IOptions = {}): Promise<XMLHttpRequest> {
+        return this.request(`${this._apiUrl}${url}`, { ...options, method: METHOD.POST }, options.timeout);
+    }
 
-    request = (url: string, options: IOptions = {}, timeout = 5000) => {
+    put(url: string, options: IOptions = {}): Promise<XMLHttpRequest> {
+        return this.request(`${this._apiUrl}${url}`, { ...options, method: METHOD.PUT }, options.timeout);
+    }
+
+    delete(url: string, options: IOptions = {}): Promise<XMLHttpRequest> {
+        return this.request(`${this._apiUrl}${url}`, { ...options, method: METHOD.DELETE }, options.timeout);
+    }
+
+    request(url: string, options: IOptions = {}, timeout = 5000): Promise<XMLHttpRequest> {
         const { headers = {}, method, data } = options;
+        const apiUrl = this._apiUrl;
 
         return new Promise(function (resolve, reject) {
             if (!method) {
@@ -46,7 +53,7 @@ export class HTTPTransport {
             const xhr = new XMLHttpRequest();
             const isGet = method === METHOD.GET;
 
-            xhr.open(method, isGet && !!data ? `${url}${queryStringify(data)}` : url);
+            xhr.open(method, isGet && !!data ? `${apiUrl}${url}${queryStringify(data)}` : url);
 
             Object.keys(headers).forEach((key) => {
                 xhr.setRequestHeader(key, headers[key]);
@@ -68,5 +75,5 @@ export class HTTPTransport {
                 xhr.send(data);
             }
         });
-    };
+    }
 }

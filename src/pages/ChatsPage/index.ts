@@ -23,7 +23,7 @@ const inputMessage = new Input('div', {
     required: true,
 });
 
-export default class ChatsPage extends Block {
+class ChatsPage extends Block {
     constructor(props = {} as RequiredKeys<IProps, 'router'>) {
         super('div', {
             ...props,
@@ -154,3 +154,5 @@ export default class ChatsPage extends Block {
         return this.compile(chatsPageTemplate);
     }
 }
+
+export default ChatsPage as typeof Block;

@@ -3,7 +3,7 @@ import { BASE_QUERY, ERouter } from './constants/router';
 import Router from './services/Router';
 
 export default class App {
-    render() {
+    useRouter() {
         window.router = new Router(BASE_QUERY);
 
         window.router
@@ -15,5 +15,9 @@ export default class App {
             .use(ERouter.SERVER_ERROR, Pages.ServerErrorPage)
             .use(ERouter.NOT_FOUND, Pages.NotFoundPage)
             .start();
+    }
+
+    useStore() {
+        // TODO Здесь буду подключать Store
     }
 }
