@@ -1,6 +1,8 @@
 import * as Pages from './pages/index';
 import { BASE_QUERY, ERouter } from './constants/router';
 import Router from './services/Router';
+import Store from './services/Store';
+import { EStoreEvents } from './types/store';
 
 export default class App {
     useRouter() {
@@ -18,6 +20,15 @@ export default class App {
     }
 
     useStore() {
-        // TODO Здесь буду подключать Store
+        window.store = new Store({
+            isLogin: false,
+            authUser: null,
+            authError: null,
+        });
+
+        window.store.on(EStoreEvents.Updated, (oldStore, newStore) => {
+            console.log('oldStore', oldStore);
+            console.log('newStore', newStore);
+        });
     }
 }
