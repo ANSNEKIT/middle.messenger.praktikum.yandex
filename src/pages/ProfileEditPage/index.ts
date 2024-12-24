@@ -5,11 +5,20 @@ import Button from '@/components/Button';
 import Input from '@/components/Input';
 import Link from '@/components/Link';
 import PageTitle from '@/components/PageTitle';
-import { onblur, onSubmit, withRouter } from '@/utils/events';
+import { onblur, prepareSubmitForm, withRouter } from '@/utils/events';
 import { ERouter } from '@/constants/router';
 
 import '@/components/AuthForm/auth-form.pcss';
 import './profile-edit.pcss';
+
+const onEditProfile = (evt: MouseEvent, inputs: Input[]) => {
+    const editProfileForm = prepareSubmitForm(evt, inputs);
+
+    if (editProfileForm) {
+        console.log('editProfileForm', editProfileForm);
+        // await authService.login(loginForm);
+    }
+};
 
 const inputs = [
     new Input('div', {
@@ -138,7 +147,7 @@ class ProfileEditPage extends Block {
                     type: 'submit',
                     class: 'button auth-form__submit-btn',
                     text: 'Сохранить',
-                    '@click': (evt: MouseEvent) => onSubmit(evt, inputs),
+                    '@click': (evt: MouseEvent) => onEditProfile(evt, inputs),
                 }),
                 link: new Link('a', {
                     settings: {

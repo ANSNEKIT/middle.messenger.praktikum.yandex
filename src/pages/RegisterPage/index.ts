@@ -4,11 +4,22 @@ import Button from '@/components/Button';
 import Input from '@/components/Input';
 import Link from '@/components/Link';
 import PageTitle from '@/components/PageTitle';
-import { onblur, onSubmit, withRouter } from '@/utils/events';
+import { onblur, prepareRegisterForm, prepareSubmitForm, withRouter } from '@/utils/events';
 import { IProps, RequiredKeys } from '@/types';
 import { ERouter } from '@/constants/router';
+import * as apiServiceAuth from '@/services/apiServices/auth';
+import { IUserRegistration } from '@/api/types';
 
 import '@/components/AuthForm/auth-form.pcss';
+
+const onRegister = async (evt: MouseEvent, inputs: Input[]) => {
+    const registerForm = prepareSubmitForm(evt, inputs);
+    const preparedRegisterForm = prepareRegisterForm(registerForm);
+
+    if (preparedRegisterForm) {
+        await apiServiceAuth.register(preparedRegisterForm as unknown as IUserRegistration);
+    }
+};
 
 const inputs = [
     new Input('div', {
@@ -68,7 +79,7 @@ const inputs = [
         id: 'password',
         label: 'Пароль',
         type: 'password',
-        name: 'oldPassword',
+        name: 'password',
         required: true,
     }),
     new Input('div', {
@@ -107,7 +118,7 @@ class RegisterPage extends Block {
                     type: 'submit',
                     class: 'button auth-form__submit-btn',
                     text: 'Зарегистрироваться',
-                    '@click': (evt: MouseEvent) => onSubmit(evt, inputs),
+                    '@click': (evt: MouseEvent) => onRegister(evt, inputs),
                 }),
                 link: new Link('a', {
                     settings: {

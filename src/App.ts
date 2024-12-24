@@ -21,7 +21,7 @@ export default class App {
 
     useStore() {
         window.store = new Store({
-            isLogin: false,
+            isLoading: false,
             authUser: null,
             authError: null,
         });

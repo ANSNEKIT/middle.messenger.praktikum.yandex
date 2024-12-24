@@ -21,7 +21,7 @@ export class HTTPTransport {
     private _apiUrl = '';
 
     constructor(baseUrl: string) {
-        this._apiUrl = baseUrl;
+        this._apiUrl = `https://ya-praktikum.tech/api/v2/${baseUrl}`;
     }
 
     get(url: string, options: IOptions = {}): Promise<XMLHttpRequest> {
@@ -55,6 +55,8 @@ export class HTTPTransport {
 
             xhr.open(method, isGet && !!data ? `${apiUrl}${url}${queryStringify(data)}` : url);
 
+            xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+
             Object.keys(headers).forEach((key) => {
                 xhr.setRequestHeader(key, headers[key]);
             });
@@ -72,7 +74,7 @@ export class HTTPTransport {
             if (isGet || !data) {
                 xhr.send();
             } else {
-                xhr.send(data);
+                xhr.send(JSON.stringify(data));
             }
         });
     }

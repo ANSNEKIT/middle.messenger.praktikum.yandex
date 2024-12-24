@@ -1,19 +1,19 @@
 import { setInputValidationState, validate } from '@/utils';
 import Input from '@/components/Input';
 import { ErrorText, InputRegExp, TInputName } from '@/constants/validate';
-import { IProps, LoginFormInputs, RequiredKeys } from '@/types';
+import { IProps, RequiredKeys } from '@/types';
 import { validateWithMessage } from '.';
 import { Block } from '@/services/base-component';
 import { ERouter } from '@/constants/router';
 
-export const onSubmit = (evt: MouseEvent, inputs: Input[]) => {
+export const prepareSubmitForm = (evt: MouseEvent, inputs: Input[]): Record<string, string | File> | null => {
     evt.preventDefault();
 
     const target = evt.target as HTMLElement;
     const $form = document.getElementById('form') as HTMLFormElement | null;
     if ($form) {
         const formData = new FormData($form, target);
-        const formEntries = Object.fromEntries(formData) as Record<LoginFormInputs, string | File>;
+        const formEntries = Object.fromEntries(formData) as Record<string, string | File>;
         const rules: Record<string, string | true> = {};
 
         for (const [key, value] of formData.entries()) {
@@ -33,9 +33,19 @@ export const onSubmit = (evt: MouseEvent, inputs: Input[]) => {
         });
 
         if (isValid) {
-            console.log('submitForm', formEntries);
+            return formEntries;
         }
     }
+
+    return null;
+};
+
+export const prepareRegisterForm = (form: Record<string, string | File> | null) => {
+    if (!form) {
+        return null;
+    }
+    const entries = Object.entries(form).filter(([key, _]) => key !== 'newPassword');
+    return Object.fromEntries(entries);
 };
 
 export const onblur = (evt: MouseEvent, inputs: Input[]) => {
