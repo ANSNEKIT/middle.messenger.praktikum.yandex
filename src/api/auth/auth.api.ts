@@ -1,5 +1,5 @@
 import { HTTPTransport } from '@/services/httpTransport';
-import { IAuthApi, IUserLogin, IUserRegistration } from './types';
+import { IAuthApi, IUserLogin, IUserRegistration } from '../types';
 
 const httpApi = new HTTPTransport('/auth');
 

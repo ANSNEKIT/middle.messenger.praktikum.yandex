@@ -67,3 +67,12 @@ export type TMeta = {
 };
 
 export type TEvents = Record<string, TCallback>;
+
+export interface IRequestResult {
+    ok: boolean;
+    status: number;
+    statusText: string;
+    data: string;
+    json: <T>() => T;
+    headers: string;
+}

@@ -1,3 +1,4 @@
+import { IRequestResult } from '@/types';
 import { queryStringify } from '@/utils';
 
 const METHOD = {
@@ -17,6 +18,28 @@ interface IOptions {
     timeout?: number;
 }
 
+const parseXHRResult = (xhr: XMLHttpRequest): IRequestResult => {
+    return {
+        ok: xhr.status >= 200 && xhr.status < 300,
+        status: xhr.status,
+        statusText: xhr.statusText,
+        headers: xhr.getAllResponseHeaders(),
+        data: xhr.responseText,
+        json: <T>() => JSON.parse(xhr.responseText) as T,
+    };
+};
+
+const errorResponse = (xhr: XMLHttpRequest, message: string | null = null): IRequestResult => {
+    return {
+        ok: false,
+        status: xhr.status,
+        statusText: xhr.statusText,
+        headers: xhr.getAllResponseHeaders(),
+        data: message || xhr.statusText,
+        json: <T>() => JSON.parse(message || xhr.statusText) as T,
+    };
+};
+
 export class HTTPTransport {
     private _apiUrl = '';
 
@@ -24,27 +47,27 @@ export class HTTPTransport {
         this._apiUrl = `https://ya-praktikum.tech/api/v2/${baseUrl}`;
     }
 
-    get(url: string, options: IOptions = {}): Promise<XMLHttpRequest> {
+    get(url: string, options: IOptions = {}): Promise<IRequestResult> {
         return this.request(`${this._apiUrl}${url}`, { ...options, method: METHOD.GET }, options.timeout);
     }
 
-    post(url: string, options: IOptions = {}): Promise<XMLHttpRequest> {
+    post(url: string, options: IOptions = {}): Promise<IRequestResult> {
         return this.request(`${this._apiUrl}${url}`, { ...options, method: METHOD.POST }, options.timeout);
     }
 
-    put(url: string, options: IOptions = {}): Promise<XMLHttpRequest> {
+    put(url: string, options: IOptions = {}): Promise<IRequestResult> {
         return this.request(`${this._apiUrl}${url}`, { ...options, method: METHOD.PUT }, options.timeout);
     }
 
-    delete(url: string, options: IOptions = {}): Promise<XMLHttpRequest> {
+    delete(url: string, options: IOptions = {}): Promise<IRequestResult> {
         return this.request(`${this._apiUrl}${url}`, { ...options, method: METHOD.DELETE }, options.timeout);
     }
 
-    request(url: string, options: IOptions = {}, timeout = 5000): Promise<XMLHttpRequest> {
+    request(url: string, options: IOptions = {}, timeout = 5000): Promise<IRequestResult> {
         const { headers = {}, method, data } = options;
         const apiUrl = this._apiUrl;
 
-        return new Promise(function (resolve, reject) {
+        return new Promise<IRequestResult>(function (resolve, reject) {
             if (!method) {
                 reject('No method');
                 return;
@@ -61,15 +84,21 @@ export class HTTPTransport {
                 xhr.setRequestHeader(key, headers[key]);
             });
 
-            xhr.onload = function () {
-                resolve(xhr);
+            xhr.onload = () => {
+                resolve(parseXHRResult(xhr));
             };
 
-            xhr.onabort = reject;
-            xhr.onerror = reject;
+            xhr.onabort = () => {
+                resolve(errorResponse(xhr, 'Запрос отменен'));
+            };
+            xhr.onerror = () => {
+                resolve(errorResponse(xhr, 'Ошибка запроса'));
+            };
 
             xhr.timeout = timeout;
-            xhr.ontimeout = reject;
+            xhr.ontimeout = () => {
+                resolve(errorResponse(xhr, 'Превышено время выполнения запроса'));
+            };
 
             if (isGet || !data) {
                 xhr.send();

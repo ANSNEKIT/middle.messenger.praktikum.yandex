@@ -1,16 +1,17 @@
-import AuthApi from '@/api/auth/auth.api';
-import { IUserLogin, IUserRegistration } from '@/api/types';
+import { IProfileData, IUserAvatar, IUserChangePassword, IUserSearch } from '@/api/types';
+import UserApi from '@/api/user/user.api';
+import { IUserDTO } from '@/api/user/user.model';
 import { ERouter } from '@/constants/router';
 
-const authApi = new AuthApi();
+const userApi = new UserApi();
 
-export const login = async (loginForm: IUserLogin): Promise<void> => {
+export const editProfile = async (form: IProfileData) => {
     window.store.setState({ isLoading: true });
     try {
-        const xhr = await authApi.login(loginForm);
-        console.log('services login response', xhr.json());
+        const xhr = await userApi.putProfile(form);
+        const newData = xhr.json<IUserDTO>();
         if (xhr.ok) {
-            window.router.go(ERouter.MESSENGER);
+            console.log('editProfile newData', newData);
         } else if (xhr.status >= 500) {
             window.router.go(ERouter.SERVER_ERROR);
         }
@@ -21,13 +22,13 @@ export const login = async (loginForm: IUserLogin): Promise<void> => {
     }
 };
 
-export const register = async (registerForm: IUserRegistration): Promise<void> => {
+export const changeAvatar = async (form: IUserAvatar) => {
     window.store.setState({ isLoading: true });
     try {
-        const xhr = await authApi.registration(registerForm);
-        console.log('services register response', xhr.json());
+        const xhr = await userApi.putAvatar(form);
+        const newData = xhr.json<IUserDTO>();
         if (xhr.ok) {
-            window.router.go(ERouter.LOGIN);
+            console.log('changeAvatar newData', newData);
         } else if (xhr.status >= 500) {
             window.router.go(ERouter.SERVER_ERROR);
         }
@@ -38,14 +39,12 @@ export const register = async (registerForm: IUserRegistration): Promise<void> =
     }
 };
 
-export const me = async () => {
+export const changePassword = async (form: IUserChangePassword) => {
     window.store.setState({ isLoading: true });
     try {
-        const xhr = await authApi.me();
-        console.log('services me response', xhr.json());
+        const xhr = await userApi.putPassword(form);
         if (xhr.ok) {
-            window.router.go(ERouter.MESSENGER);
-            window.store.setState({ authUser: xhr.json() });
+            console.log('changePassword');
         } else if (xhr.status >= 500) {
             window.router.go(ERouter.SERVER_ERROR);
         }
@@ -56,14 +55,13 @@ export const me = async () => {
     }
 };
 
-export const logout = async () => {
+export const search = async (form: IUserSearch) => {
     window.store.setState({ isLoading: true });
     try {
-        const xhr = await authApi.logout();
-        console.log('services logout response', xhr.json());
+        const xhr = await userApi.postSearch(form);
+        const findedUsers = xhr.json<IUserDTO[]>();
         if (xhr.ok) {
-            window.router.go(ERouter.LOGIN);
-            window.store.setState({ authUser: null });
+            console.log('search findedUsers', findedUsers);
         } else if (xhr.status >= 500) {
             window.router.go(ERouter.SERVER_ERROR);
         }
