@@ -44,7 +44,7 @@ export class HTTPTransport {
     private _apiUrl = '';
 
     constructor(baseUrl: string) {
-        this._apiUrl = `https://ya-praktikum.tech/api/v2/${baseUrl}`;
+        this._apiUrl = `https://ya-praktikum.tech/api/v2${baseUrl}`;
     }
 
     get(url: string, options: IOptions = {}): Promise<IRequestResult> {
