@@ -7,9 +7,16 @@ import Button from '@/components/Button';
 import Chat from '@/components/Chat';
 import Input from '@/components/Input';
 import Link from '@/components/Link';
-import { onSendMessage } from '@/utils/events';
+import { withRouter } from '@/utils/events';
 
 import './chats.pcss';
+import { ERouter } from '@/constants/router';
+
+export const onSendMessage = (evt: MouseEvent, input: Input) => {
+    evt.preventDefault();
+
+    console.log('onSendMessage', input);
+};
 
 const inputMessage = new Input('div', {
     attrs: {
@@ -35,9 +42,9 @@ class ChatsPage extends Block {
                     settings: {
                         isSimple: true,
                     },
-                    href: '/profile',
-                    dataPage: 'profilePage',
+                    href: '#',
                     linkName: 'Профиль',
+                    '@click': () => props.router.go(ERouter.SETTINGS),
                 }),
                 currentChat: 'one',
                 avatarMini: new AvatarMini('div', {
@@ -155,4 +162,4 @@ class ChatsPage extends Block {
     }
 }
 
-export default ChatsPage as typeof Block;
+export default withRouter(ChatsPage as typeof Block);

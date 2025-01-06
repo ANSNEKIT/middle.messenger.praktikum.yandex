@@ -18,11 +18,15 @@ export default class Store extends EventBus {
         Store.__instanse = this;
     }
 
-    setState(nextState = {}) {
+    setState<T extends object>(nextState = {}) {
         const prevState = structuredClone(this._state);
 
-        this._state = { ...prevState, ...nextState };
+        this._state = { ...prevState, ...nextState } as Partial<T>;
 
         this.emit(EStoreEvents.Updated, prevState, nextState);
+    }
+
+    getState<T extends object>() {
+        return this._state as T;
     }
 }

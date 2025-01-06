@@ -27,8 +27,10 @@ export default class App {
         });
 
         window.store.on(EStoreEvents.Updated, (oldStore, newStore) => {
-            console.log('oldStore', oldStore);
-            console.log('newStore', newStore);
+            window.store = new Store({
+                ...oldStore,
+                ...structuredClone(newStore),
+            });
         });
     }
 }

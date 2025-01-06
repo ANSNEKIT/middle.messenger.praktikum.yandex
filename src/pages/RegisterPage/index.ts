@@ -4,7 +4,7 @@ import Button from '@/components/Button';
 import Input from '@/components/Input';
 import Link from '@/components/Link';
 import PageTitle from '@/components/PageTitle';
-import { onblur, prepareRegisterForm, prepareSubmitForm, withRouter } from '@/utils/events';
+import { onblur, prepareSubmitForm, withRouter } from '@/utils/events';
 import { IProps, RequiredKeys } from '@/types';
 import { ERouter } from '@/constants/router';
 import * as apiServiceAuth from '@/services/apiServices/auth';
@@ -13,11 +13,18 @@ import { IUserRegistration } from '@/api/types';
 import '@/components/AuthForm/auth-form.pcss';
 
 const onRegister = async (evt: MouseEvent, inputs: Input[]) => {
-    const registerForm = prepareSubmitForm(evt, inputs);
-    const preparedRegisterForm = prepareRegisterForm(registerForm);
+    evt.preventDefault();
+    const $form = document.getElementById('form') as HTMLFormElement | null;
 
-    if (preparedRegisterForm) {
-        await apiServiceAuth.register(preparedRegisterForm as unknown as IUserRegistration);
+    if (!$form) {
+        return;
+    }
+
+    const registerForm = prepareSubmitForm($form, inputs);
+    if (registerForm) {
+        const entries = Object.entries(registerForm).filter(([key, _]) => key !== 'newPassword');
+        const preparedRegisterForm = Object.fromEntries(entries) as unknown as IUserRegistration;
+        await apiServiceAuth.register(preparedRegisterForm);
     }
 };
 

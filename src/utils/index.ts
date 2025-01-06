@@ -33,3 +33,13 @@ export const queryStringify = (data: unknown) => {
 };
 
 export const isEqual = (lstr: string, rstr: string) => lstr === rstr;
+
+export const toFormData = (form: Record<string, unknown>) => {
+    const formData = new FormData();
+
+    for (const key in form) {
+        formData.append(key, JSON.stringify(form[key]));
+    }
+
+    return formData;
+};

@@ -13,7 +13,14 @@ import * as apiServiceAuth from '@/services/apiServices/auth';
 import '@/components/AuthForm/auth-form.pcss';
 
 const onLogin = async (evt: MouseEvent, inputs: Input[]) => {
-    const loginForm = prepareSubmitForm(evt, inputs);
+    evt.preventDefault();
+    const $form = document.getElementById('form') as HTMLFormElement | null;
+
+    if (!$form) {
+        return;
+    }
+
+    const loginForm = prepareSubmitForm($form, inputs);
 
     if (loginForm) {
         await apiServiceAuth.login(loginForm as unknown as IUserLogin);

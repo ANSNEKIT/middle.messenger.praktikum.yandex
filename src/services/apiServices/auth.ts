@@ -8,8 +8,8 @@ export const login = async (loginForm: IUserLogin): Promise<void> => {
     window.store.setState({ isLoading: true });
     try {
         const xhr = await authApi.login(loginForm);
-        console.log('services login response', xhr.json());
         if (xhr.ok) {
+            window.store.setState({ authUser: loginForm.login });
             window.router.go(ERouter.MESSENGER);
         } else if (xhr.status >= 500) {
             window.router.go(ERouter.SERVER_ERROR);
@@ -25,7 +25,7 @@ export const register = async (registerForm: IUserRegistration): Promise<void> =
     window.store.setState({ isLoading: true });
     try {
         const xhr = await authApi.registration(registerForm);
-        console.log('services register response', xhr.json());
+
         if (xhr.ok) {
             window.router.go(ERouter.LOGIN);
         } else if (xhr.status >= 500) {
@@ -42,7 +42,6 @@ export const me = async () => {
     window.store.setState({ isLoading: true });
     try {
         const xhr = await authApi.me();
-        console.log('services me response', xhr.json());
         if (xhr.ok) {
             window.router.go(ERouter.MESSENGER);
             window.store.setState({ authUser: xhr.json() });
@@ -60,7 +59,6 @@ export const logout = async () => {
     window.store.setState({ isLoading: true });
     try {
         const xhr = await authApi.logout();
-        console.log('services logout response', xhr.json());
         if (xhr.ok) {
             window.router.go(ERouter.LOGIN);
             window.store.setState({ authUser: null });
