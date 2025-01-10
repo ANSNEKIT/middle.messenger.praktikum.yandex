@@ -14,7 +14,7 @@ type TMethodValues = (typeof METHOD)[TMethodKeys];
 interface IOptions {
     method?: TMethodValues;
     headers?: Record<string, string>;
-    data?: XMLHttpRequestBodyInit;
+    data?: FormData | object;
     timeout?: number;
 }
 
@@ -36,7 +36,7 @@ const errorResponse = (xhr: XMLHttpRequest, message: string | null = null): IReq
         statusText: xhr.statusText,
         headers: xhr.getAllResponseHeaders(),
         data: message || xhr.statusText,
-        json: <T>() => JSON.parse(message || xhr.statusText) as T,
+        json: () => null,
     };
 };
 
@@ -63,7 +63,7 @@ export class HTTPTransport {
         return this.request(`${this._apiUrl}${url}`, { ...options, method: METHOD.DELETE }, options.timeout);
     }
 
-    request(url: string, options: IOptions = {}, timeout = 5000): Promise<IRequestResult> {
+    request(url: string, options: IOptions = {}, timeout = 1000): Promise<IRequestResult> {
         const { headers = {}, method, data } = options;
         const apiUrl = this._apiUrl;
 
@@ -73,8 +73,9 @@ export class HTTPTransport {
                 return;
             }
 
-            const xhr = new XMLHttpRequest();
             const isGet = method === METHOD.GET;
+            const xhr = new XMLHttpRequest();
+            xhr.withCredentials = true;
 
             xhr.open(method, isGet && !!data ? `${apiUrl}${url}${queryStringify(data)}` : url);
 

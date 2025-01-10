@@ -30,7 +30,7 @@ export interface IUserLogin extends FormData {
     password: string;
 }
 
-export interface IUserSearch extends FormData {
+export interface IUserSearch {
     login: string;
 }
 

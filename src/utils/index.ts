@@ -38,7 +38,7 @@ export const toFormData = (form: Record<string, unknown>) => {
     const formData = new FormData();
 
     for (const key in form) {
-        formData.append(key, JSON.stringify(form[key]));
+        formData.append(key, `${form[key]}`);
     }
 
     return formData;

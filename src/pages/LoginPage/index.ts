@@ -27,6 +27,10 @@ const onLogin = async (evt: MouseEvent, inputs: Input[]) => {
     }
 };
 
+const logout = async () => {
+    await apiServiceAuth.logout();
+};
+
 const inputs = [
     new Input('div', {
         attrs: {
@@ -91,6 +95,12 @@ class LoginPage extends Block {
 
     render() {
         return this.compile(AuthFormTemplate);
+    }
+
+    mounted() {
+        setTimeout(async () => {
+            await logout();
+        }, 0);
     }
 }
 

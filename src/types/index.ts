@@ -73,6 +73,6 @@ export interface IRequestResult {
     status: number;
     statusText: string;
     data: string;
-    json: <T>() => T;
+    json: <T>() => T | null;
     headers: string;
 }
