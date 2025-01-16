@@ -63,7 +63,7 @@ export class HTTPTransport {
         return this.request(`${this._apiUrl}${url}`, { ...options, method: METHOD.DELETE }, options.timeout);
     }
 
-    request(url: string, options: IOptions = {}, timeout = 1000): Promise<IRequestResult> {
+    request(url: string, options: IOptions = {}, timeout = 5000): Promise<IRequestResult> {
         const { headers = {}, method, data } = options;
         const apiUrl = this._apiUrl;
 

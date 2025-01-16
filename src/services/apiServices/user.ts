@@ -9,9 +9,8 @@ export const editProfile = async (form: IProfileData) => {
     window.store.setState({ isLoading: true });
     try {
         const xhr = await userApi.putProfile(form);
-        const newData = xhr.json<IUserDTO>();
         if (xhr.ok) {
-            console.log('editProfile newData', newData);
+            window.router.go(ERouter.SETTINGS);
         } else if (xhr.status >= 500) {
             window.router.go(ERouter.SERVER_ERROR);
         }
@@ -61,7 +60,7 @@ export const search = async (form: IUserSearch) => {
         const xhr = await userApi.postSearch(form);
         const findedUsers = xhr.json<IUserDTO[]>();
         if (xhr.ok) {
-            console.log('search findedUsers', findedUsers);
+            console.log('search 200 OK', findedUsers);
         } else if (xhr.status >= 500) {
             window.router.go(ERouter.SERVER_ERROR);
         }

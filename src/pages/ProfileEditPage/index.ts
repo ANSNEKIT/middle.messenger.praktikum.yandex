@@ -8,12 +8,10 @@ import PageTitle from '@/components/PageTitle';
 import { onblur, prepareSubmitForm, withRouter } from '@/utils/events';
 import { ERouter } from '@/constants/router';
 import * as userService from '@/services/apiServices/user';
+import { IProfileData } from '@/api/types';
 
 import '@/components/AuthForm/auth-form.pcss';
 import './profile-edit.pcss';
-import { IProfileData, IUserSearch } from '@/api/types';
-import { IStore } from '@/types/window';
-import { toFormData } from '@/utils';
 
 const onEditProfile = async (evt: MouseEvent, inputs: Input[]) => {
     evt.preventDefault();
@@ -23,25 +21,11 @@ const onEditProfile = async (evt: MouseEvent, inputs: Input[]) => {
         return;
     }
 
-    const editProfileForm = prepareSubmitForm($form, inputs);
+    const editProfileForm = prepareSubmitForm($form, inputs) as unknown as IProfileData;
 
     if (editProfileForm) {
-        console.log('editProfileForm', editProfileForm);
-        await userService.editProfile(editProfileForm as unknown as IProfileData);
+        await userService.editProfile(editProfileForm);
     }
-};
-
-const getProfile = async () => {
-    const { authUser = '' } = window.store.getState<IStore>();
-    console.log('store login', authUser);
-
-    const searchForm = {
-        login: authUser,
-    };
-
-    const serarchFormData = toFormData(searchForm) as IUserSearch;
-
-    await userService.search(serarchFormData);
 };
 
 const inputs = [
@@ -187,12 +171,6 @@ class ProfileEditPage extends Block {
     }
     render() {
         return this.compile(AuthFormTemplate);
-    }
-
-    mounted() {
-        setTimeout(() => {
-            getProfile();
-        }, 0);
     }
 }
 

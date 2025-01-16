@@ -1,5 +1,6 @@
 import AuthApi from '@/api/auth/auth.api';
 import { IUserLogin, IUserRegistration } from '@/api/types';
+import { IUserDTO } from '@/api/user/user.model';
 import { ERouter } from '@/constants/router';
 
 const authApi = new AuthApi();
@@ -9,7 +10,7 @@ export const login = async (loginForm: IUserLogin): Promise<void> => {
     try {
         const xhr = await authApi.login(loginForm);
         if (xhr.ok) {
-            window.store.setState({ authUser: loginForm.login });
+            await me();
             window.router.go(ERouter.MESSENGER);
         } else if (xhr.status >= 500) {
             window.router.go(ERouter.SERVER_ERROR);
@@ -43,8 +44,7 @@ export const me = async () => {
     try {
         const xhr = await authApi.me();
         if (xhr.ok) {
-            window.router.go(ERouter.MESSENGER);
-            window.store.setState({ authUser: xhr.json() });
+            window.store.setState({ authUser: xhr.json<IUserDTO>() });
         } else if (xhr.status >= 500) {
             window.router.go(ERouter.SERVER_ERROR);
         }

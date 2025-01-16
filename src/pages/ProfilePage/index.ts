@@ -7,6 +7,7 @@ import Avatar from '@/components/Avatar';
 import Link from '@/components/Link';
 import PageTitle from '@/components/PageTitle';
 import { ERouter } from '@/constants/router';
+import { IStore } from '@/types/window';
 
 import './profile.pcss';
 
@@ -33,31 +34,31 @@ class ProfilePage extends Block {
                     image: '',
                 }),
                 profile: {
-                    userName: 'Артемий Лебедев',
+                    userName: '-',
                     fields: [
                         {
                             name: 'Почта',
-                            value: 't@t.ru',
+                            value: '-',
                         },
                         {
                             name: 'Логин',
-                            value: 'asdf',
+                            value: '-',
                         },
                         {
                             name: 'Имя',
-                            value: 'Артемий',
+                            value: '-',
                         },
                         {
                             name: 'Фамилия',
-                            value: 'Лебедев',
+                            value: '-',
                         },
                         {
                             name: 'Имя в чате',
-                            value: 'art',
+                            value: '-',
                         },
                         {
                             name: 'Телефон',
-                            value: '+7999',
+                            value: '-',
                         },
                     ],
                 },
@@ -74,6 +75,50 @@ class ProfilePage extends Block {
     }
     render() {
         return this.compile(profilePageTemplate);
+    }
+
+    mounted() {
+        setTimeout(async () => {
+            const { authUser } = window.store.getState<IStore>();
+
+            if (!authUser) {
+                return;
+            }
+
+            const newProfile = {
+                profile: {
+                    userName: `${authUser.first_name} ${authUser.second_name}`,
+                    fields: [
+                        {
+                            name: 'Почта',
+                            value: authUser.email,
+                        },
+                        {
+                            name: 'Логин',
+                            value: authUser.login,
+                        },
+                        {
+                            name: 'Имя',
+                            value: authUser.first_name,
+                        },
+                        {
+                            name: 'Фамилия',
+                            value: authUser.second_name,
+                        },
+                        {
+                            name: 'Имя в чате',
+                            value: authUser.display_name,
+                        },
+                        {
+                            name: 'Телефон',
+                            value: authUser.phone,
+                        },
+                    ],
+                },
+            };
+
+            this.setProps(newProfile);
+        }, 0);
     }
 }
 
