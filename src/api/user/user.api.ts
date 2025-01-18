@@ -1,5 +1,5 @@
 import { HTTPTransport } from '@/services/httpTransport';
-import { IProfileData, IUserApi, IUserAvatar, IUserChangePassword, IUserSearch } from '../types';
+import { IProfileData, IUserApi, IUserAvatar, IUserChangePassword, IUserSearch } from './types';
 
 const httpApi = new HTTPTransport('/user');
 const options = {

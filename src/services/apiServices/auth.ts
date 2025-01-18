@@ -1,5 +1,5 @@
 import AuthApi from '@/api/auth/auth.api';
-import { IUserLogin, IUserRegistration } from '@/api/types';
+import { IUserLogin, IUserRegistration } from '@/api/auth/types';
 import { IUserDTO } from '@/api/user/user.model';
 import { ERouter } from '@/constants/router';
 

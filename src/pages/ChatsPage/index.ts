@@ -8,6 +8,7 @@ import Chat from '@/components/Chat';
 import Input from '@/components/Input';
 import Link from '@/components/Link';
 import { withRouter } from '@/utils/events';
+import * as serviceChats from '@/services/apiServices/chats';
 
 import './chats.pcss';
 import { ERouter } from '@/constants/router';
@@ -159,6 +160,13 @@ class ChatsPage extends Block {
     }
     render() {
         return this.compile(chatsPageTemplate);
+    }
+
+    mounted() {
+        setTimeout(async () => {
+            const chats = await serviceChats.getChats();
+            console.log('chats', chats);
+        }, 0);
     }
 }
 

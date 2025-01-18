@@ -1,4 +1,4 @@
-import { IProfileData, IUserAvatar, IUserChangePassword, IUserSearch } from '@/api/types';
+import { IProfileData, IUserAvatar, IUserChangePassword, IUserSearch } from '@/api/user/types';
 import UserApi from '@/api/user/user.api';
 import { IUserDTO } from '@/api/user/user.model';
 import { ERouter } from '@/constants/router';

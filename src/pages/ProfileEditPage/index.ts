@@ -8,7 +8,7 @@ import PageTitle from '@/components/PageTitle';
 import { onblur, prepareSubmitForm, withRouter } from '@/utils/events';
 import { ERouter } from '@/constants/router';
 import * as userService from '@/services/apiServices/user';
-import { IProfileData } from '@/api/types';
+import { IProfileData } from '@/api/user/types';
 
 import '@/components/AuthForm/auth-form.pcss';
 import './profile-edit.pcss';

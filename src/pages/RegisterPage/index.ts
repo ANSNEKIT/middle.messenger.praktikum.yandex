@@ -8,7 +8,7 @@ import { onblur, prepareSubmitForm, withRouter } from '@/utils/events';
 import { IProps, RequiredKeys } from '@/types';
 import { ERouter } from '@/constants/router';
 import * as apiServiceAuth from '@/services/apiServices/auth';
-import { IUserRegistration } from '@/api/types';
+import { IUserRegistration } from '@/api/auth/types';
 
 import '@/components/AuthForm/auth-form.pcss';
 
