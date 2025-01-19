@@ -28,7 +28,13 @@ export default class Route implements IRoute {
         }
     }
 
-    match(pathname: string) {
+    match(pathname: string, isChild: boolean = false) {
+        if (isChild) {
+            const substr = this._pathname.substring(1);
+            const isChildPath = !!substr && !!pathname.includes(substr);
+            return isChildPath;
+        }
+
         return isEqual(pathname, this._pathname);
     }
 

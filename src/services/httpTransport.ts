@@ -65,7 +65,6 @@ export class HTTPTransport {
 
     request(url: string, options: IOptions = {}, timeout = 5000): Promise<IRequestResult> {
         const { headers = {}, method, data } = options;
-        const apiUrl = this._apiUrl;
 
         return new Promise<IRequestResult>(function (resolve, reject) {
             if (!method) {
@@ -77,7 +76,7 @@ export class HTTPTransport {
             const xhr = new XMLHttpRequest();
             xhr.withCredentials = true;
 
-            xhr.open(method, isGet && !!data ? `${apiUrl}${url}${queryStringify(data)}` : url);
+            xhr.open(method, isGet && !!data ? `${url}${queryStringify(data)}` : url);
 
             xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
 

@@ -4,16 +4,16 @@ import Router from '@/services/Router';
 export interface IRoute {
     navigate(path: string): void;
     render(): void;
-    match(path: string): boolean;
+    match(path: string, isChild?: boolean): boolean;
     leave(): void;
 }
 
 export interface IRouter {
     use(path: string, block: typeof Block): Router;
-    go(pathName: string): void;
+    go(pathName: string, isChild?: boolean): void;
     back(): void;
     next(): void;
-    getRoute(pathName: string): IRoute;
+    getRoute(pathName: string, isChild?: boolean): IRoute;
 }
 
 export interface IRouteQuery {

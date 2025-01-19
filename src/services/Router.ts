@@ -32,8 +32,8 @@ export default class Router implements IRouter {
         this._onRoute(window.location.pathname);
     }
 
-    private _onRoute(pathName: string) {
-        const route = this.getRoute(pathName);
+    private _onRoute(pathName: string, isChild: boolean = false) {
+        const route = this.getRoute(pathName, isChild);
 
         if (!route) {
             return;
@@ -47,9 +47,9 @@ export default class Router implements IRouter {
         route.render();
     }
 
-    go(pathName: string) {
+    go(pathName: string, isChild: boolean = false) {
         this.history.pushState({}, '', pathName);
-        this._onRoute(pathName);
+        this._onRoute(pathName, isChild);
     }
 
     back() {
@@ -60,10 +60,10 @@ export default class Router implements IRouter {
         this.history.forward();
     }
 
-    getRoute(pathName: string) {
-        const route = this.routes.find((r) => r.match(pathName));
+    getRoute(pathName: string, isChild: boolean = false) {
+        const route = this.routes.find((r) => r.match(pathName, isChild));
         if (!route) {
-            return this.routes.find((r) => r.match('*')) as IRoute;
+            return this.routes.find((r) => r.match('*', isChild)) as IRoute;
         }
         return route;
     }

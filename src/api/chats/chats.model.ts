@@ -1,10 +1,14 @@
 export interface IChatDTO {
     id: number;
     title: string;
-    avatar: File | null;
+    avatar: string | null;
     created_by: number;
     unread_count: number;
-    last_message: string | null;
+    last_message: {
+        user: IChatUser;
+        time: string;
+        content: string;
+    } | null;
 }
 
 export interface IChatCreateDTO {
@@ -23,4 +27,9 @@ export interface IChatUserDTO {
     login: string;
     avatar: File | null;
     role: string;
+}
+
+export interface IChatUser extends Omit<IChatUserDTO, 'id | display_name | role'> {
+    email: string;
+    phone: string;
 }
