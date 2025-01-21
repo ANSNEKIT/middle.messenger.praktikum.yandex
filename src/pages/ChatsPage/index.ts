@@ -9,14 +9,64 @@ import Input from '@/components/Input';
 import Link from '@/components/Link';
 import { withRouter } from '@/utils/events';
 import * as serviceChats from '@/services/apiServices/chats';
+import { ERouter } from '@/constants/router';
+import { IRouter } from '@/types/router';
 
 import './chats.pcss';
-import { ERouter } from '@/constants/router';
+import { IChatDTO } from '@/api/chats/chats.model';
+import { firstCharUpper } from '@/utils';
 
 export const onSendMessage = (evt: MouseEvent, input: Input) => {
     evt.preventDefault();
 
     console.log('onSendMessage', input);
+};
+
+const onChatSelect = (evt: MouseEvent, _: IRouter | undefined, chatId: number) => {
+    evt.preventDefault();
+    const target = evt.target as HTMLElement | null;
+    const chat = target?.closest('.chat');
+
+    const $chatList = document.querySelector('.aside__chats');
+    if ($chatList?.children) {
+        for (const $chat of $chatList.children) {
+            const id = $chat.getAttribute('id') || '';
+            if (id !== String(chatId)) {
+                $chat.classList.remove('select');
+            }
+        }
+    }
+
+    if (chat) {
+        chat.classList.add('select');
+    }
+
+    // if (!router) {
+    //     return;
+    // }
+    // router.go(`${ERouter.MESSENGER}/${chatId}`, true);
+};
+
+const adapterChatsToFront = (chats: IChatDTO[], router?: IRouter) => {
+    return chats.map((chat) => {
+        return new Chat('li', {
+            attrs: {
+                id: chat.id,
+                class: 'chat',
+            },
+            avatarMini: new AvatarMini('div', {
+                class: 'chat__avatar',
+                settings: {
+                    isSimple: true,
+                },
+                avatarSrc: chat.avatar,
+                userNameChar: firstCharUpper(chat.last_message?.user.first_name || chat.title),
+            }),
+            link: `${ERouter.MESSENGER}/${chat.id}`,
+            chat,
+            '@click': (evt: MouseEvent) => onChatSelect(evt, router, chat.id),
+        });
+    });
 };
 
 const inputMessage = new Input('div', {
@@ -62,41 +112,7 @@ class ChatsPage extends Block {
                     class: 'tab__header-menu-btn button-icon flex-center',
                     text: '...',
                 }),
-                chats: [
-                    new Chat('li', {
-                        attrs: {
-                            class: 'chat',
-                        },
-                        avatarMini: new AvatarMini('div', {
-                            class: 'chat__avatar',
-                            settings: {
-                                isSimple: true,
-                            },
-                        }),
-                    }),
-                    new Chat('li', {
-                        attrs: {
-                            class: 'chat',
-                        },
-                        avatarMini: new AvatarMini('div', {
-                            class: 'chat__avatar',
-                            settings: {
-                                isSimple: true,
-                            },
-                        }),
-                    }),
-                    new Chat('li', {
-                        attrs: {
-                            class: 'chat',
-                        },
-                        avatarMini: new AvatarMini('div', {
-                            class: 'chat__avatar',
-                            settings: {
-                                isSimple: true,
-                            },
-                        }),
-                    }),
-                ],
+                chats: [],
                 messages: [
                     {
                         groupName: 'One',
@@ -165,7 +181,10 @@ class ChatsPage extends Block {
     mounted() {
         setTimeout(async () => {
             const chats = await serviceChats.getChats();
-            console.log('chats', chats);
+            const propChats = {
+                chats: adapterChatsToFront(chats, this.getProps().router),
+            };
+            this.setProps(propChats);
         }, 0);
     }
 }

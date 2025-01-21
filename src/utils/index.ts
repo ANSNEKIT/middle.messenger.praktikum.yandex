@@ -1,6 +1,7 @@
 import Input from '@/components/Input';
 
 export const uppercase = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
+export const firstCharUpper = (str: string) => str.charAt(0).toUpperCase();
 
 export const validateWithMessage = (value: string | File, regexp: RegExp, errText: string) => {
     if (typeof value === 'string') {
