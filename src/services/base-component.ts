@@ -110,14 +110,14 @@ export class Block<Props extends Record<string, any> = unknown> {
         return true;
     }
 
-    public setProps(newProps: Props) {
+    public setProps(newProps: Partial<Props>) {
         if (!newProps) {
             return;
         }
 
         this._setUpdate = false;
         const oldProps = { ...this._props };
-        const { props = {}, children = {}, lists = {} } = this.getPropsAndChildren(newProps);
+        const { props = {}, children = {}, lists = {} } = this.getPropsAndChildren(newProps as Props);
 
         if (Object.values(props).length) {
             Object.assign(this._props, props);

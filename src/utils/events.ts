@@ -6,6 +6,10 @@ import { validateWithMessage } from '.';
 import { Block } from '@/services/base-component';
 import { ERouter } from '@/constants/router';
 
+/*
+TODO Внутри компонента Input появились методы getValue, getName, validate, setError
+Использовать их 
+*/
 export const prepareSubmitForm = (form: HTMLFormElement, inputs: Input[]): Record<string, string | File> | null => {
     const formData = new FormData(form);
     const rules = getFormRules(formData);
@@ -14,6 +18,10 @@ export const prepareSubmitForm = (form: HTMLFormElement, inputs: Input[]): Recor
     return validate(rules) ? Object.fromEntries(formData) : null;
 };
 
+/*
+TODO Внутри компонента Input появились методы getValue, getName, validate, setError
+Использовать их 
+*/
 const getFormRules = (formData: FormData) => {
     const rules: Record<string, string | true> = {};
 
@@ -24,10 +32,14 @@ const getFormRules = (formData: FormData) => {
     return rules;
 };
 
+/*
+TODO Внутри компонента Input появились методы getValue, getName, validate, setError
+Использовать их 
+*/
 const setFormErrors = (formData: FormData, rules: Record<string, string | true> = {}, inputs: Input[]): void => {
     Object.entries(rules).forEach(([key, value]) => {
         const errText = typeof value === 'string' ? ErrorText[key as TInputName] : '';
-        const inputComponent = inputs.find((input) => input.getProps().name === key);
+        const inputComponent = inputs.find((input) => input.getName() === key);
 
         if (!inputComponent) {
             return;
@@ -38,6 +50,10 @@ const setFormErrors = (formData: FormData, rules: Record<string, string | true> 
     });
 };
 
+/*
+TODO Внутри компонента Input появились методы getValue, getName, validate, setError
+Использовать их 
+*/
 export const onblur = (evt: MouseEvent, inputs: Input[]) => {
     if ((evt.target as HTMLElement).tagName === 'INPUT') {
         const target = evt.target as HTMLInputElement;
