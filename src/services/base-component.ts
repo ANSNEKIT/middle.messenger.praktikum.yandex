@@ -117,7 +117,7 @@ export class Block<Props extends Record<string, any> = unknown> {
 
         this._setUpdate = false;
         const oldProps = { ...this._props };
-        const { props = {}, children = {}, lists = {} } = this.getPropsAndChildren(newProps as Props);
+        const { props = {}, children = {}, lists = {}, events = {} } = this.getPropsAndChildren(newProps as Props);
 
         if (Object.values(props).length) {
             Object.assign(this._props, props);
@@ -129,6 +129,10 @@ export class Block<Props extends Record<string, any> = unknown> {
 
         if (Object.values(lists).length) {
             Object.assign(this._lists, lists);
+        }
+
+        if (Object.values(events).length) {
+            Object.assign(this._events, events);
         }
 
         if (this._setUpdate) {
@@ -288,6 +292,10 @@ export class Block<Props extends Record<string, any> = unknown> {
 
     public getProps() {
         return this._props;
+    }
+
+    public getChildren() {
+        return this._children;
     }
 
     public hide() {
