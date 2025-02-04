@@ -20,7 +20,7 @@
                         </h3>
                     </div>
                     <div class="tab__header-chat-utils">
-                        {{{ headerMenuBtn }}}
+                        {{{ userContextMenu }}}
                     </div>
                 </div>
             </header>
@@ -46,3 +46,7 @@
     </form>
 </section>
 
+
+{{#if isShowModal}}
+    {{{ modal }}}
+{{/if}}
