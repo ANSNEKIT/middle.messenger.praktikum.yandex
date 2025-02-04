@@ -15,21 +15,38 @@ interface IModalProps extends IProps {
 
 export default class Modal extends Block<IModalProps> {
     constructor(props: IModalProps) {
-        super('div', {
-            ...props,
-        });
+        super('div', props);
+
+        this._initClickEvent();
     }
 
-    public show() {
-        this.setProps({ isShow: true });
+    private _initClickEvent() {
+        window.addEventListener('click', this._onClickWindow.bind(this));
     }
 
-    public hide() {
-        this.setProps({ isShow: false });
+    private _onClickWindow(evt: MouseEvent) {
+        const target = evt.target as HTMLElement | null;
+        const isClickOnModal = target?.classList.contains('modal-container');
+
+        if (isClickOnModal) {
+            this.hide();
+        }
     }
 
-    public togle() {
-        this.setProps({ isShow: !this.getProps().isShow });
+    show() {
+        const $modal = this.getContent();
+
+        if ($modal) {
+            $modal.classList.add('show');
+        }
+    }
+
+    hide() {
+        const $modal = this.getContent();
+
+        if ($modal) {
+            $modal?.classList.remove('show');
+        }
     }
 
     render() {
