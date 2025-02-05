@@ -4,10 +4,21 @@ import modalTemplate from './modal.hbs?raw';
 import './modal.pcss';
 import { IProps } from '@/types';
 
-interface IModalProps extends IProps {
+export enum EModalType {
+    createChat = 'createChat',
+    addUser = 'addUser',
+    removeUser = 'removeUser',
+    loadMedia = 'loadMedia',
+    loadFile = 'loadFile',
+    loadLocation = 'loadLocation',
+}
+
+export type TModal = keyof typeof EModalType;
+export interface IModalProps extends IProps {
     title: string;
     isShow?: boolean;
     body?: Block;
+    type: TModal;
     submitBtn?: Block;
     cancelBtn?: Block;
     isShowCancel?: boolean;
@@ -38,6 +49,7 @@ export default class Modal extends Block<IModalProps> {
 
         if ($modal) {
             $modal.classList.add('show');
+            this.hasUpdated();
         }
     }
 
@@ -46,7 +58,12 @@ export default class Modal extends Block<IModalProps> {
 
         if ($modal) {
             $modal?.classList.remove('show');
+            this.hasUpdated();
         }
+    }
+
+    hasUpdated() {
+        return true;
     }
 
     render() {

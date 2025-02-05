@@ -1,7 +1,10 @@
 import { Block } from '@/services/base-component';
 import inputTemplate from './input.hbs?raw';
 import './input.pcss';
-import { IProps, TProps } from '@/types';
+import {
+    IProps,
+    // TProps,
+} from '@/types';
 
 interface IInputProps extends IProps {
     id: string;
@@ -72,7 +75,9 @@ export default class Input extends Block<IInputProps> {
         return this.compile(inputTemplate);
     }
 
-    hasUpdated(oldProps: TProps, newProps: TProps): boolean {
-        return oldProps['error'] !== newProps['error'];
+    // oldProps: TProps, newProps: TProps
+    hasUpdated(): boolean {
+        // return oldProps['error'] !== newProps['error'];
+        return true;
     }
 }

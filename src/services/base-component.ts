@@ -290,8 +290,8 @@ export class Block<Props extends Record<string, any> = unknown> {
         return this._element;
     }
 
-    public getProps() {
-        return this._props;
+    public getProps(): Props {
+        return this._props as Props;
     }
 
     public getChildren() {
