@@ -11,6 +11,9 @@ export enum EModalType {
     loadMedia = 'loadMedia',
     loadFile = 'loadFile',
     loadLocation = 'loadLocation',
+    attachMedia = 'attachMedia',
+    attachFile = 'attachFile',
+    attachLocation = 'attachLocation',
 }
 
 export type TModal = keyof typeof EModalType;

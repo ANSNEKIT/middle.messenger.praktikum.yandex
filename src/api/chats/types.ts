@@ -20,7 +20,7 @@ export interface IChatCreate {
 }
 
 export interface IChatDelete {
-    chatId: string;
+    chatId: number;
 }
 
 export interface IChatUserParams extends Omit<IChatParams, 'title'> {

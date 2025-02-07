@@ -18,6 +18,9 @@ interface IContextMenuProps extends IProps {
 export default class ContextMenu extends Block<IContextMenuProps> {
     constructor(props: IContextMenuProps) {
         super('div', {
+            settings: {
+                isSimple: true,
+            },
             ...props,
         });
 

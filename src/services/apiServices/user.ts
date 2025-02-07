@@ -54,18 +54,20 @@ export const changePassword = async (form: IUserChangePassword) => {
     }
 };
 
-export const search = async (form: IUserSearch) => {
+export const search = async (form: IUserSearch): Promise<IUserDTO[] | null> => {
     window.store.setState({ isLoading: true });
     try {
         const xhr = await userApi.postSearch(form);
-        const findedUsers = xhr.json<IUserDTO[]>();
+        const findedUsers = xhr.json<IUserDTO[]>() || [];
+
         if (xhr.ok) {
-            console.log('search 200 OK', findedUsers);
-        } else if (xhr.status >= 500) {
-            window.router.go(ERouter.SERVER_ERROR);
+            return findedUsers;
         }
+
+        return [];
     } catch (responsError: unknown) {
         console.error(responsError);
+        return [];
     } finally {
         window.store.setState({ isLoading: false });
     }

@@ -23,7 +23,7 @@ export const getChats = async (): Promise<ChatDTO.IChatDTO[]> => {
 export const addChat = async (form: ChatTypes.IChatCreate): Promise<ChatDTO.IChatCreateDTO | null> => {
     window.store.setState({ isLoading: true });
     try {
-        const xhr = await chatsApi.getChats(form);
+        const xhr = await chatsApi.addChat(form);
         if (xhr.ok) {
             return xhr.json<ChatDTO.IChatCreateDTO>();
         }
