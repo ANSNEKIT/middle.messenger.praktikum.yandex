@@ -59,6 +59,10 @@ export type TIterableObject = {
     [index: string]: unknown;
 };
 
+export type Indexed<T = unknown> = {
+    [key in string | symbol]: T;
+};
+
 export type TChildren = Record<string, Block>;
 
 export type TMeta = {

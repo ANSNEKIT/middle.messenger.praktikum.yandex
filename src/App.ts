@@ -1,8 +1,7 @@
 import * as Pages from './pages/index';
 import { BASE_QUERY, ERouter } from './constants/router';
 import Router from './services/Router';
-import Store from './services/Store';
-import { EStoreEvents } from './types/store';
+import Store, { EStoreEvents } from './services/Store';
 
 export default class App {
     useRouter() {
@@ -24,6 +23,8 @@ export default class App {
             isLoading: false,
             authUser: null,
             authError: null,
+            chats: [],
+            currentChat: null,
         });
 
         window.store.on(EStoreEvents.Updated, (oldStore, newStore) => {

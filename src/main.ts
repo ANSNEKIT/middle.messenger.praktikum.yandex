@@ -10,6 +10,6 @@ window.addEventListener('click', (evt: MouseEvent) => {
 
 document.addEventListener('DOMContentLoaded', () => {
     const app = new App();
-    app.useRouter();
     app.useStore();
+    app.useRouter();
 });

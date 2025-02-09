@@ -9,7 +9,9 @@ export const getChats = async (): Promise<ChatDTO.IChatDTO[]> => {
     try {
         const xhr = await chatsApi.getChats();
         if (xhr.ok) {
-            return xhr.json<ChatDTO.IChatDTO[]>() || [];
+            const chats = xhr.json<ChatDTO.IChatDTO[]>() || [];
+            window.store.setState({ chats });
+            return chats;
         }
         return [];
     } catch (responsError: unknown) {
@@ -25,7 +27,8 @@ export const addChat = async (form: ChatTypes.IChatCreate): Promise<ChatDTO.ICha
     try {
         const xhr = await chatsApi.addChat(form);
         if (xhr.ok) {
-            return xhr.json<ChatDTO.IChatCreateDTO>();
+            const chat = xhr.json<ChatDTO.IChatCreateDTO>();
+            return chat;
         }
         return null;
     } catch (responsError: unknown) {

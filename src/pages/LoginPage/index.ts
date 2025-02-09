@@ -76,7 +76,7 @@ class LoginPage extends Block {
                     },
                     id: 'login-btn',
                     type: 'submit',
-                    class: 'button auth-form__submit-btn',
+                    class: 'button--primary auth-form__submit-btn',
                     text: 'Войти',
                     '@click': (evt: MouseEvent) => onLogin(evt, inputs),
                 }),

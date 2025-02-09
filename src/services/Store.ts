@@ -1,5 +1,18 @@
-import { EStoreEvents } from '@/types/store';
 import { EventBus } from './event-bus';
+import { IUserDTO } from '@/api/user/user.model';
+import * as ChatDTO from '@/api/chats/chats.model';
+
+export enum EStoreEvents {
+    Updated = 'updated',
+}
+
+export interface IStore {
+    isLoading: boolean;
+    authUser: IUserDTO | null;
+    authError: string | null;
+    chats: ChatDTO.IChatDTO[];
+    currentChat: ChatDTO.IChatDTO | null;
+}
 
 export default class Store extends EventBus {
     private _state = {};
@@ -18,7 +31,7 @@ export default class Store extends EventBus {
         Store.__instanse = this;
     }
 
-    setState<T extends object>(nextState = {}) {
+    setState<T extends IStore>(nextState = {}) {
         const prevState = structuredClone(this._state);
 
         this._state = { ...prevState, ...nextState } as Partial<T>;
@@ -26,7 +39,16 @@ export default class Store extends EventBus {
         this.emit(EStoreEvents.Updated, prevState, nextState);
     }
 
-    getState<T extends object>() {
+    getState<T extends IStore>() {
         return this._state as T;
+    }
+
+    setCurrentChat(chatId: string | null) {
+        const currentChat = this.getState().chats.find((el) => String(el.id) === String(chatId)) ?? null;
+        if (currentChat) {
+            this.setState({ currentChat });
+        } else if (chatId === null) {
+            this.setState({ currentChat: null });
+        }
     }
 }

@@ -110,12 +110,12 @@ export class Block<Props extends Record<string, any> = unknown> {
         return true;
     }
 
-    public setProps(newProps: Partial<Props>) {
+    public setProps(newProps: Partial<Props>, isRerender = false) {
         if (!newProps) {
             return;
         }
 
-        this._setUpdate = false;
+        this._setUpdate = isRerender;
         const oldProps = { ...this._props };
         const { props = {}, children = {}, lists = {}, events = {} } = this.getPropsAndChildren(newProps as Props);
 
