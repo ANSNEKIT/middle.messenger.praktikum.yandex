@@ -1,10 +1,15 @@
 import { EventBus } from './event-bus';
 import { IUserDTO } from '@/api/user/user.model';
 import * as ChatDTO from '@/api/chats/chats.model';
+import { EModalType } from '@/pages/ChatsPage';
 
 export enum EStoreEvents {
     Updated = 'updated',
 }
+
+export type TModal = {
+    type: EModalType;
+};
 
 export interface IStore {
     isLoading: boolean;
@@ -12,6 +17,8 @@ export interface IStore {
     authError: string | null;
     chats: ChatDTO.IChatDTO[];
     currentChat: ChatDTO.IChatDTO | null;
+    token: string | null;
+    modal: TModal | null;
 }
 
 export default class Store extends EventBus {

@@ -6,7 +6,7 @@ import { EventBus } from './event-bus';
 
 // @ts-expect-error - unknown is ok
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export class Block<Props extends Record<string, any> = unknown> {
+export class Block<P extends Record<string, any> = unknown> {
     private _element: HTMLElement | null;
     private _meta: TMeta;
     private _props: IProps;
@@ -18,7 +18,7 @@ export class Block<Props extends Record<string, any> = unknown> {
     private _setUpdate = false;
 
     // @ts-expect-error ==== {} - is default type ok
-    constructor(tagName = 'div', propsAndChilds: Props = {}) {
+    constructor(tagName = 'div', propsAndChilds: P = {}) {
         const { props, children, lists, events } = this.getPropsAndChildren(propsAndChilds);
         this._eventBus = new EventBus();
         this._meta = {
@@ -36,15 +36,26 @@ export class Block<Props extends Record<string, any> = unknown> {
     }
 
     public registerEvents() {
-        this._eventBus.on(Event.INIT, this.init.bind(this));
+        this._eventBus.on(Event.INIT, this._init.bind(this));
         this._eventBus.on(Event.RENDER, this._render.bind(this));
         this._eventBus.on(Event.MOUNTED, this._mounted.bind(this));
         this._eventBus.on(Event.UPDATED, this._updated.bind(this));
     }
 
-    public init() {
+    private _init() {
+        const componentProps = this.init();
+        const { props, children, lists, events } = this.getPropsAndChildren(componentProps);
+        this._props = this._makeProxy({ ...this._props, ...props });
+        this._children = this._makeProxy({ ...this._children, ...children });
+        this._lists = this._makeProxy({ ...this._lists, ...lists });
+        this._events = { ...this._events, ...events };
+
         this._element = this.createDocumentElement(this._meta?.tagName);
         this._eventBus.emit(Event.RENDER);
+    }
+
+    public init(): P {
+        return {} as P;
     }
 
     public createDocumentElement(tag = 'div') {
@@ -57,7 +68,7 @@ export class Block<Props extends Record<string, any> = unknown> {
         return $element;
     }
 
-    public getPropsAndChildren(propsWithChilds: Props) {
+    public getPropsAndChildren(propsWithChilds: P) {
         const props: IProps = {};
         const children: TChildren = {};
         const lists: Record<string, Block[]> = {};
@@ -93,7 +104,7 @@ export class Block<Props extends Record<string, any> = unknown> {
         }
     }
 
-    private _updated(oldProps: Props, newProps: Props) {
+    private _updated(oldProps: P, newProps: P) {
         const isRerender = this.hasUpdated(oldProps, newProps);
 
         if (isRerender) {
@@ -103,21 +114,21 @@ export class Block<Props extends Record<string, any> = unknown> {
         }
     }
 
-    public hasUpdated(oldProps: Props, newProps: Props) {
+    public hasUpdated(oldProps: P, newProps: P) {
         console.log('hasUpdate old', oldProps);
         console.log('hasUpdate new', newProps);
 
         return true;
     }
 
-    public setProps(newProps: Partial<Props>, isRerender = false) {
+    public setProps(newProps: Partial<P>, isRerender = false) {
         if (!newProps) {
             return;
         }
 
         this._setUpdate = isRerender;
         const oldProps = { ...this._props };
-        const { props = {}, children = {}, lists = {}, events = {} } = this.getPropsAndChildren(newProps as Props);
+        const { props = {}, children = {}, lists = {}, events = {} } = this.getPropsAndChildren(newProps as P);
 
         if (Object.values(props).length) {
             Object.assign(this._props, props);
@@ -290,8 +301,8 @@ export class Block<Props extends Record<string, any> = unknown> {
         return this._element;
     }
 
-    public getProps(): Props {
-        return this._props as Props;
+    public getProps(): P {
+        return this._props as P;
     }
 
     public getChildren() {

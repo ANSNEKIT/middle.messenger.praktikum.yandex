@@ -7,7 +7,6 @@ const options = {
     mode: 'cors',
     headers: {
         Accept: 'application/json',
-        'Content-Type': 'application/json',
     },
 };
 
@@ -29,5 +28,8 @@ export default class ChatsApi implements IChatsApi {
     }
     async deleteUser(data: IChatUserPut) {
         return httpApi.delete('/users', { ...options, data });
+    }
+    async getToken(chatId: number) {
+        return httpApi.post(`/${chatId}`);
     }
 }

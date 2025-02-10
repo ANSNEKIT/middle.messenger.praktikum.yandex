@@ -33,3 +33,7 @@ export interface IChatUser extends Omit<IChatUserDTO, 'id | display_name | role'
     email: string;
     phone: string;
 }
+
+export interface IToken {
+    token: string;
+}

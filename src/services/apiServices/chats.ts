@@ -92,3 +92,13 @@ export const deleteUser = async (form: ChatTypes.IChatUserPut): Promise<void> =>
         window.store.setState({ isLoading: false });
     }
 };
+
+export const getToken = async (chatId: number): Promise<void> => {
+    try {
+        const xhr = await chatsApi.getToken(chatId);
+        const data = xhr.json<ChatDTO.IToken>();
+        window.store.setState({ token: data?.token || null });
+    } catch (error) {
+        console.log(error);
+    }
+};

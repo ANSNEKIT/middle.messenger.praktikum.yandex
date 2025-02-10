@@ -1,3 +1,4 @@
+import { BASE_URL } from '@/constants';
 import { IRequestResult } from '@/types';
 import { queryStringify } from '@/utils';
 
@@ -43,8 +44,8 @@ const errorResponse = (xhr: XMLHttpRequest, message: string | null = null): IReq
 export class HTTPTransport {
     private _apiUrl = '';
 
-    constructor(baseUrl: string) {
-        this._apiUrl = `https://ya-praktikum.tech/api/v2${baseUrl}`;
+    constructor(startUrl: string) {
+        this._apiUrl = `${BASE_URL}${startUrl}`;
     }
 
     get(url: string, options: IOptions = {}): Promise<IRequestResult> {
