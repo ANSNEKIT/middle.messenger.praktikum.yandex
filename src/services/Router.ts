@@ -33,9 +33,12 @@ export default class Router implements IRouter {
     }
 
     private _onRoute(pathName: string, isChild: boolean = false) {
-        const route = this.getRoute(pathName, isChild);
+        let route = this.getRoute(pathName, isChild);
 
         if (!route) {
+            const routesLength = this.routes.length;
+            route = this.routes[routesLength - 1];
+
             return;
         }
 

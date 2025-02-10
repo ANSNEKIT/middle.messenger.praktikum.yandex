@@ -4,31 +4,18 @@ import modalTemplate from './modal.hbs?raw';
 import './modal.pcss';
 import { IProps } from '@/types';
 
-export enum EModalType {
-    createChat = 'createChat',
-    addUser = 'addUser',
-    removeUser = 'removeUser',
-    loadMedia = 'loadMedia',
-    loadFile = 'loadFile',
-    loadLocation = 'loadLocation',
-    attachMedia = 'attachMedia',
-    attachFile = 'attachFile',
-    attachLocation = 'attachLocation',
-}
-
-export type TModal = keyof typeof EModalType;
-export interface IModalProps extends IProps {
+export interface IModalProps<ModalType> extends IProps {
     title: string;
     isShow?: boolean;
-    body?: Block;
-    type: TModal;
+    body?: unknown | string;
+    type: ModalType;
     submitBtn?: Block;
     cancelBtn?: Block;
     isShowCancel?: boolean;
 }
 
-export default class Modal extends Block<IModalProps> {
-    constructor(props: IModalProps) {
+export default class Modal<T> extends Block<IModalProps<T>> {
+    constructor(props: IModalProps<T>) {
         super('div', props);
 
         this._initClickEvent();
@@ -41,8 +28,9 @@ export default class Modal extends Block<IModalProps> {
     private _onClickWindow(evt: MouseEvent) {
         const target = evt.target as HTMLElement | null;
         const isClickOnModal = target?.classList.contains('modal-container');
+        const $modal = this.getContent();
 
-        if (isClickOnModal) {
+        if ($modal && isClickOnModal) {
             this.hide();
         }
     }
@@ -52,7 +40,6 @@ export default class Modal extends Block<IModalProps> {
 
         if ($modal) {
             $modal.classList.add('show');
-            this.hasUpdated();
         }
     }
 
@@ -61,7 +48,6 @@ export default class Modal extends Block<IModalProps> {
 
         if ($modal) {
             $modal?.classList.remove('show');
-            this.hasUpdated();
         }
     }
 

@@ -1,4 +1,4 @@
-import { setInputValidationState, validate } from '@/utils';
+import { validate } from '@/utils';
 import Input from '@/components/Input';
 import { ErrorText, InputRegExp, TInputName } from '@/constants/validate';
 import { IProps, RequiredKeys } from '@/types';
@@ -6,65 +6,76 @@ import { validateWithMessage } from '.';
 import { Block } from '@/services/base-component';
 import { ERouter } from '@/constants/router';
 
-/*
-TODO Внутри компонента Input появились методы getValue, getName, validate, setError
-Использовать их 
-*/
 export const prepareSubmitForm = (form: HTMLFormElement, inputs: Input[]): Record<string, string | File> | null => {
     const formData = new FormData(form);
-    const rules = getFormRules(formData);
+    const rules = getFormRules(formData, inputs);
+
     setFormErrors(formData, rules, inputs);
 
     return validate(rules) ? Object.fromEntries(formData) : null;
 };
 
-/*
-TODO Внутри компонента Input появились методы getValue, getName, validate, setError
-Использовать их 
-*/
-const getFormRules = (formData: FormData) => {
+const getFormRules = (formData: FormData, inputs: Input[]) => {
     const rules: Record<string, string | true> = {};
 
     for (const [key, value] of formData.entries()) {
+        const inputComponent = inputs.find((input) => input.getName() === key);
+        const isRequired = inputComponent?.getProps()?.required;
+        const val = inputComponent?.getValue();
+
+        if (!isRequired && !val) {
+            rules[key] = true;
+            continue;
+        }
+
+        if (!InputRegExp[key as TInputName]) {
+            rules[key] = 'Ошибка валидации';
+            continue;
+        }
+
         rules[key] = validateWithMessage(value, InputRegExp[key as TInputName], ErrorText[key as TInputName]);
     }
 
     return rules;
 };
 
-/*
-TODO Внутри компонента Input появились методы getValue, getName, validate, setError
-Использовать их 
-*/
 const setFormErrors = (formData: FormData, rules: Record<string, string | true> = {}, inputs: Input[]): void => {
-    Object.entries(rules).forEach(([key, value]) => {
-        const errText = typeof value === 'string' ? ErrorText[key as TInputName] : '';
+    Object.keys(rules).forEach((key) => {
         const inputComponent = inputs.find((input) => input.getName() === key);
 
         if (!inputComponent) {
             return;
         }
 
+        const isRequired = inputComponent.getProps()?.required;
+
+        if (!isRequired && !inputComponent.getValue()) {
+            inputComponent.setProps({ value: '', errText: '' });
+            return;
+        }
+
         const inputValue = (formData.get(key) as string) || '';
-        setInputValidationState(inputComponent, inputValue, errText);
+        const errText = typeof rules[key] === 'string' ? rules[key] : '';
+        inputComponent.setProps({ value: inputValue, errText });
+        inputComponent.validate();
     });
 };
 
-/*
-TODO Внутри компонента Input появились методы getValue, getName, validate, setError
-Использовать их 
-*/
 export const onblur = (evt: MouseEvent, inputs: Input[]) => {
     if ((evt.target as HTMLElement).tagName === 'INPUT') {
         const target = evt.target as HTMLInputElement;
-        const { name, value } = target as { name: TInputName; value: string };
-        const validateState = validateWithMessage(value, InputRegExp[name], ErrorText[name]);
-
-        const errorText = validateState === true ? '' : validateState;
-        const inputComponent = inputs.find((input) => input.getProps().name === name);
+        const inputComponent = inputs.find((input) => input.getName() === target.name);
 
         if (inputComponent) {
-            setInputValidationState(inputComponent, value, errorText);
+            const isRequired = inputComponent.getProps()?.required;
+
+            if (!isRequired && !target.value) {
+                inputComponent.setProps({ value: '', errText: '' });
+                return;
+            }
+
+            inputComponent.setProps({ value: target.value });
+            inputComponent.validate();
         }
     }
 };

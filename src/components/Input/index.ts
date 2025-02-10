@@ -15,7 +15,7 @@ interface IInputProps extends IProps {
     required: boolean;
     disabled?: boolean;
     error?: string;
-    value?: string;
+    value?: string | File;
     rule?: RegExp;
     errText?: string;
 }

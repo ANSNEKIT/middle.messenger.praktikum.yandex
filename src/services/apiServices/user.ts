@@ -10,6 +10,8 @@ export const editProfile = async (form: IProfileData) => {
     try {
         const xhr = await userApi.putProfile(form);
         if (xhr.ok) {
+            const newData = xhr.json<IUserDTO>();
+            window.store.setState({ authUser: newData });
             window.router.go(ERouter.SETTINGS);
         } else if (xhr.status >= 500) {
             window.router.go(ERouter.SERVER_ERROR);
@@ -21,18 +23,18 @@ export const editProfile = async (form: IProfileData) => {
     }
 };
 
-export const changeAvatar = async (form: IUserAvatar) => {
+export const changeAvatar = async (form: IUserAvatar): Promise<IUserDTO | null> => {
     window.store.setState({ isLoading: true });
     try {
         const xhr = await userApi.putAvatar(form);
         const newData = xhr.json<IUserDTO>();
         if (xhr.ok) {
-            console.log('changeAvatar newData', newData);
-        } else if (xhr.status >= 500) {
-            window.router.go(ERouter.SERVER_ERROR);
+            window.store.setState({ authUser: newData });
         }
+        return null;
     } catch (responsError: unknown) {
         console.error(responsError);
+        return null;
     } finally {
         window.store.setState({ isLoading: false });
     }

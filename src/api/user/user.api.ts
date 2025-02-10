@@ -4,10 +4,6 @@ import { IProfileData, IUserApi, IUserAvatar, IUserChangePassword, IUserSearch }
 const httpApi = new HTTPTransport('/user');
 const options = {
     mode: 'cors',
-    headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-    },
 };
 
 export default class UserApi implements IUserApi {
@@ -18,7 +14,7 @@ export default class UserApi implements IUserApi {
         return httpApi.put('/profile/avatar', { ...options, data });
     }
     async putPassword(data: IUserChangePassword) {
-        return httpApi.put('/profile/password', { ...options, data });
+        return httpApi.put('/password', { ...options, data });
     }
     async postSearch(data: IUserSearch) {
         return httpApi.post('/search', { ...options, data });

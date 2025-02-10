@@ -9,6 +9,7 @@ import { IProps, RequiredKeys } from '@/types';
 import { ERouter } from '@/constants/router';
 import * as apiServiceAuth from '@/services/apiServices/auth';
 import { IUserRegistration } from '@/api/auth/types';
+import { ErrorText, InputRegExp } from '@/constants/validate';
 
 import '@/components/AuthForm/auth-form.pcss';
 
@@ -38,6 +39,8 @@ const inputs = [
         type: 'email',
         name: 'email',
         required: true,
+        rule: InputRegExp.email,
+        errText: ErrorText.email,
     }),
     new Input('div', {
         attrs: {
@@ -48,6 +51,8 @@ const inputs = [
         type: 'text',
         name: 'first_name',
         required: true,
+        rule: InputRegExp.first_name,
+        errText: ErrorText.first_name,
     }),
     new Input('div', {
         attrs: {
@@ -58,6 +63,8 @@ const inputs = [
         type: 'text',
         name: 'second_name',
         required: true,
+        rule: InputRegExp.second_name,
+        errText: ErrorText.second_name,
     }),
     new Input('div', {
         attrs: {
@@ -68,6 +75,8 @@ const inputs = [
         type: 'tel',
         name: 'phone',
         required: true,
+        rule: InputRegExp.phone,
+        errText: ErrorText.phone,
     }),
     new Input('div', {
         attrs: {
@@ -78,6 +87,8 @@ const inputs = [
         type: 'text',
         name: 'login',
         required: true,
+        rule: InputRegExp.login,
+        errText: ErrorText.login,
     }),
     new Input('div', {
         attrs: {
@@ -88,6 +99,8 @@ const inputs = [
         type: 'password',
         name: 'password',
         required: true,
+        rule: InputRegExp.password,
+        errText: ErrorText.password,
     }),
     new Input('div', {
         attrs: {
@@ -98,6 +111,8 @@ const inputs = [
         type: 'password',
         name: 'newPassword',
         required: true,
+        rule: InputRegExp.newPassword,
+        errText: ErrorText.newPassword,
     }),
 ];
 

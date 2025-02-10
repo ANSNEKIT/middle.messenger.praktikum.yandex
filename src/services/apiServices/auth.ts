@@ -60,13 +60,13 @@ export const logout = async () => {
     try {
         const xhr = await authApi.logout();
         if (xhr.ok) {
-            window.router.go(ERouter.LOGIN);
             window.store.setState({ authUser: null });
         } else if (xhr.status >= 500) {
             window.router.go(ERouter.SERVER_ERROR);
         }
     } catch (responsError: unknown) {
         console.error(responsError);
+        window.router.go(ERouter.SERVER_ERROR);
     } finally {
         window.store.setState({ isLoading: false });
     }

@@ -78,8 +78,6 @@ export class HTTPTransport {
 
             xhr.open(method, isGet && !!data ? `${url}${queryStringify(data)}` : url);
 
-            xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-
             Object.keys(headers).forEach((key) => {
                 xhr.setRequestHeader(key, headers[key]);
             });
@@ -102,7 +100,10 @@ export class HTTPTransport {
 
             if (isGet || !data) {
                 xhr.send();
+            } else if (data instanceof FormData) {
+                xhr.send(data);
             } else {
+                xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
                 xhr.send(JSON.stringify(data));
             }
         });

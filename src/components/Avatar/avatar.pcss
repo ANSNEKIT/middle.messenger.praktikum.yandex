@@ -1,7 +1,6 @@
 .avatar {
     width: 34px;
     height: 34px;
-    border-radius: 1000px;
 
     &__empty {
         width: inherit;
@@ -13,10 +12,22 @@
         }
     }
 
+    &__image-wrap {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        width: inherit;
+        height: inherit;
+        max-width: 200px;
+
+        border-radius: 1000px;
+        border: 2px solid black;
+    }
+
     &__image {
         width: inherit;
         height: auto;
-        border-radius: 1000px;
         background-size: cover;
         background-position: center;
     }

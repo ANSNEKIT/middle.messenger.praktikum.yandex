@@ -24,7 +24,7 @@ export default class Route implements IRoute {
 
     leave() {
         if (this._block) {
-            this._block.hide();
+            this._block = null;
         }
     }
 
@@ -42,8 +42,10 @@ export default class Route implements IRoute {
         const root = document.querySelector(query);
         if (root) {
             root.innerHTML = '';
-            root.append(block.getContent() ?? '');
+            root.append(block.getContent()!);
         }
+
+        return root;
     }
 
     render() {
@@ -52,6 +54,7 @@ export default class Route implements IRoute {
         }
 
         this._renderDom(this._props.rootQuery, this._block);
-        this._block.mounted();
+        this._block.dispatchOnMounted();
+        // this._block.mounted();
     }
 }

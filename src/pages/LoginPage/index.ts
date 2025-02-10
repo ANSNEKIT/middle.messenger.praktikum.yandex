@@ -8,7 +8,8 @@ import Link from '@/components/Link';
 import { ERouter } from '@/constants/router';
 import { IProps, RequiredKeys } from '@/types';
 import { IUserLogin } from '@/api/auth/types';
-import * as apiServiceAuth from '@/services/apiServices/auth';
+import * as serviceAuth from '@/services/apiServices/auth';
+import { ErrorText, InputRegExp } from '@/constants/validate';
 
 import '@/components/AuthForm/auth-form.pcss';
 
@@ -23,12 +24,8 @@ const onLogin = async (evt: MouseEvent, inputs: Input[]) => {
     const loginForm = prepareSubmitForm($form, inputs);
 
     if (loginForm) {
-        await apiServiceAuth.login(loginForm as unknown as IUserLogin);
+        await serviceAuth.login(loginForm as unknown as IUserLogin);
     }
-};
-
-const logout = async () => {
-    await apiServiceAuth.logout();
 };
 
 const inputs = [
@@ -41,6 +38,8 @@ const inputs = [
         type: 'text',
         name: 'login',
         required: true,
+        rule: InputRegExp.login,
+        errText: ErrorText.login,
     }),
     new Input('div', {
         attrs: {
@@ -51,6 +50,8 @@ const inputs = [
         type: 'password',
         name: 'password',
         required: true,
+        rule: InputRegExp.password,
+        errText: ErrorText.password,
     }),
 ];
 
@@ -93,14 +94,17 @@ class LoginPage extends Block {
         });
     }
 
+    async logout() {
+        await serviceAuth.logout();
+        window.store.setState({ authUser: null });
+    }
+
     render() {
         return this.compile(AuthFormTemplate);
     }
 
     mounted() {
-        setTimeout(async () => {
-            await logout();
-        }, 0);
+        this.logout();
     }
 }
 
