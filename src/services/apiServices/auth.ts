@@ -39,17 +39,19 @@ export const register = async (registerForm: IUserRegistration): Promise<void> =
     }
 };
 
-export const me = async () => {
+export const me = async (): Promise<IUserDTO | null> => {
     window.store.setState({ isLoading: true });
     try {
         const xhr = await authApi.me();
         if (xhr.ok) {
-            window.store.setState({ authUser: xhr.json<IUserDTO>() });
-        } else if (xhr.status >= 500) {
-            window.router.go(ERouter.SERVER_ERROR);
+            const data = xhr.json<IUserDTO>();
+            window.store.setState({ authUser: data });
+            return data;
         }
+        return null;
     } catch (responsError: unknown) {
         console.error(responsError);
+        return null;
     } finally {
         window.store.setState({ isLoading: false });
     }
@@ -60,7 +62,7 @@ export const logout = async () => {
     try {
         const xhr = await authApi.logout();
         if (xhr.ok) {
-            window.store.setState({ authUser: null });
+            window.store.clearState();
         } else if (xhr.status >= 500) {
             window.router.go(ERouter.SERVER_ERROR);
         }

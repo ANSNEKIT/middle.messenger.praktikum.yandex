@@ -1,6 +1,7 @@
 import Route from './Route';
 import { Block } from './base-component';
 import { IRouter, IRoute } from '@/types/router';
+import { isWindow } from '@/types';
 
 export default class Router implements IRouter {
     static __instance: Router | null = null;
@@ -25,9 +26,10 @@ export default class Router implements IRouter {
     }
 
     start() {
-        window.onpopstate = ((evt: Event) => {
-            const curTarget = evt.currentTarget as Window;
-            this._onRoute(curTarget.location.pathname);
+        window.onpopstate = ((event: Event) => {
+            if (isWindow(event.currentTarget)) {
+                this._onRoute(event.currentTarget.location.pathname);
+            }
         }).bind(this);
         this._onRoute(window.location.pathname);
     }
@@ -42,7 +44,7 @@ export default class Router implements IRouter {
             return;
         }
 
-        if (this._currentRoute && this._currentRoute !== route) {
+        if (!!this._currentRoute && this._currentRoute !== route) {
             this._currentRoute.leave();
         }
 

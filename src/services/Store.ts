@@ -2,6 +2,8 @@ import { EventBus } from './event-bus';
 import { IUserDTO } from '@/api/user/user.model';
 import * as ChatDTO from '@/api/chats/chats.model';
 import { EModalType } from '@/pages/ChatsPage';
+import MessagesAPI from '@/api/messages/messages.api';
+import { IMessage, IMessageOld } from '@/api/messages/types';
 
 export enum EStoreEvents {
     Updated = 'updated',
@@ -19,29 +21,55 @@ export interface IStore {
     currentChat: ChatDTO.IChatDTO | null;
     token: string | null;
     modal: TModal | null;
+    currentSocket: MessagesAPI | null;
+    messages: IMessageOld[];
+    currentMessages: IMessage[];
 }
 
 export default class Store extends EventBus {
     private _state = {};
     static __instanse: Store | null = null;
 
-    constructor(defaultState = {}) {
+    constructor(initState = {}) {
         if (Store.__instanse) {
             return Store.__instanse;
         }
 
         super();
 
-        this._state = defaultState;
-        this.setState(defaultState);
+        if (!initState) {
+            this._state = this._getDefaultState();
+        } else {
+            this._state = initState;
+            this.setState(initState);
+        }
 
         Store.__instanse = this;
     }
 
-    setState<T extends IStore>(nextState = {}) {
-        const prevState = structuredClone(this._state);
+    private _getDefaultState() {
+        return {
+            isLoading: false,
+            authUser: null,
+            authError: null,
+            chats: [],
+            currentChat: null,
+            token: null,
+            modal: null,
+            currentSocket: null,
+            messages: [],
+            currentMessages: [],
+        };
+    }
 
-        this._state = { ...prevState, ...nextState } as Partial<T>;
+    clearState() {
+        this._state = this._getDefaultState();
+    }
+
+    setState<T extends IStore>(nextState = {}) {
+        const prevState = JSON.stringify(this._state);
+
+        this._state = { ...JSON.parse(prevState), ...nextState } as Partial<T>;
 
         this.emit(EStoreEvents.Updated, prevState, nextState);
     }

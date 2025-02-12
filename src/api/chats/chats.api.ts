@@ -20,7 +20,7 @@ export default class ChatsApi implements IChatsApi {
     async deleteChat(data: IChatDelete) {
         return httpApi.delete('/', { ...options, data });
     }
-    async getUsers(data: IChatUserParams) {
+    async getChatUsers(data: IChatUserParams) {
         return httpApi.get(`/${data.id}/users`, { ...options, data });
     }
     async addUser(data: IChatUserPut) {
@@ -30,6 +30,9 @@ export default class ChatsApi implements IChatsApi {
         return httpApi.delete('/users', { ...options, data });
     }
     async getToken(chatId: number) {
-        return httpApi.post(`/${chatId}`);
+        return httpApi.post(`/token/${chatId}`);
+    }
+    async getChatMessagesCount(chatId: number) {
+        return httpApi.get(`/new/${chatId}`);
     }
 }

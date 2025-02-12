@@ -95,8 +95,12 @@ class LoginPage extends Block {
     }
 
     async logout() {
+        const { currentSocket = null } = window.store.getState();
+        if (currentSocket) {
+            currentSocket.disconnectFromChat();
+        }
+
         await serviceAuth.logout();
-        window.store.setState({ authUser: null });
     }
 
     render() {

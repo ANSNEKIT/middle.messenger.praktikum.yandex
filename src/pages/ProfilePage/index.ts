@@ -117,12 +117,10 @@ class ProfilePage extends Block<IProfilePageProps> {
             },
             ...props,
         });
-
-        this.initProfileProps();
     }
 
-    initProfileProps() {
-        const localProps = {
+    init() {
+        return {
             ...this.initModalProps(this.getModalEditAvatar()),
             pageTitle: new PageTitle('h1', {
                 settings: {
@@ -175,9 +173,6 @@ class ProfilePage extends Block<IProfilePageProps> {
                 '@click': () => this.onLogout(),
             }),
         };
-
-        this.setProps(localProps);
-        this.addEvents();
     }
 
     initModalProps(props: IModalProps<EModalType>) {

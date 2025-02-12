@@ -55,10 +55,10 @@ export const deleteChat = async (form: ChatTypes.IChatDelete): Promise<ChatDTO.I
     }
 };
 
-export const getUsers = async (form: ChatTypes.IChatUserParams): Promise<ChatDTO.IChatUserDTO[]> => {
+export const getChatUsers = async (form: ChatTypes.IChatUserParams): Promise<ChatDTO.IChatUserDTO[]> => {
     window.store.setState({ isLoading: true });
     try {
-        const xhr = await chatsApi.getUsers(form);
+        const xhr = await chatsApi.getChatUsers(form);
         if (xhr.ok) {
             return xhr.json<ChatDTO.IChatUserDTO[]>() || [];
         }
@@ -93,12 +93,26 @@ export const deleteUser = async (form: ChatTypes.IChatUserPut): Promise<void> =>
     }
 };
 
-export const getToken = async (chatId: number): Promise<void> => {
+export const getChatToken = async (chatId: number): Promise<string | null> => {
     try {
         const xhr = await chatsApi.getToken(chatId);
         const data = xhr.json<ChatDTO.IToken>();
         window.store.setState({ token: data?.token || null });
+        return data?.token ?? null;
     } catch (error) {
         console.log(error);
+        return null;
+    }
+};
+
+export const getChatNewMessagesCount = async (chatId: number): Promise<number> => {
+    try {
+        const xhr = await chatsApi.getChatMessagesCount(chatId);
+        const data = xhr.json<ChatDTO.IChatNewMessagesConut>();
+        window.store.setState({ newMessagesCount: data?.unread_count ?? 0 });
+        return data?.unread_count ?? 0;
+    } catch (error) {
+        console.log(error);
+        return 0;
     }
 };

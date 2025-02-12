@@ -80,3 +80,7 @@ export interface IRequestResult {
     json: <T>() => T | null;
     headers: string;
 }
+
+export function isWindow(element: unknown): element is Window {
+    return element instanceof Window;
+}

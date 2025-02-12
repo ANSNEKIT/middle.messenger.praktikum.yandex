@@ -4,9 +4,11 @@ export interface IChatsApi {
     getChats(data: IChatParams): Promise<IRequestResult>;
     addChat(data: IChatCreate): Promise<IRequestResult>;
     deleteChat(data: IChatDelete): Promise<IRequestResult>;
-    getUsers(data: IChatUserParams): Promise<IRequestResult>;
+    getChatUsers(data: IChatUserParams): Promise<IRequestResult>;
     addUser(data: IChatUserPut): Promise<IRequestResult>;
     deleteUser(data: IChatUserPut): Promise<IRequestResult>;
+    getToken(chatId: number): Promise<IRequestResult>;
+    getChatMessagesCount(chatId: number): Promise<IRequestResult>;
 }
 
 export interface IChatParams {

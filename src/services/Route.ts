@@ -28,12 +28,12 @@ export default class Route implements IRoute {
         }
     }
 
-    match(pathname: string, isChild: boolean = false) {
-        if (isChild) {
-            const substr = this._pathname.substring(1);
-            const isChildPath = !!substr && !!pathname.includes(substr);
-            return isChildPath;
-        }
+    match(pathname: string, _: boolean = false) {
+        // if (isChild) {
+        //     const substr = this._pathname.substring(1);
+        //     const isChildPath = !!substr && !!pathname.includes(substr);
+        //     return isChildPath;
+        // }
 
         return isEqual(pathname, this._pathname);
     }
@@ -54,7 +54,6 @@ export default class Route implements IRoute {
         }
 
         this._renderDom(this._props.rootQuery, this._block);
-        this._block.dispatchOnMounted();
-        // this._block.mounted();
+        this._block.mounted();
     }
 }

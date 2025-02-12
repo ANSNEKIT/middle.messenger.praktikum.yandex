@@ -37,3 +37,7 @@ export interface IChatUser extends Omit<IChatUserDTO, 'id | display_name | role'
 export interface IToken {
     token: string;
 }
+
+export interface IChatNewMessagesConut {
+    unread_count: number;
+}

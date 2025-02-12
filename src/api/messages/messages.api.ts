@@ -11,9 +11,9 @@ class MessagesAPI {
     }
 
     // Create WSS transport
-    async getWSSTransport(userId: number, chatID: number): Promise<void> {
-        const token = window.store.getState()?.token;
+    async getWSSTransport(userId: number, chatID: number, token: string | null): Promise<void> {
         if (!token) {
+            this.disconnectFromChat();
             return;
         }
 
@@ -24,7 +24,6 @@ class MessagesAPI {
         }
     }
 
-    // Connect to chat
     async connectToChat(): Promise<void> {
         try {
             if (this.wssTransport) {
@@ -35,7 +34,6 @@ class MessagesAPI {
         }
     }
 
-    // Send message
     async sendMessage(message: string): Promise<void> {
         try {
             if (this.wssTransport) {
@@ -46,7 +44,6 @@ class MessagesAPI {
         }
     }
 
-    // Get messages
     async getMessages(message: string = '0'): Promise<void> {
         try {
             if (this.wssTransport) {
@@ -57,7 +54,6 @@ class MessagesAPI {
         }
     }
 
-    // Disconnect from chat
     async disconnectFromChat(): Promise<void> {
         try {
             if (this.wssTransport) {
@@ -69,4 +65,4 @@ class MessagesAPI {
     }
 }
 
-export default new MessagesAPI();
+export default MessagesAPI;
