@@ -35,6 +35,11 @@ export default class ChatFooter extends Block<IChatFooterProps> {
         });
     }
 
+    clearSend() {
+        const input = this.getChildren().inputSendMessage as Input;
+        return input.clear();
+    }
+
     getSendValue() {
         const input = this.getChildren().inputSendMessage as Input;
         return input.getValue();

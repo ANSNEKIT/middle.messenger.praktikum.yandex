@@ -1,377 +1,224 @@
-// import { Router } from '@/services/Router';
 import chatsPageTemplate from './chats.hbs?raw';
 import { Block } from '@/services/base-component';
-import { IProps, RequiredKeys } from '@/types';
-import AvatarMini from '@/components/AvatarMini';
-import Bubble from '@/components/Bubble';
+import { IProps } from '@/types';
 import Button from '@/components/Button';
-import Chat from '@/components/Chat';
 import Input from '@/components/Input';
-import Link from '@/components/Link';
+import { AsideChats, ChatFooter, ChatHeader } from '@/pages/ChatsPage/modules';
 import { withRouter } from '@/utils/events';
 import * as serviceChats from '@/services/apiServices/chats';
-import { ERouter } from '@/constants/router';
-import { IRouter } from '@/types/router';
+import * as serviceUser from '@/services/apiServices/user';
 import Modal from '@/components/Modal';
+import { EStoreEvents, IStore } from '@/services/Store';
+import Messager from './modules/Messager';
+import MessagesApi from '@/api/messages/messages.api';
 import { IChatDTO } from '@/api/chats/chats.model';
-import { firstCharUpper } from '@/utils';
-import ContextMenu from '@/components/ContextMenu';
-import { ErrorText, regExpLogin } from '@/constants/validate';
+import { useChatPage } from './composables/chat-page';
+import isEqualData from '@/utils/isEqualData';
+import { IMessage } from '@/api/messages/types';
 
 import './chats.pcss';
 
-// type TModal = 'addUser' | 'removeUser' | 'loadMedia' | 'loadFile' | 'loadLocation';
+export enum EModalType {
+    createChat = 'createChat',
+    addUser = 'addUser',
+    removeUser = 'removeUser',
+    loadMedia = 'loadMedia',
+    loadFile = 'loadFile',
+    loadLocation = 'loadLocation',
+    attachMedia = 'attachMedia',
+    attachFile = 'attachFile',
+    attachLocation = 'attachLocation',
+}
 
-class ChatsPage extends Block {
-    constructor(props = {} as RequiredKeys<IProps, 'router'>) {
-        super('div', props);
+interface IChatPageProps extends IProps {
+    asideChats: AsideChats;
+    messager: Messager;
+}
 
-        this.initChatPageProps();
-    }
+// eslint-disable-next-line prettier/prettier
+const { initModalProps, getModalCreateChatProps, getModalAddUserProps, getModalAttachMediaFileProps, getModalRemoveUserProps } =
+    useChatPage();
 
-    initAsideChatsProps() {
-        return {
-            profileLink: new Link('a', {
-                settings: {
-                    isSimple: true,
-                },
-                href: '#',
-                linkName: 'Профиль',
-                '@click': () => this.getProps()?.router.go(ERouter.SETTINGS),
-            }),
-            currentChat: 'one',
-            avatarMini: new AvatarMini('div', {
-                settings: {
-                    isSimple: true,
-                },
-                class: 'tab__header-avatar',
-            }),
-            chats: [],
-        };
-    }
+class ChatsPage extends Block<IChatPageProps> {
+    private _socket: MessagesApi | null = null;
 
-    initMessagesProps() {
-        return {
-            messages: [
-                {
-                    groupName: 'One',
-                    bubbles: [
-                        new Bubble('div', {
-                            settings: {
-                                isSimple: true,
-                            },
-                            class: 'test',
-                            text: 'asdf 111',
-                        }),
-                        new Bubble('div', {
-                            settings: {
-                                isSimple: true,
-                            },
-                            class: 'test',
-                            text: 'asdf 111',
-                        }),
-                    ],
-                },
-                {
-                    groupName: 'Two',
-                    bubbles: [
-                        new Bubble('div', {
-                            settings: {
-                                isSimple: true,
-                            },
-                            class: 'test',
-                            text: 'asdf 3333',
-                        }),
-                        new Bubble('div', {
-                            settings: {
-                                isSimple: true,
-                            },
-                            class: 'test',
-                            text: 'asdf 4444',
-                        }),
-                    ],
-                },
-            ],
-            inputSendMessage: new Input('div', {
-                attrs: {
-                    class: 'input chat-main__submit-form-input',
-                },
-                id: 'input-message',
-                class: 'chat-main__submit-form-input',
-                inputClass: 'chat-main__submit-form-input-input',
-                type: 'text',
-                name: 'message',
-                required: true,
-            }),
-            buttonSubmit: new Button('button', {
-                settings: {
-                    isSimple: true,
-                },
-                id: 'button-submit',
-                class: 'button-icon',
-                text: 'Отправить',
-                '@click': this.onSendMessage,
-            }),
-        };
-    }
-
-    initAddFileContextMenuProps() {
-        return {
-            buttonAttachFile: new Button('button', {
-                settings: {
-                    isSimple: true,
-                },
-                id: 'button-link',
-                class: 'button-icon',
-                text: 'Прикрепить файл',
-            }),
-        };
-    }
-
-    getModalAddUserProps() {
-        return {
-            settings: {
-                isSimple: true,
-            },
-            title: 'Test title',
-            body: new Input('div', {
-                attrs: {
-                    class: 'input',
-                },
-                id: 'login',
-                label: 'Логин',
-                type: 'text',
-                name: 'login',
-                required: true,
-                rule: regExpLogin,
-                errText: ErrorText.login,
-            }),
-            submitBtn: new Button('button', {
-                settings: {
-                    isSimple: true,
-                },
-                id: 'button-submit',
-                class: 'button-icon',
-                text: 'Submit',
-                '@click': () => this.onModalSend('AddUserInput'),
-            }),
-        };
-    }
-
-    getModalRemoveUserProps() {
-        return {
-            settings: {
-                isSimple: true,
-            },
-            title: 'Test title 2222',
-            body: new Input('div', {
-                attrs: {
-                    class: 'input',
-                },
-                id: 'login',
-                label: 'Логин',
-                type: 'text',
-                name: 'login',
-                required: true,
-                rule: regExpLogin,
-                errText: ErrorText.login,
-            }),
-            submitBtn: new Button('button', {
-                settings: {
-                    isSimple: true,
-                },
-                id: 'button-submit',
-                class: 'button-icon',
-                text: 'Submit 222',
-                '@click': () => this.onModalSend('removeUserInput'),
-            }),
-        };
-    }
-
-    initModalProps() {
-        return {
-            isShowModal: true,
-            modal: new Modal(this.getModalAddUserProps()),
-        };
-    }
-
-    initUserContextMenuProps() {
-        return {
-            userContextMenu: new ContextMenu({
-                settings: {
-                    isSimple: true,
-                },
-                Activator: new Button('button', {
-                    settings: {
-                        isSimple: true,
-                    },
-                    id: 'context-menu-activator',
-                    class: 'button--icon flex-center',
-                    text: `<svg width="3" height="16" viewBox="0 0 3 16" fill="black" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="1.5" cy="2" r="1.5" />
-                    <circle cx="1.5" cy="8" r="1.5" />
-                    <circle cx="1.5" cy="14" r="1.5" />
-                    </svg>`,
-                    '@click': (evt: MouseEvent) => this.onOpenUserContextMenu(evt),
-                }),
-                isShowMenu: false,
-                position: ['bottom', 'right'],
-                menuList: [
-                    new Button('button', {
-                        settings: {
-                            isSimple: true,
-                        },
-                        id: 'context-menu-activator',
-                        class: 'button--tertary',
-                        text: 'Добавить пользователя',
-                        '@click': this.onOpenModalAddUser.bind(this),
-                    }),
-                    new Button('button', {
-                        settings: {
-                            isSimple: true,
-                        },
-                        id: 'context-menu-activator',
-                        class: 'button--tertary',
-                        text: 'Удалить пользователя',
-                        '@click': this.onOpenModalRemoveUser.bind(this),
-                    }),
-                ],
-            }),
-        };
-    }
-
-    initChatPageProps() {
-        const localProps = {
+    constructor(props = {} as IChatPageProps) {
+        super('div', {
             attrs: {
                 class: 'chats-page',
             },
-            ...this.initAsideChatsProps(),
-            ...this.initMessagesProps(),
-            ...this.initAddFileContextMenuProps(),
-            ...this.initModalProps(),
-            ...this.initUserContextMenuProps(),
-        };
-        this.setProps(localProps);
-        this.addEvents();
+            ...props,
+        });
     }
 
-    onModalSend(value: string) {
-        // TODO доделать
-        console.log('onModalSend', value);
-
-        // const isValid = InputUserLogin?.validate();
-
-        // if (!InputUserLogin || !isValid) {
-        //     return;
-        // }
-
-        // const value = InputUserLogin.getValue();
-
-        // console.log('onModalAddUser input', value);
-
-        // // modalAddUser.hide();
-        // // closeModal();
-        // InputUserLogin.clearState();
-        // // isShowModal = false;
-    }
-
-    onOpenUserContextMenu(evt: MouseEvent) {
-        // evt.stopPropagation();
-        const UserContextMenu = this.initUserContextMenuProps().userContextMenu as ContextMenu;
-        UserContextMenu.show();
-        console.log('onOpenUserContextMenu', evt);
-
-        this.setProps({ userContextMenu: UserContextMenu });
-    }
-
-    onOpenModalAddUser() {
-        const modal = this.getChildren().modal as Modal;
-        modal.show();
-        console.log('onOpenModalAddUser --modal', modal);
-        // this.setProps({ modal: modal });
-    }
-
-    onOpenModalRemoveUser() {
-        const modal = this.getChildren().modal as Modal;
-        const removeUserProps = this.getModalRemoveUserProps();
-        modal.show();
-
-        // TODO без вызова этой строки модалка отображается
-        // Если вызывать в текущем порядке то видно только черный экран. Внутренние компоненты модалки не отрендерились
-        // Если вызвать сначала modal.setProps(removeUserProps); потом  modal.show(); то ничего не отрендерено
-        modal.setProps(removeUserProps);
-        console.log('onOpenModalRemoveUser --modal', modal);
-
-        // TODO Не отображается окно без вызова и с вызовом this.setProps({ modal: modal })
-        // this.setProps({ modal: modal });
-    }
-
-    onSendMessage(evt: MouseEvent) {
-        // TODO доделать
-        evt.preventDefault();
-        const input = this.getProps().inputMessage as Input;
-
-        console.log('onSendMessage', input);
-    }
-
-    onChatSelect = (evt: MouseEvent, _: IRouter | undefined, chatId: number) => {
-        console.log('onChatSelect');
-
-        // TODO доделать
-        evt.preventDefault();
-        const target = evt.target as HTMLElement | null;
-        const chat = target?.closest('.chat');
-
-        const $chatList = document.querySelector('.aside__chats');
-        if ($chatList?.children) {
-            for (const $chat of $chatList.children) {
-                const id = $chat.getAttribute('id') || '';
-                if (id !== String(chatId)) {
-                    $chat.classList.remove('select');
-                }
-            }
-        }
-
-        if (chat) {
-            chat.classList.add('select');
-        }
-
-        // if (!router) {
-        //     return;
-        // }
-        // router.go(`${ERouter.MESSENGER}/${chatId}`, true);
-    };
-
-    async loadChats() {
-        const chats = await serviceChats.getChats();
-        const propChats = {
-            chats: this.adapterChatsToFront(chats),
-        };
-        this.setProps(propChats);
-    }
-
-    adapterChatsToFront(chats: IChatDTO[]) {
-        const router = this.getProps().router;
-
-        return chats.map((chat) => {
-            return new Chat('li', {
-                attrs: {
-                    id: chat.id,
-                    class: 'chat',
-                },
-                avatarMini: new AvatarMini('div', {
-                    class: 'chat__avatar',
+    init() {
+        return {
+            asideChats: new AsideChats({
+                addChat: new Button('button', {
                     settings: {
                         isSimple: true,
                     },
-                    avatarSrc: chat.avatar,
-                    userNameChar: firstCharUpper(chat.last_message?.user.first_name || chat.title),
+                    id: 'button-create-chat',
+                    class: 'button--primary aside-chats__add-chat-btn',
+                    text: 'Создать чат',
+                    '@click': () => this.onOpenModal(EModalType.createChat),
                 }),
-                link: `${ERouter.MESSENGER}/${chat.id}`,
-                chat,
-                '@click': (evt: MouseEvent) => this.onChatSelect(evt, router, chat.id),
+                chats: [],
+            }),
+            messager: new Messager({}),
+            ...initModalProps(),
+        };
+    }
+
+    async onModalSend(modalType: EModalType) {
+        const modal = this.getChildren().modal as Modal<EModalType>;
+        const input = this.getChildren().modal.getChildren().body as Input;
+        const isValid = input?.validate();
+
+        if (!Input || !isValid) {
+            return;
+        }
+
+        const value = input.getValue();
+
+        if (modalType === EModalType.createChat) {
+            await this.controllerCreateChat(value);
+        } else if (modalType === EModalType.addUser) {
+            await this.controllerUserToChat(value, 'add');
+        } else if (modalType === EModalType.removeUser) {
+            await this.controllerUserToChat(value, 'remove');
+        } else if (modalType === EModalType.attachMedia) {
+            console.log('emulate fetch load photo/video file');
+        }
+        //TODO дописать методы для прикрепления файла и стикеров
+
+        modal.hide();
+        input.clear();
+    }
+
+    onOpenModal(type: EModalType) {
+        let props;
+
+        if (type === EModalType.createChat) {
+            props = getModalCreateChatProps({
+                '@click': () => this.onModalSend(EModalType.createChat),
             });
+        } else if (type === EModalType.addUser) {
+            props = getModalAddUserProps({
+                '@click': () => this.onModalSend(EModalType.addUser),
+            });
+        } else if (type === EModalType.removeUser) {
+            props = getModalRemoveUserProps({
+                '@click': () => this.onModalSend(EModalType.attachMedia),
+            });
+        } else if (type === EModalType.attachMedia) {
+            props = getModalAttachMediaFileProps({
+                '@click': () => this.onModalSend(EModalType.attachMedia),
+            });
+        }
+
+        if (!props) {
+            return;
+        }
+
+        const newModal = initModalProps(props).modal;
+        newModal.show();
+        this.setProps({ modal: newModal });
+    }
+
+    async loadChats() {
+        const chatList = await serviceChats.getChats();
+        this.updateChats(chatList);
+    }
+
+    updateChats(chatList: IChatDTO[], isRerender = true) {
+        const asideChats = this.getChildren().asideChats as AsideChats;
+        asideChats.updateChats(chatList);
+        this.setProps({ asideChats: asideChats }, isRerender);
+    }
+
+    updateMessages(messages: IMessage[], isRerender = true) {
+        const messager = this.getChildren().messager as Messager;
+        messager.updateChats(messages);
+        this.setProps({ messager }, isRerender);
+    }
+
+    async controllerCreateChat(value: string) {
+        const form = {
+            title: value,
+        };
+        await serviceChats.addChat(form);
+        await this.loadChats();
+    }
+
+    async controllerUserToChat(value: string, type: 'add' | 'remove') {
+        const { currentChat = null, currentSocket } = window.store.getState();
+        const users = await serviceUser.search({ login: value });
+
+        if (!Array.isArray(users) || users.length === 0 || !currentChat) {
+            return;
+        }
+
+        const chatId = currentChat.id;
+        const chatUserId = users[0].id;
+        const userform = {
+            users: [chatUserId],
+            chatId: Number(chatId),
+        };
+        if (type === 'add') {
+            await serviceChats.addUser(userform);
+        } else {
+            const chatUsersForm = {
+                id: Number(chatId),
+            };
+            const chatDeleteForm = {
+                chatId: Number(chatId),
+            };
+
+            await serviceChats.deleteUser(userform);
+            const chatUsers = await serviceChats.getChatUsers(chatUsersForm);
+
+            if (chatUsers.length === 1 && currentSocket) {
+                await serviceChats.deleteChat(chatDeleteForm);
+                await currentSocket.disconnectFromChat();
+                window.store.setState({ currentChat: null, currentSocket: null });
+                await this.loadChats();
+            }
+        }
+    }
+
+    async chatController(currentChat: IChatDTO) {
+        const { authUser } = window.store.getState();
+        const token = await serviceChats.getChatToken(currentChat.id);
+        const chatUsers = await serviceChats.getChatUsers({ id: currentChat.id });
+
+        if (!token || !authUser || chatUsers.length < 2) {
+            return;
+        }
+
+        this._socket = new MessagesApi();
+        await this._socket.getWSSTransport(authUser.id, currentChat.id, token);
+        window.store.setState({ currentSocket: this._socket });
+    }
+
+    updateCurrentChat(_: IChatDTO | null, currentChat: IChatDTO, isRerender = true) {
+        const messager = this.getChildren().messager as Messager;
+        const chatHeader = messager.getChildren().chatHeader as ChatHeader;
+        chatHeader.updateChat(currentChat);
+        messager.setProps({
+            isCurrentChat: true,
+            chatHeader,
+            socket: this._socket,
         });
+        this.setProps({ messager: messager }, isRerender);
+    }
+
+    updateSendInput(isRerender = true) {
+        const messager = this.getChildren().messager as Messager;
+        const chatFooter = messager.getChildren().chatFooter as ChatFooter;
+        chatFooter.clearSend();
+
+        this.setProps({ messager: messager }, isRerender);
     }
 
     render() {
@@ -379,9 +226,27 @@ class ChatsPage extends Block {
     }
 
     mounted() {
-        setTimeout(async () => {
-            await this.loadChats();
-        }, 0);
+        this.loadChats();
+
+        window.store.on(EStoreEvents.Updated, async (oldState: IStore, nextState: IStore) => {
+            const { modal = null, currentChat = null, messages = [], message = null } = nextState;
+
+            if (modal?.type && oldState.modal?.type !== modal?.type) {
+                this.onOpenModal(modal.type);
+            }
+
+            if (currentChat && oldState?.currentChat?.id !== currentChat.id) {
+                await this.chatController(currentChat);
+                this.updateCurrentChat(oldState?.currentChat, currentChat);
+            }
+
+            if (messages.length && !isEqualData(oldState.messages, messages)) {
+                this.updateMessages(nextState.messages);
+            }
+            if (message && oldState?.message?.id !== message.id) {
+                this.updateSendInput();
+            }
+        });
     }
 }
 

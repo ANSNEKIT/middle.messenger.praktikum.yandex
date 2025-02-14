@@ -4,9 +4,9 @@ import ContextMenu from '@/components/ContextMenu';
 import { Block } from '@/services/base-component';
 import { IProps } from '@/types';
 import chatHeaderTemplate from './chat-header.hbs?raw';
+import { firstCharUpper } from '@/utils';
 
 import './chat-header.pcss';
-import { firstCharUpper } from '@/utils';
 
 export interface IChatHeaderProps extends IProps {
     currentChat: IChatDTO | null;
@@ -27,8 +27,6 @@ export default class ChatHeader extends Block<IChatHeaderProps> {
 
     updateChat(currentChat: IChatDTO | null) {
         if (currentChat) {
-            console.log('ChatHeader updateChat');
-
             const { avatar, title, last_message } = currentChat;
             const chatHeaderProps = {
                 avatarMini: new AvatarMini('div', {

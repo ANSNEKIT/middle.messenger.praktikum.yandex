@@ -1,51 +1,6 @@
-<aside class="chats-page__aside aside">
-    <div class="aside__profile">
-        {{{ profileLink }}}
-    </div>
-    <ul class="aside__chats">
-        {{#each chats }}
-            {{{ this }}}
-        {{/each }}
-    </ul>
-</aside>
+{{{ asideChats }}}
 
-<section class="chats-page__main tab">
-    {{#if currentChat}}
-            <header class="tab__header">
-                <div class="tab__header-wrap flex-row">
-                    <div class="tab__header-chat-info">
-                        {{{ avatarMini }}}
-                        <h3 class="tab__header-title title-13-bold">
-                            Вася
-                        </h3>
-                    </div>
-                    <div class="tab__header-chat-utils">
-                        {{{ userContextMenu }}}
-                    </div>
-                </div>
-            </header>
-            <main class="tab__main">
-                {{#each messages }}
-                    <section class="tab__bubbls-date-groups">
-                        <h3 class="tab__bubbles-group-title text-12-medium">{{this.groupName}}</h3>
-                        {{#each this.bubbles }}
-                            {{{ this }}}
-                        {{/each }}
-                    </section>
-                {{/each }}
-            </main>
-    {{else}}
-        <main class="tab__main">
-            <h2>Пустой чат</h2>
-        </main>
-    {{/if}}
-    <form class="tab__submit-form">
-        {{{ buttonAttachFile }}}
-        {{{ inputSendMessage }}}
-        {{{ buttonSubmit }}}
-    </form>
-</section>
-
+{{{ messager }}}
 
 {{#if isShowModal}}
     {{{ modal }}}
