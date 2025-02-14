@@ -46,7 +46,7 @@ export default class Router implements IRouter {
         }
 
         if (
-            ![ERouter.LOGIN, ERouter.REGISTRATION, ERouter.NOT_FOUND, ERouter.SERVER_ERROR].includes(pathName as ERouter) &&
+            [ERouter.MESSENGER, ERouter.SETTINGS, ERouter.PROFILE_EDIT].includes(pathName as ERouter) &&
             !window.store.getState()?.authUser
         ) {
             this.history.pushState({}, '', ERouter.LOGIN);
