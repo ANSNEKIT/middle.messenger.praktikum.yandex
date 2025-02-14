@@ -105,7 +105,7 @@ class ProfileEditPage extends Block {
                     class: 'edit-profile__title',
                     title: 'Редактировать профиль',
                 }),
-                items: [],
+                items: inputs,
                 button: new Button('button', {
                     settings: {
                         isSimple: true,
@@ -128,85 +128,6 @@ class ProfileEditPage extends Block {
                 '@blur': (evt: MouseEvent) => onblur(evt, inputs),
             },
         });
-
-        this.setProps({ items: this.initProfileInputs() });
-    }
-
-    initProfileInputs() {
-        return [
-            new Input('div', {
-                attrs: {
-                    class: 'input',
-                },
-                id: 'email',
-                label: 'Почта',
-                type: 'email',
-                name: 'email',
-                required: true,
-                rule: InputRegExp.email,
-                errText: ErrorText.email,
-            }),
-            new Input('div', {
-                attrs: {
-                    class: 'input',
-                },
-                id: 'login',
-                label: 'Логин',
-                type: 'text',
-                name: 'login',
-                required: true,
-                rule: InputRegExp.login,
-                errText: ErrorText.login,
-            }),
-            new Input('div', {
-                attrs: {
-                    class: 'input',
-                },
-                id: 'first_name',
-                label: 'Имя',
-                type: 'text',
-                name: 'first_name',
-                required: true,
-                rule: InputRegExp.first_name,
-                errText: ErrorText.first_name,
-            }),
-            new Input('div', {
-                attrs: {
-                    class: 'input',
-                },
-                id: 'second_name',
-                label: 'Фамилия',
-                type: 'text',
-                name: 'second_name',
-                required: true,
-                rule: InputRegExp.second_name,
-                errText: ErrorText.second_name,
-            }),
-            new Input('div', {
-                attrs: {
-                    class: 'input',
-                },
-                id: 'display',
-                label: 'Имя в чате',
-                type: 'text',
-                name: 'display_name',
-                required: true,
-                rule: InputRegExp.display_name,
-                errText: ErrorText.display_name,
-            }),
-            new Input('div', {
-                attrs: {
-                    class: 'input',
-                },
-                id: 'phone',
-                label: 'Телефон',
-                type: 'tel',
-                name: 'phone',
-                required: true,
-                rule: InputRegExp.phone,
-                errText: ErrorText.phone,
-            }),
-        ];
     }
 
     async onEditProfile(evt: MouseEvent, inputs: Input[]) {

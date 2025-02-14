@@ -67,7 +67,7 @@ export default class Input extends Block<IInputProps> {
         this.setProps({ value, error: msg });
     }
 
-    clearState() {
+    clear() {
         this.setProps({ value: '', error: '' });
     }
 

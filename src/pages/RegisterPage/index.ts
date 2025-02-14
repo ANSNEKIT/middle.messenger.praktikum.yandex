@@ -13,22 +13,6 @@ import { ErrorText, InputRegExp } from '@/constants/validate';
 
 import '@/components/AuthForm/auth-form.pcss';
 
-const onRegister = async (evt: MouseEvent, inputs: Input[]) => {
-    evt.preventDefault();
-    const $form = document.getElementById('form') as HTMLFormElement | null;
-
-    if (!$form) {
-        return;
-    }
-
-    const registerForm = prepareSubmitForm($form, inputs);
-    if (registerForm) {
-        const entries = Object.entries(registerForm).filter(([key, _]) => key !== 'newPassword');
-        const preparedRegisterForm = Object.fromEntries(entries) as unknown as IUserRegistration;
-        await apiServiceAuth.register(preparedRegisterForm);
-    }
-};
-
 const inputs = [
     new Input('div', {
         attrs: {
@@ -138,9 +122,9 @@ class RegisterPage extends Block {
                     },
                     id: 'register-btn',
                     type: 'submit',
-                    class: 'button auth-form__submit-btn',
+                    class: 'button button--primary auth-form__submit-btn',
                     text: 'Зарегистрироваться',
-                    '@click': (evt: MouseEvent) => onRegister(evt, inputs),
+                    '@click': (evt: MouseEvent) => this.onRegister(evt, inputs),
                 }),
                 link: new Link('a', {
                     settings: {
@@ -153,6 +137,22 @@ class RegisterPage extends Block {
                 '@blur': (evt: MouseEvent) => onblur(evt, inputs),
             },
         });
+    }
+
+    async onRegister(evt: MouseEvent, inputs: Input[]) {
+        evt.preventDefault();
+        const $form = document.getElementById('form') as HTMLFormElement | null;
+
+        if (!$form) {
+            return;
+        }
+
+        const registerForm = prepareSubmitForm($form, inputs);
+        if (registerForm) {
+            const entries = Object.entries(registerForm).filter(([key, _]) => key !== 'newPassword');
+            const preparedRegisterForm = Object.fromEntries(entries) as unknown as IUserRegistration;
+            await apiServiceAuth.register(preparedRegisterForm);
+        }
     }
 
     render() {

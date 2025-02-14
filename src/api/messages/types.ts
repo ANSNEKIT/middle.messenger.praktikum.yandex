@@ -1,18 +1,26 @@
 export interface IMessageOld {
+    id: number;
     chat_id: number;
-    time: 'string';
-    type: 'string';
     user_id: 'string';
+    type: 'message' | 'file';
+    time: 'string';
+    content: 'string';
+    file: IMessageFile | null;
+    is_read: boolean;
+}
+
+export interface IMessageDTO {
+    id: 'string';
+    user_id: 'string';
+    type: 'message' | 'file';
+    time: 'string';
     content: 'string';
     file?: IMessageFile;
 }
 
-export interface IMessage {
-    id: 'string';
-    time: 'string';
-    user_id: 'string';
-    content: 'string';
-    type: 'message';
+export interface IMessage extends IMessageDTO {
+    typeMessage: 'me' | 'incomer';
+    isMe: boolean;
 }
 
 export interface IMessageFile {
