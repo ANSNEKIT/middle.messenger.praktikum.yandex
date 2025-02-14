@@ -2,6 +2,7 @@ import * as Pages from './pages/index';
 import { BASE_QUERY, ERouter } from './constants/router';
 import Router from './services/Router';
 import Store, { EStoreEvents } from './services/Store';
+import cloneDeep from './utils/cloneDeep';
 
 export default class App {
     useRouter() {
@@ -19,18 +20,12 @@ export default class App {
     }
 
     useStore() {
-        window.store = new Store({
-            isLoading: false,
-            authUser: null,
-            authError: null,
-            chats: [],
-            currentChat: null,
-        });
+        window.store = new Store();
 
         window.store.on(EStoreEvents.Updated, (oldStore, newStore) => {
             window.store = new Store({
                 ...oldStore,
-                ...structuredClone(newStore),
+                ...cloneDeep(newStore),
             });
         });
     }

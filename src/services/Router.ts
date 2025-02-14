@@ -2,6 +2,7 @@ import Route from './Route';
 import { Block } from './base-component';
 import { IRouter, IRoute } from '@/types/router';
 import { isWindow } from '@/types';
+import { ERouter } from '@/constants/router';
 
 export default class Router implements IRouter {
     static __instance: Router | null = null;
@@ -42,6 +43,11 @@ export default class Router implements IRouter {
             route = this.routes[routesLength - 1];
 
             return;
+        }
+
+        if (pathName !== ERouter.LOGIN && !window.store.getState()?.authUser) {
+            this.history.pushState({}, '', ERouter.LOGIN);
+            route = this.getRoute(ERouter.LOGIN);
         }
 
         if (!!this._currentRoute && this._currentRoute !== route) {

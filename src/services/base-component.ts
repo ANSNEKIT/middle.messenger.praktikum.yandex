@@ -44,12 +44,8 @@ export class Block<P extends Record<string, any> = unknown> {
 
     private _init() {
         const componentProps = this.init();
-        const { props, children, lists, events } = this.getPropsAndChildren(componentProps);
-        this._props = this._makeProxy({ ...this._props, ...props });
-        this._children = this._makeProxy({ ...this._children, ...children });
-        this._lists = this._makeProxy({ ...this._lists, ...lists });
-        this._events = { ...this._events, ...events };
 
+        this.setProps(componentProps);
         this._element = this.createDocumentElement(this._meta?.tagName);
         this._eventBus.emit(Event.RENDER);
     }
