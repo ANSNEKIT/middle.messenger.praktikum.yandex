@@ -1,21 +1,24 @@
-import { TCallback, TChildren, TEvents, TIterableObject, TMeta, TProps } from '@/types';
+import { IProps, TCallback, TChildren, TEvents, TIterableObject, TMeta } from '@/types';
 import Handlebars from 'handlebars';
 import { v4 as uuidv4 } from 'uuid';
 import { Event } from '@/types';
 import { EventBus } from './event-bus';
 
-export class BaseComponent {
+// @ts-expect-error - unknown is ok
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export class Block<P extends Record<string, any> = unknown> {
     private _element: HTMLElement | null;
     private _meta: TMeta;
-    private _props: TProps;
+    private _props: IProps;
     private _children: TChildren;
     private _events: TEvents;
-    private _lists: Record<string, BaseComponent[]>;
+    private _lists: Record<string, Block[]>;
     private _id: string;
     private _eventBus: EventBus;
     private _setUpdate = false;
 
-    constructor(tagName = 'div', propsAndChilds: TProps = {}) {
+    // @ts-expect-error ==== {} - is default type ok
+    constructor(tagName = 'div', propsAndChilds: P = {}) {
         const { props, children, lists, events } = this.getPropsAndChildren(propsAndChilds);
         this._eventBus = new EventBus();
         this._meta = {
@@ -33,15 +36,22 @@ export class BaseComponent {
     }
 
     public registerEvents() {
-        this._eventBus.on(Event.INIT, this.init.bind(this));
+        this._eventBus.on(Event.INIT, this._init.bind(this));
         this._eventBus.on(Event.RENDER, this._render.bind(this));
         this._eventBus.on(Event.MOUNTED, this._mounted.bind(this));
         this._eventBus.on(Event.UPDATED, this._updated.bind(this));
     }
 
-    public init() {
+    private _init() {
+        const componentProps = this.init();
+
+        this.setProps(componentProps);
         this._element = this.createDocumentElement(this._meta?.tagName);
         this._eventBus.emit(Event.RENDER);
+    }
+
+    public init(): P {
+        return {} as P;
     }
 
     public createDocumentElement(tag = 'div') {
@@ -54,16 +64,16 @@ export class BaseComponent {
         return $element;
     }
 
-    public getPropsAndChildren(propsWithChilds: TProps) {
-        const props: TProps = {};
+    public getPropsAndChildren(propsWithChilds: P) {
+        const props: IProps = {};
         const children: TChildren = {};
-        const lists: Record<string, BaseComponent[]> = {};
+        const lists: Record<string, Block[]> = {};
         const events: TEvents = {};
 
         Object.keys(propsWithChilds).forEach((key) => {
-            if (propsWithChilds[key] instanceof BaseComponent) {
+            if (propsWithChilds[key] instanceof Block) {
                 children[key] = propsWithChilds[key];
-            } else if (Array.isArray(propsWithChilds[key]) && propsWithChilds[key].every((child) => child instanceof BaseComponent)) {
+            } else if (Array.isArray(propsWithChilds[key]) && propsWithChilds[key].every((child) => child instanceof Block)) {
                 lists[key] = propsWithChilds[key];
             } else if (key.charAt(0) === '@') {
                 events[key] = propsWithChilds[key] as TCallback;
@@ -90,7 +100,7 @@ export class BaseComponent {
         }
     }
 
-    private _updated(oldProps: TProps, newProps: TProps) {
+    private _updated(oldProps: P, newProps: P) {
         const isRerender = this.hasUpdated(oldProps, newProps);
 
         if (isRerender) {
@@ -100,21 +110,21 @@ export class BaseComponent {
         }
     }
 
-    public hasUpdated(oldProps: TProps, newProps: TProps) {
+    public hasUpdated(oldProps: P, newProps: P) {
         console.log('hasUpdate old', oldProps);
         console.log('hasUpdate new', newProps);
 
         return true;
     }
 
-    public setProps(newProps: TProps) {
+    public setProps(newProps: Partial<P>, isRerender = false) {
         if (!newProps) {
             return;
         }
 
-        this._setUpdate = false;
+        this._setUpdate = isRerender;
         const oldProps = { ...this._props };
-        const { props = {}, children = {}, lists = {} } = this.getPropsAndChildren(newProps);
+        const { props = {}, children = {}, lists = {}, events = {} } = this.getPropsAndChildren(newProps as P);
 
         if (Object.values(props).length) {
             Object.assign(this._props, props);
@@ -126,6 +136,10 @@ export class BaseComponent {
 
         if (Object.values(lists).length) {
             Object.assign(this._lists, lists);
+        }
+
+        if (Object.values(events).length) {
+            Object.assign(this._events, events);
         }
 
         if (this._setUpdate) {
@@ -168,7 +182,7 @@ export class BaseComponent {
 
     public compile(tmpl: string): DocumentFragment {
         const propsAndStubs = this._props;
-        const grandsons = [] as BaseComponent[];
+        const grandsons = [] as Block[];
 
         Object.entries(this._children).forEach(([key, child]) => {
             propsAndStubs[key] = `<div data-id="${child._id}"></div>`;
@@ -187,7 +201,7 @@ export class BaseComponent {
                 propsAndStubs[key].forEach((el) => {
                     if (el && typeof el === 'object') {
                         Object.keys(el).forEach((childPropKey) => {
-                            if (Array.isArray(el[childPropKey]) && el[childPropKey].every((child) => child instanceof BaseComponent)) {
+                            if (Array.isArray(el[childPropKey]) && el[childPropKey].every((child) => child instanceof Block)) {
                                 el[childPropKey] = el[childPropKey].map((grandson) => {
                                     grandsons.push(grandson);
 
@@ -283,8 +297,12 @@ export class BaseComponent {
         return this._element;
     }
 
-    public getProps() {
-        return this._props;
+    public getProps(): P {
+        return this._props as P;
+    }
+
+    public getChildren() {
+        return this._children;
     }
 
     public hide() {

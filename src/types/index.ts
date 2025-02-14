@@ -1,4 +1,7 @@
-import { BaseComponent } from '@/services/base-component';
+import { Block } from '@/services/base-component';
+import { IRouter } from './router';
+
+export type RequiredKeys<T, K extends keyof T> = T & Required<Pick<T, K>>;
 
 export enum Events {
     CLICK = 'click',
@@ -34,6 +37,15 @@ export enum Event {
     RENDER = 'render',
 }
 
+export interface IProps extends Record<string, unknown> {
+    settings?: {
+        withInternalId?: boolean;
+        isSimple?: boolean;
+    };
+    attrs?: object;
+    router?: IRouter;
+}
+
 export type TProps = {
     [key: string]: unknown;
     settings?: {
@@ -47,7 +59,11 @@ export type TIterableObject = {
     [index: string]: unknown;
 };
 
-export type TChildren = Record<string, BaseComponent>;
+export type Indexed<T = unknown> = {
+    [key in string | symbol]: T;
+};
+
+export type TChildren = Record<string, Block>;
 
 export type TMeta = {
     tagName: string;
@@ -55,3 +71,16 @@ export type TMeta = {
 };
 
 export type TEvents = Record<string, TCallback>;
+
+export interface IRequestResult {
+    ok: boolean;
+    status: number;
+    statusText: string;
+    data: string;
+    json: <T>() => T | null;
+    headers: string;
+}
+
+export function isWindow(element: unknown): element is Window {
+    return element instanceof Window;
+}

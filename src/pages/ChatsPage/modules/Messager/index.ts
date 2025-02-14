@@ -1,0 +1,216 @@
+import { ChatHeader, ChatFooter } from '@/pages/ChatsPage/modules';
+import { Block } from '@/services/base-component';
+import { Indexed, IProps } from '@/types';
+import messagerTemplate from './messager.hbs?raw';
+import { IconAttach, IconBlueArrowRight, IconDots } from '@/assets/icons';
+import { EModalType } from '../..';
+import Button from '@/components/Button';
+import Bubble from '@/components/Bubble';
+import ContextMenu from '@/components/ContextMenu';
+
+import './messager.pcss';
+import MessagesAPI from '@/api/messages/messages.api';
+import { WSTransportEvents } from '@/services/wsTransport';
+import { IMessage } from '@/api/messages/types';
+
+export interface IMessagerProps extends IProps {
+    isCurrentChat: boolean;
+    messages: Array<{
+        groupName: string;
+        bubbles: Bubble[];
+    }>;
+    chatHeader: ChatHeader;
+    chatFooter: ChatFooter;
+    socket: MessagesAPI | null;
+}
+
+export default class Messager extends Block {
+    private _socket: MessagesAPI | null = null;
+
+    constructor(props = {}) {
+        super('section', {
+            settings: {
+                isSimple: true,
+            },
+            ...props,
+        });
+    }
+
+    init() {
+        const currentChat = window.store.getState()?.currentChat ?? null;
+        return {
+            isCurrentChat: !!currentChat,
+            chatHeader: new ChatHeader({
+                ...this.initUserContextMenu(),
+                currentChat,
+            }),
+            chatFooter: new ChatFooter({
+                ...this.initAttachContextMenu(),
+                buttonSubmit: new Button('button', {
+                    settings: {
+                        isSimple: true,
+                    },
+                    type: 'button',
+                    id: 'button-send-message',
+                    class: 'button--icon button-send-message',
+                    text: IconBlueArrowRight,
+                    '@click': (evt: Event) => this.onSendMessage(evt),
+                }),
+                '@submit': (evt: Event) => this.onSendMessage(evt),
+            }),
+        };
+    }
+
+    initAttachContextMenu() {
+        return {
+            attachContextMenu: new ContextMenu({
+                settings: {
+                    isSimple: true,
+                },
+                Activator: new Button('button', {
+                    settings: {
+                        isSimple: true,
+                    },
+                    id: 'attach-context-menu-activator',
+                    class: 'button--icon',
+                    text: IconAttach,
+                    '@click': () => this.onOpenAttachContextMenu(),
+                }),
+                isShowMenu: false,
+                position: ['top', 'left'],
+                menuList: [
+                    new Button('button', {
+                        settings: {
+                            isSimple: true,
+                        },
+                        id: 'context-menu-video',
+                        class: 'button--tertary flex',
+                        text: 'Фото/Видео',
+                        '@click': (evt: MouseEvent) => this.onOpenModal(evt, EModalType.attachMedia),
+                    }),
+                    new Button('button', {
+                        settings: {
+                            isSimple: true,
+                        },
+                        id: 'context-menu-file',
+                        class: 'button--tertary',
+                        text: 'Файл',
+                        '@click': (evt: MouseEvent) => this.onOpenModal(evt, EModalType.attachFile),
+                    }),
+                    new Button('button', {
+                        settings: {
+                            isSimple: true,
+                        },
+                        id: 'context-menu-location',
+                        class: 'button--tertary',
+                        text: 'Локация',
+                        '@click': (evt: MouseEvent) => this.onOpenModal(evt, EModalType.attachLocation),
+                    }),
+                ],
+            }),
+        };
+    }
+
+    initUserContextMenu() {
+        return {
+            userContextMenu: new ContextMenu({
+                settings: {
+                    isSimple: true,
+                },
+                Activator: new Button('button', {
+                    settings: {
+                        isSimple: true,
+                    },
+                    id: 'user-context-menu-activator',
+                    class: 'button--icon',
+                    text: IconDots,
+                    '@click': () => this.onOpenUserContextMenu(),
+                }),
+                isShowMenu: false,
+                position: ['bottom', 'right'],
+                menuList: [
+                    new Button('button', {
+                        settings: {
+                            isSimple: true,
+                        },
+                        id: 'context-menu-add-user',
+                        class: 'button--tertary',
+                        text: 'Добавить пользователя',
+                        '@click': (evt: MouseEvent) => this.onOpenModal(evt, EModalType.addUser),
+                    }),
+                    new Button('button', {
+                        settings: {
+                            isSimple: true,
+                        },
+                        id: 'context-menu-remove-user',
+                        class: 'button--tertary',
+                        text: 'Удалить пользователя',
+                        '@click': (evt: MouseEvent) => this.onOpenModal(evt, EModalType.removeUser),
+                    }),
+                ],
+            }),
+        };
+    }
+
+    onOpenUserContextMenu() {
+        const chatHeader = this.getChildren().chatHeader as ChatHeader;
+        const userContextMenu = chatHeader.getChildren().userContextMenu as ContextMenu;
+        userContextMenu.show();
+
+        this.setProps({ chatHeader: chatHeader });
+    }
+
+    onOpenAttachContextMenu() {
+        const chatFooter = this.getChildren().chatFooter as ChatFooter;
+        const attachContextMenu = chatFooter.getChildren().attachContextMenu as ContextMenu;
+        attachContextMenu.show();
+
+        this.setProps({ chatFooter: chatFooter });
+    }
+
+    onOpenModal(evt: MouseEvent, type: EModalType) {
+        evt.stopPropagation();
+        const modal = {
+            type,
+        };
+        window.store.setState({ modal });
+    }
+
+    onSendMessage(evt: Event) {
+        evt.preventDefault();
+        const chatFooter = this.getChildren().chatFooter as ChatFooter;
+        const value = chatFooter.getSendValue();
+
+        if (!this._socket) {
+            return;
+        }
+
+        this._socket.sendMessage(value);
+    }
+
+    updateChats(messages: IMessage[]) {
+        this.setProps({ messages });
+    }
+
+    hasUpdated(_: IMessagerProps, newProps: IMessagerProps): boolean {
+        if (newProps.isCurrentChat && !this._socket && newProps?.socket?.wssTransport) {
+            this._socket = newProps?.socket;
+            const wssTransport = this._socket.wssTransport!;
+
+            wssTransport.on(WSTransportEvents.Message, (data: Indexed[]) => {
+                window.store.addMessages(data);
+            });
+
+            this._socket.connectToChat().then(() => {
+                if (this._socket) {
+                    this._socket.getMessages();
+                }
+            });
+        }
+        return true;
+    }
+
+    render() {
+        return this.compile(messagerTemplate);
+    }
+}

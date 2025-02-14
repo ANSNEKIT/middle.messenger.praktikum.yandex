@@ -1,6 +1,5 @@
-import Input from '@/components/Input';
-
 export const uppercase = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
+export const firstCharUpper = (str: string) => str.charAt(0).toUpperCase();
 
 export const validateWithMessage = (value: string | File, regexp: RegExp, errText: string) => {
     if (typeof value === 'string') {
@@ -15,10 +14,6 @@ export const validate = (rules: Record<string, string | true>) => {
     return Object.values(rules).every((validate) => validate === true);
 };
 
-export const setInputValidationState = (input: Input, value: string, errorText: string) => {
-    return input.setProps({ value, error: errorText });
-};
-
 export const queryStringify = (data: unknown) => {
     if (!data || typeof data !== 'object') {
         throw new Error('Data must be object');
@@ -30,4 +25,16 @@ export const queryStringify = (data: unknown) => {
         const appendSymbol = `${index < keys.length - 1 ? '&' : ''}`;
         return `${result}${key}=${param}${appendSymbol}`;
     }, '?');
+};
+
+export const isEqual = (lstr: string, rstr: string) => lstr === rstr;
+
+export const toFormData = (form: Record<string, unknown>) => {
+    const formData = new FormData();
+
+    for (const key in form) {
+        formData.append(key, `${form[key]}`);
+    }
+
+    return formData;
 };

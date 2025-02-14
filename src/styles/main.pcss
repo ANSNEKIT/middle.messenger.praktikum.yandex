@@ -1,5 +1,5 @@
-@import './base/_variables.pcss';
-@import './fonts.pcss';
+@import url('./base/_variables.pcss');
+@import url('./fonts.pcss');
 
 * {
     box-sizing: border-box;
@@ -35,6 +35,7 @@ body {
     height: 100%;
     display: flex;
     flex-direction: column;
+
     /* justify-content: center; */
     align-items: center;
 }
@@ -62,6 +63,7 @@ body {
 .dots {
     overflow: hidden;
     text-overflow: ellipsis;
+    text-wrap: nowrap;
 }
 
 .dots-two {
