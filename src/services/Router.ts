@@ -45,7 +45,10 @@ export default class Router implements IRouter {
             return;
         }
 
-        if (pathName !== ERouter.LOGIN && !window.store.getState()?.authUser) {
+        if (
+            ![ERouter.LOGIN, ERouter.REGISTRATION, ERouter.NOT_FOUND, ERouter.SERVER_ERROR].includes(pathName as ERouter) &&
+            !window.store.getState()?.authUser
+        ) {
             this.history.pushState({}, '', ERouter.LOGIN);
             route = this.getRoute(ERouter.LOGIN);
         }
