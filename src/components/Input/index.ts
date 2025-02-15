@@ -38,6 +38,10 @@ export default class Input extends Block<IInputProps> {
         return inp?.value ?? '';
     }
 
+    setValue(value: string) {
+        this.setProps({ value });
+    }
+
     getName() {
         return this.getProps().name;
     }

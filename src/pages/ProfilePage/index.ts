@@ -11,11 +11,12 @@ import Button from '@/components/Button';
 import Modal, { IModalProps } from '@/components/Modal';
 import Input from '@/components/Input';
 import * as serviceUser from '@/services/apiServices/user';
-import * as serviceAuth from '@/services/apiServices/auth';
+// import * as serviceAuth from '@/services/apiServices/auth';
 import ChangePasswordForm from './modules/ChangePasswordForm';
-import { ErrorText, InputRegExp } from '@/constants/validate';
 import { IUserDTO } from '@/api/user/user.model';
 import { IUserAvatar, IUserChangePassword } from '@/api/user/types';
+import { logout } from '@/composables/events';
+import { EDIT_PASSWORD_INPUTS, IMG_BASE_URL, PROFILE_FIELDS } from '@/constants';
 
 import './profile.pcss';
 
@@ -40,73 +41,6 @@ export interface IProfilePageProps extends IProps {
     logout: Button;
     modal: Modal<EModalType>;
 }
-
-const editPasswordInputs = [
-    new Input('div', {
-        attrs: {
-            class: 'input',
-        },
-        id: 'old-password',
-        label: 'Старый пароль',
-        type: 'password',
-        name: 'oldPassword',
-        required: true,
-        rule: InputRegExp.oldPassword,
-        errText: ErrorText.oldPassword,
-    }),
-    new Input('div', {
-        attrs: {
-            class: 'input',
-        },
-        id: 'new-password',
-        label: 'Новый пароль',
-        type: 'password',
-        name: 'newPassword',
-        required: true,
-        rule: InputRegExp.newPassword,
-        errText: ErrorText.newPassword,
-    }),
-    new Input('div', {
-        attrs: {
-            class: 'input',
-        },
-        id: 'new-password-repeat',
-        label: 'Повторите новый пароль',
-        type: 'password',
-        name: 'password',
-        required: true,
-        rule: InputRegExp.password,
-        errText: ErrorText.password,
-    }),
-];
-
-const profileFields = [
-    {
-        name: 'Почта',
-        value: '-',
-    },
-    {
-        name: 'Логин',
-        value: '-',
-    },
-    {
-        name: 'Имя',
-        value: '-',
-    },
-    {
-        name: 'Фамилия',
-        value: '-',
-    },
-    {
-        name: 'Имя в чате',
-        value: '-',
-    },
-    {
-        name: 'Телефон',
-        value: '-',
-    },
-];
-
 class ProfilePage extends Block<IProfilePageProps> {
     private _avatar: File | null = null;
 
@@ -135,7 +69,7 @@ class ProfilePage extends Block<IProfilePageProps> {
             }),
             profile: {
                 userName: '-',
-                fields: profileFields,
+                fields: PROFILE_FIELDS,
             },
             editProfile: new Link('a', {
                 settings: {
@@ -219,7 +153,7 @@ class ProfilePage extends Block<IProfilePageProps> {
             title: 'Изменить пароль',
             body: new ChangePasswordForm({
                 formName: 'chage-password-form',
-                items: editPasswordInputs,
+                items: EDIT_PASSWORD_INPUTS,
             }),
             type: EModalType.EDIT_AVATAR,
             submitBtn: new Button('button', {
@@ -259,89 +193,79 @@ class ProfilePage extends Block<IProfilePageProps> {
         }
     }
 
-    async onModalSend(type: EModalType) {
+    async editPassword() {
         const modal = this.getChildren().modal as Modal<EModalType>;
         const changePasswordForm = modal.getChildren().body as ChangePasswordForm;
 
-        if (type === EModalType.EDIT_PASSWORD) {
-            const $form = changePasswordForm.getContent() as HTMLFormElement | null;
+        const $form = changePasswordForm.getContent() as HTMLFormElement | null;
 
-            if (!$form) {
-                return;
-            }
+        if (!$form) {
+            return;
+        }
 
-            const formData = prepareSubmitForm($form, changePasswordForm.items);
+        const formData = prepareSubmitForm($form, changePasswordForm.items);
 
-            if (formData) {
-                delete formData['password'];
-                await serviceUser.changePassword(formData as unknown as IUserChangePassword);
-
-                modal.hide();
-                this.setProps({ modal: modal });
-            }
-        } else if (type === EModalType.EDIT_AVATAR) {
-            if (!this._avatar) {
-                return;
-            }
-
-            const formData = new FormData() as IUserAvatar;
-            formData.append('avatar', this._avatar);
-
-            const data = await serviceUser.changeAvatar(formData);
-
-            if (!data) {
-                return;
-            }
-
-            this.setAvatar(data.avatar);
+        if (formData) {
+            delete formData['password'];
+            await serviceUser.changePassword(formData as unknown as IUserChangePassword);
 
             modal.hide();
-            this._avatar = null;
             this.setProps({ modal: modal });
         }
     }
 
+    async editAvatar() {
+        const modal = this.getChildren().modal as Modal<EModalType>;
+
+        if (!this._avatar) {
+            return;
+        }
+
+        const formData = new FormData() as IUserAvatar;
+        formData.append('avatar', this._avatar);
+
+        const data = await serviceUser.changeAvatar(formData);
+
+        if (!data) {
+            return;
+        }
+
+        this.setAvatar(data.avatar);
+
+        modal.hide();
+        this._avatar = null;
+        this.setProps({ modal: modal });
+    }
+
+    async onModalSend(type: EModalType) {
+        if (type === EModalType.EDIT_PASSWORD) {
+            this.editPassword();
+        } else if (type === EModalType.EDIT_AVATAR) {
+            this.editAvatar();
+        }
+    }
+
     async onLogout() {
-        await serviceAuth.logout();
+        await logout();
         window.router.go(ERouter.LOGIN);
     }
 
-    setAvatar(imgSrc: string) {
-        const imageSrc = `https://ya-praktikum.tech/api/v2/resources${imgSrc}`;
+    setAvatar(imgSrc: string, isRerender = true) {
+        const imageSrc = `${IMG_BASE_URL}${imgSrc}`;
         const AvatarComponent = this.getChildren().avatar as Avatar;
         AvatarComponent.setProps({ imageSrc });
-        this.setProps({ avatar: AvatarComponent });
+        this.setProps({ avatar: AvatarComponent }, isRerender);
     }
 
     setProfile(authUser: IUserDTO) {
+        const profileFields = PROFILE_FIELDS.map((field) => ({
+            title: field.title,
+            name: field.name,
+            value: authUser[field.name as keyof IUserDTO].toString(),
+        }));
         const newProfile = {
             userName: `${authUser.first_name} ${authUser.second_name}`,
-            fields: [
-                {
-                    name: 'Почта',
-                    value: authUser.email,
-                },
-                {
-                    name: 'Логин',
-                    value: authUser.login,
-                },
-                {
-                    name: 'Имя',
-                    value: authUser.first_name,
-                },
-                {
-                    name: 'Фамилия',
-                    value: authUser.second_name,
-                },
-                {
-                    name: 'Имя в чате',
-                    value: authUser.display_name,
-                },
-                {
-                    name: 'Телефон',
-                    value: authUser.phone,
-                },
-            ],
+            fields: profileFields,
         };
 
         this.setProps({ profile: newProfile });
@@ -351,6 +275,7 @@ class ProfilePage extends Block<IProfilePageProps> {
         const { authUser = null } = window.store.getState();
 
         if (!authUser) {
+            window.router.go(ERouter.LOGIN);
             return;
         }
 

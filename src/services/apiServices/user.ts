@@ -31,7 +31,7 @@ export const changeAvatar = async (form: IUserAvatar): Promise<IUserDTO | null> 
         if (xhr.ok) {
             window.store.setState({ authUser: newData });
         }
-        return null;
+        return newData;
     } catch (responsError: unknown) {
         console.error(responsError);
         return null;

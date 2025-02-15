@@ -9,85 +9,11 @@ import { onblur, prepareSubmitForm, withRouter } from '@/utils/events';
 import { ERouter } from '@/constants/router';
 import * as userService from '@/services/apiServices/user';
 import { IProfileData } from '@/api/user/types';
+import { IUserDTO } from '@/api/user/user.model';
+import { PROFILE_INPUTS } from '@/constants';
 
 import '@/components/AuthForm/auth-form.pcss';
 import './profile-edit.pcss';
-import { ErrorText, InputRegExp } from '@/constants/validate';
-
-const inputs = [
-    new Input('div', {
-        attrs: {
-            class: 'input',
-        },
-        id: 'email',
-        label: 'Почта',
-        type: 'email',
-        name: 'email',
-        required: true,
-        rule: InputRegExp.email,
-        errText: ErrorText.email,
-    }),
-    new Input('div', {
-        attrs: {
-            class: 'input',
-        },
-        id: 'login',
-        label: 'Логин',
-        type: 'text',
-        name: 'login',
-        required: true,
-        rule: InputRegExp.login,
-        errText: ErrorText.login,
-    }),
-    new Input('div', {
-        attrs: {
-            class: 'input',
-        },
-        id: 'first_name',
-        label: 'Имя',
-        type: 'text',
-        name: 'first_name',
-        required: true,
-        rule: InputRegExp.first_name,
-        errText: ErrorText.first_name,
-    }),
-    new Input('div', {
-        attrs: {
-            class: 'input',
-        },
-        id: 'second_name',
-        label: 'Фамилия',
-        type: 'text',
-        name: 'second_name',
-        required: true,
-        rule: InputRegExp.second_name,
-        errText: ErrorText.second_name,
-    }),
-    new Input('div', {
-        attrs: {
-            class: 'input',
-        },
-        id: 'display',
-        label: 'Имя в чате',
-        type: 'text',
-        name: 'display_name',
-        required: true,
-        rule: InputRegExp.display_name,
-        errText: ErrorText.display_name,
-    }),
-    new Input('div', {
-        attrs: {
-            class: 'input',
-        },
-        id: 'phone',
-        label: 'Телефон',
-        type: 'tel',
-        name: 'phone',
-        required: true,
-        rule: InputRegExp.phone,
-        errText: ErrorText.phone,
-    }),
-];
 
 class ProfileEditPage extends Block {
     constructor(props = {} as RequiredKeys<IProps, 'router'>) {
@@ -105,7 +31,7 @@ class ProfileEditPage extends Block {
                     class: 'edit-profile__title',
                     title: 'Редактировать профиль',
                 }),
-                items: inputs,
+                items: PROFILE_INPUTS,
                 button: new Button('button', {
                     settings: {
                         isSimple: true,
@@ -114,7 +40,7 @@ class ProfileEditPage extends Block {
                     type: 'submit',
                     class: 'button--primary auth-form__submit-btn',
                     text: 'Сохранить',
-                    '@click': (evt: MouseEvent) => this.onEditProfile(evt, inputs),
+                    '@click': (evt: MouseEvent) => this.onEditProfile(evt, PROFILE_INPUTS),
                 }),
                 link: new Link('a', {
                     settings: {
@@ -125,7 +51,7 @@ class ProfileEditPage extends Block {
                     linkName: 'Отмена',
                     '@click': () => props.router.go(ERouter.SETTINGS),
                 }),
-                '@blur': (evt: MouseEvent) => onblur(evt, inputs),
+                '@blur': (evt: MouseEvent) => onblur(evt, PROFILE_INPUTS),
             },
         });
     }
@@ -143,6 +69,26 @@ class ProfileEditPage extends Block {
         if (editProfileForm) {
             await userService.editProfile(editProfileForm);
         }
+    }
+
+    setProfile() {
+        const isRerender = true;
+        const { authUser } = window.store.getState();
+
+        if (!authUser) {
+            return;
+        }
+
+        PROFILE_INPUTS.forEach((Inp) => {
+            const name = Inp.getName() as keyof IUserDTO;
+            const value = authUser[name];
+            Inp.setValue(value.toString());
+        });
+        this.setProps({ items: PROFILE_INPUTS }, isRerender);
+    }
+
+    mounted() {
+        this.setProfile();
     }
 
     render() {

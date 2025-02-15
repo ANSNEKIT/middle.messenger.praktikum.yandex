@@ -16,6 +16,12 @@ export default class Avatar extends Block {
             ...props,
         });
     }
+
+    hasUpdated() {
+        console.log('================ Avarar has update ===============');
+        return true;
+    }
+
     render() {
         return this.compile(avatarTemplate);
     }
