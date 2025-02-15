@@ -12,21 +12,7 @@ import * as serviceAuth from '@/services/apiServices/auth';
 import { ErrorText, InputRegExp } from '@/constants/validate';
 
 import '@/components/AuthForm/auth-form.pcss';
-
-const onLogin = async (evt: MouseEvent, inputs: Input[]) => {
-    evt.preventDefault();
-    const $form = document.getElementById('form') as HTMLFormElement | null;
-
-    if (!$form) {
-        return;
-    }
-
-    const loginForm = prepareSubmitForm($form, inputs);
-
-    if (loginForm) {
-        await serviceAuth.login(loginForm as unknown as IUserLogin);
-    }
-};
+import { logout } from '@/composables/events';
 
 const inputs = [
     new Input('div', {
@@ -79,7 +65,7 @@ class LoginPage extends Block {
                     type: 'submit',
                     class: 'button--primary auth-form__submit-btn',
                     text: 'Войти',
-                    '@click': (evt: MouseEvent) => onLogin(evt, inputs),
+                    '@click': (evt: MouseEvent) => this.onLogin(evt, inputs),
                 }),
                 link: new Link('a', {
                     settings: {
@@ -94,21 +80,31 @@ class LoginPage extends Block {
         });
     }
 
-    async logout() {
-        const { currentSocket = null } = window.store.getState();
-        if (currentSocket) {
-            currentSocket.disconnectFromChat();
-        }
-
-        await serviceAuth.logout();
-    }
-
     render() {
         return this.compile(AuthFormTemplate);
     }
 
+    async onLogin(evt: MouseEvent, inputs: Input[]) {
+        evt.preventDefault();
+        const $form = document.getElementById('form') as HTMLFormElement | null;
+
+        if (!$form) {
+            return;
+        }
+
+        const loginForm = prepareSubmitForm($form, inputs);
+
+        if (loginForm) {
+            await serviceAuth.login(loginForm as unknown as IUserLogin);
+        }
+    }
+
     mounted() {
-        this.logout();
+        const { authUser = null } = window.store.getState();
+
+        if (authUser) {
+            logout();
+        }
     }
 }
 
