@@ -7,6 +7,7 @@ import { IMessage, IMessageDTO, IMessageOld } from '@/api/messages/types';
 import cloneDeep from '@/utils/cloneDeep';
 import { isObject, isArray } from '@/types/guards';
 import { formatTime } from '@/utils/date';
+import { LOCAL } from '@/utils/store';
 
 export enum EStoreEvents {
     Updated = 'updated',
@@ -36,7 +37,7 @@ export default class Store extends EventBus {
     private _state = {};
     static __instanse: Store | null = null;
 
-    constructor(initState = {}) {
+    constructor(initState?: Partial<IStore>) {
         if (Store.__instanse) {
             return Store.__instanse;
         }
@@ -44,9 +45,13 @@ export default class Store extends EventBus {
         super();
 
         if (!initState) {
-            this._state = this._getDefaultState();
+            const LS_Store = LOCAL.getItem('store');
+            if (LS_Store) {
+                this.setState(LS_Store);
+            } else {
+                this.setState(this._getDefaultState());
+            }
         } else {
-            this._state = initState;
             this.setState(initState);
         }
 
@@ -72,17 +77,21 @@ export default class Store extends EventBus {
     }
 
     clearState() {
+        const prevState = cloneDeep(this._state);
         this._state = this._getDefaultState();
+        LOCAL.removeItem('store');
+        this.emit(EStoreEvents.Updated, prevState, this._state);
     }
 
     setState<T extends IStore>(nextState = {}) {
         const prevState = cloneDeep(this._state);
         this._state = { ...prevState, ...nextState } as Partial<T>;
+        LOCAL.setItem('store', this._state);
         this.emit(EStoreEvents.Updated, prevState, nextState);
     }
 
     getState<T extends IStore = IStore>() {
-        return cloneDeep(this._state as T);
+        return this._state as T;
     }
 
     setCurrentChat(chatId: string | null) {
@@ -95,7 +104,7 @@ export default class Store extends EventBus {
     }
 
     clearCurrentChat() {
-        this.setState<IStore>({
+        this.setState({
             currentChat: null,
             currentSocket: null,
             token: null,

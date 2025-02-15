@@ -3,6 +3,7 @@ import Handlebars from 'handlebars';
 import { v4 as uuidv4 } from 'uuid';
 import { Event } from '@/types';
 import { EventBus } from './event-bus';
+import { isObject } from '@/types/guards';
 
 // @ts-expect-error - unknown is ok
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -45,7 +46,9 @@ export class Block<P extends Record<string, any> = unknown> {
     private _init() {
         const componentProps = this.init();
 
-        this.setProps(componentProps);
+        if (isObject(componentProps) && Object.keys(componentProps).length > 0) {
+            this.setProps(componentProps);
+        }
         this._element = this.createDocumentElement(this._meta?.tagName);
         this._eventBus.emit(Event.RENDER);
     }
