@@ -3,7 +3,7 @@ import { Block } from '@/services/base-component';
 import { Indexed, IProps } from '@/types';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
-import { AsideChats, ChatFooter, ChatHeader } from '@/pages/ChatsPage/modules';
+import { AsideChats, ChatFooter } from '@/pages/ChatsPage/modules';
 import { withRouter } from '@/utils/events';
 import * as serviceChats from '@/services/apiServices/chats';
 import * as serviceUser from '@/services/apiServices/user';
@@ -175,6 +175,7 @@ class ChatsPage extends Block<IChatPageProps> {
         };
         await serviceChats.addChat(form);
         await this.loadChats();
+        window.store.clearCurrentChat();
     }
 
     async controllerRemoveChat() {
@@ -252,25 +253,21 @@ class ChatsPage extends Block<IChatPageProps> {
         this.setProps({ asideChats: asideChats }, isRerender);
     }
 
-    updateMessages(messages: IMessage[], isRerender = true) {
+    updateMessages(messages: IMessage[] | null, isRerender = true) {
+        const localMessages = messages?.length === 0 ? null : messages;
         const messager = this.getChildren().messager as Messager;
-        messager.updateMessages(messages);
+        messager.updateMessages(localMessages);
         this.setProps({ messager }, isRerender);
     }
 
     updateCurrentChat(currentChat: IChatDTO, isRerender = true) {
-        console.log('update current chat', this._socket);
-
         const messager = this.getChildren().messager as Messager;
-        const chatHeader = messager.getChildren().chatHeader as ChatHeader;
-        chatHeader.updateChat(currentChat);
+        messager.updateCurrentChat(currentChat);
         messager.setProps(
             {
-                isCurrentChat: true,
-                chatHeader,
                 socket: this._socket,
             },
-            isRerender,
+            true,
         );
         this.setProps({ messager: messager }, isRerender);
     }
@@ -298,7 +295,7 @@ class ChatsPage extends Block<IChatPageProps> {
         this.loadChats();
 
         window.store.on(EStoreEvents.Updated, async (oldState: IStore, nextState: IStore) => {
-            const { modal = null, currentChat = null, messages = [], message = null, hasSendMessageDidabled } = nextState;
+            const { modal = null, currentChat = null, messages, message = null, hasSendMessageDidabled } = nextState;
 
             if (modal?.type) {
                 this.onOpenModal(modal.type);
@@ -309,11 +306,10 @@ class ChatsPage extends Block<IChatPageProps> {
                 this.updateCurrentChat(currentChat);
             }
 
-            // TODO Поправить баг, когда в новом стейте приходит пустой массив, то перерендер ломается
-            // Пока оставил обновления для не пустых массивов сообщений
-            if (messages.length) {
+            if (messages && oldState.messages !== messages) {
                 this.updateMessages(messages);
             }
+
             if (message && oldState?.message?.id !== message.id) {
                 this.clearSendInput();
             }

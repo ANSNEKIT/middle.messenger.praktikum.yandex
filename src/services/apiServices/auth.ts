@@ -15,7 +15,9 @@ export const login = async (loginForm: IUserLogin): Promise<void> => {
             window.router.go(ERouter.MESSENGER);
         } else if (xhr.status === 400 && xhr.data) {
             const errData = JSON.parse(xhr.data);
+
             if (errData?.reason === 'User already in system') {
+                await me();
                 window.router.go(ERouter.MESSENGER);
             }
         } else if (xhr.status >= 500) {

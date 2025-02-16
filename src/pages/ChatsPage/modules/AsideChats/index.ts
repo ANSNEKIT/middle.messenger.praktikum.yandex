@@ -59,7 +59,8 @@ export default class AsideChats extends Block<IAsideChatsProps> {
         const chats = adapterChatsPropsToChatsComponent(chatList);
         chats[0].select();
         this.setProps({ chats });
-        window.store.setCurrentChat(chats[0].getId());
+
+        window.store.setCurrentChat(String(chatList[0].id));
     }
 
     private _selectChat(chat: HTMLElement, currentChatId: string) {
