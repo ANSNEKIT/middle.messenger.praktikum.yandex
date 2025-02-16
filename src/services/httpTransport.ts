@@ -11,6 +11,7 @@ const METHOD = {
 
 type TMethodKeys = keyof typeof METHOD;
 type TMethodValues = (typeof METHOD)[TMethodKeys];
+type HTTPMethod = <R = IRequestResult>(url: string, options?: IOptions, timeout?: number) => Promise<R>;
 
 interface IOptions {
     method?: TMethodValues;
@@ -48,23 +49,23 @@ export class HTTPTransport {
         this._apiUrl = `${BASE_URL}${startUrl}`;
     }
 
-    get(url: string, options: IOptions = {}): Promise<IRequestResult> {
+    get: HTTPMethod = (url: string, options: IOptions = {}) => {
         return this.request(`${this._apiUrl}${url}`, { ...options, method: METHOD.GET }, options.timeout);
-    }
+    };
 
-    post(url: string, options: IOptions = {}): Promise<IRequestResult> {
+    post: HTTPMethod = (url: string, options: IOptions = {}) => {
         return this.request(`${this._apiUrl}${url}`, { ...options, method: METHOD.POST }, options.timeout);
-    }
+    };
 
-    put(url: string, options: IOptions = {}): Promise<IRequestResult> {
+    put: HTTPMethod = (url: string, options: IOptions = {}) => {
         return this.request(`${this._apiUrl}${url}`, { ...options, method: METHOD.PUT }, options.timeout);
-    }
+    };
 
-    delete(url: string, options: IOptions = {}): Promise<IRequestResult> {
+    delete: HTTPMethod = (url: string, options: IOptions = {}) => {
         return this.request(`${this._apiUrl}${url}`, { ...options, method: METHOD.DELETE }, options.timeout);
-    }
+    };
 
-    request(url: string, options: IOptions = {}, timeout = 5000): Promise<IRequestResult> {
+    request: HTTPMethod = <IRequestResult>(url: string, options: IOptions = {}, timeout = 5000) => {
         const { headers = {}, method, data } = options;
 
         return new Promise<IRequestResult>(function (resolve, reject) {
@@ -85,24 +86,24 @@ export class HTTPTransport {
 
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
-                    resolve(parseXHRResult(xhr));
+                    resolve(parseXHRResult(xhr) as IRequestResult);
                 }
             };
 
             xhr.onload = () => {
-                resolve(parseXHRResult(xhr));
+                resolve(parseXHRResult(xhr) as IRequestResult);
             };
 
             xhr.onabort = () => {
-                resolve(errorResponse(xhr, 'Запрос отменен'));
+                resolve(errorResponse(xhr, 'Запрос отменен') as IRequestResult);
             };
             xhr.onerror = () => {
-                resolve(errorResponse(xhr, 'Ошибка запроса'));
+                resolve(errorResponse(xhr, 'Ошибка запроса') as IRequestResult);
             };
 
             xhr.timeout = timeout;
             xhr.ontimeout = () => {
-                resolve(errorResponse(xhr, 'Превышено время выполнения запроса'));
+                resolve(errorResponse(xhr, 'Превышено время выполнения запроса') as IRequestResult);
             };
 
             if (isGet || !data) {
@@ -114,5 +115,5 @@ export class HTTPTransport {
                 xhr.send(JSON.stringify(data));
             }
         });
-    }
+    };
 }
