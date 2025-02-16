@@ -6,7 +6,8 @@ import MessagesAPI from '@/api/messages/messages.api';
 import { IMessage, IMessageDTO, IMessageOld } from '@/api/messages/types';
 import cloneDeep from '@/utils/cloneDeep';
 import { isObject, isArray } from '@/types/guards';
-import { formatTime } from '@/utils/date';
+import { formatDate, formatTime, isToday, isYesterday } from '@/utils/date';
+import { LOCAL } from '@/utils/store';
 
 export enum EStoreEvents {
     Updated = 'updated',
@@ -25,18 +26,18 @@ export interface IStore {
     token: string | null;
     modal: TModal | null;
     currentSocket: MessagesAPI | null;
-    oldMessages: IMessageOld[];
-    currentMessages: IMessage[];
+    oldMessages: IMessage[];
     message: IMessage | null;
     messages: IMessage[];
     contentCount: number;
+    hasSendMessageDidabled: boolean;
 }
 
 export default class Store extends EventBus {
     private _state = {};
     static __instanse: Store | null = null;
 
-    constructor(initState = {}) {
+    constructor(initState?: Partial<IStore>) {
         if (Store.__instanse) {
             return Store.__instanse;
         }
@@ -44,9 +45,13 @@ export default class Store extends EventBus {
         super();
 
         if (!initState) {
-            this._state = this._getDefaultState();
+            const LS_Store = LOCAL.getItem('store');
+            if (LS_Store) {
+                this.setState(LS_Store);
+            } else {
+                this.setState(this._getDefaultState());
+            }
         } else {
-            this._state = initState;
             this.setState(initState);
         }
 
@@ -64,43 +69,51 @@ export default class Store extends EventBus {
             currentChat: null,
             currentSocket: null,
             oldMessages: [],
-            currentMessages: [],
             message: null,
             messages: [],
             contentCount: 0,
+            hasSendMessageDidabled: true,
         } as IStore;
     }
 
     clearState() {
+        const prevState = cloneDeep(this._state);
         this._state = this._getDefaultState();
+        LOCAL.removeItem('store');
+        this.emit(EStoreEvents.Updated, prevState, this._state);
     }
 
     setState<T extends IStore>(nextState = {}) {
         const prevState = cloneDeep(this._state);
         this._state = { ...prevState, ...nextState } as Partial<T>;
+        LOCAL.setItem('store', this._state);
         this.emit(EStoreEvents.Updated, prevState, nextState);
     }
 
     getState<T extends IStore = IStore>() {
-        return cloneDeep(this._state as T);
+        return this._state as T;
     }
 
     setCurrentChat(chatId: string | null) {
         const currentChat = this.getState().chats.find((el) => String(el.id) === String(chatId)) ?? null;
         if (currentChat) {
-            this.setState({ currentChat });
+            const newCurrentChat = cloneDeep(currentChat);
+            const currentSocket = this.getState().currentSocket;
+            if (currentSocket?.connectToChat) {
+                currentSocket?.disconnectFromChat();
+            }
+            this.setState({ currentChat: newCurrentChat });
         } else if (chatId === null) {
-            this.setState({ currentChat: null });
+            this.clearCurrentChat();
         }
     }
 
     clearCurrentChat() {
-        this.setState<IStore>({
+        this.setState({
             currentChat: null,
             currentSocket: null,
             token: null,
             oldMessages: [],
-            currentMessages: [],
             message: null,
             messages: [],
             contentCount: 0,
@@ -108,20 +121,17 @@ export default class Store extends EventBus {
     }
 
     addMessages(data: IMessageOld[] | IMessageDTO | unknown) {
-        if (!data || (isArray(data) && data.length === 0)) {
-            return;
-        }
-
-        const { authUser, contentCount = 0, currentMessages = [] } = this.getState();
+        const { authUser, contentCount = 0 } = this.getState();
 
         if (isArray(data)) {
             const content = contentCount < 20 ? 0 : contentCount + data.length + 1;
             const formattedMessages = (data as IMessageOld[])
                 .map((msg) => ({
                     ...msg,
-                    id: msg.id.toString(),
+                    id: String(msg.id),
                     typeMessage: String(msg.user_id) === String(authUser?.id) ? 'me' : 'incomer',
-                    time: formatTime(msg.time),
+                    localTime: formatTime(msg.time),
+                    date: formatDate(msg.time),
                     isMe: String(msg.user_id) === String(authUser?.id),
                 }))
                 .reverse() as IMessage[];
@@ -133,30 +143,48 @@ export default class Store extends EventBus {
             const msgDto = data as unknown as IMessageDTO;
             const message = {
                 ...msgDto,
+                id: String(msgDto.id),
                 typeMessage: data.user_id === String(authUser?.id) ? 'me' : 'incomer',
-                time: formatTime(msgDto.time),
-                isMe: String(data.user_id) === String(authUser?.id),
+                localTime: formatTime(msgDto.time),
+                date: formatDate(msgDto.time),
+                isMe: String(msgDto.user_id) === String(authUser?.id),
             } as IMessage;
 
-            this.setState({ currentMessages: [...currentMessages, message], message, contentCount: contentCount + 1 });
+            this.setState({ message, contentCount: contentCount + 1 });
         }
 
         this._setMessages();
     }
 
     private _setMessages() {
-        const { oldMessages = [], currentMessages = [] } = this.getState();
+        const { oldMessages = [], message } = this.getState();
 
-        const prev = {
-            day: 'Ранее',
-            bubbles: oldMessages,
-        };
+        const dateMap = new Map();
+        oldMessages.forEach((msg, i) => {
+            dateMap.set(msg.date, i);
+        });
 
-        const current = {
-            day: 'Сегодня',
-            bubbles: currentMessages,
-        };
+        const obj = Object.fromEntries(dateMap.entries());
+        const days = Object.keys(obj).map((day) => {
+            let localDay = day;
+            const bubblesForDay = oldMessages.filter((msg) => msg.date === day);
+            const isFormatedDate = true;
 
-        this.setState({ messages: [prev, current] });
+            if (isToday(day, isFormatedDate)) {
+                localDay = 'Сегодня';
+                if (message && bubblesForDay[0]?.id?.toString() !== String(message.id)) {
+                    bubblesForDay.push(message);
+                }
+            } else if (isYesterday(day, isFormatedDate)) {
+                localDay = 'Вчера';
+            }
+
+            return {
+                day: localDay,
+                bubbles: bubblesForDay,
+            };
+        });
+
+        this.setState({ messages: days });
     }
 }

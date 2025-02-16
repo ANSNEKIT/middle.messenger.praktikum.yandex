@@ -31,15 +31,9 @@ export default class Chat extends Block<IChatProps> {
         return String(this.props.chat.id);
     }
 
-    select(selectChatId: string) {
-        const chatId = this.getProps()?.chat?.id;
+    select() {
         const chat = this.getContent();
-
-        if (String(chatId) === selectChatId) {
-            chat?.classList.add('select');
-        } else {
-            chat?.classList.remove('select');
-        }
+        chat?.classList.toggle('select');
     }
 
     render() {

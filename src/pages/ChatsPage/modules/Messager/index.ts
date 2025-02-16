@@ -1,6 +1,9 @@
 import { ChatHeader, ChatFooter } from '@/pages/ChatsPage/modules';
 import { Block } from '@/services/base-component';
-import { Indexed, IProps } from '@/types';
+import {
+    // Indexed,
+    IProps,
+} from '@/types';
 import messagerTemplate from './messager.hbs?raw';
 import { IconAttach, IconBlueArrowRight, IconDots } from '@/assets/icons';
 import { EModalType } from '../..';
@@ -10,7 +13,7 @@ import ContextMenu from '@/components/ContextMenu';
 
 import './messager.pcss';
 import MessagesAPI from '@/api/messages/messages.api';
-import { WSTransportEvents } from '@/services/wsTransport';
+// import { WSTransportEvents } from '@/services/wsTransport';
 import { IMessage } from '@/api/messages/types';
 
 export interface IMessagerProps extends IProps {
@@ -52,8 +55,9 @@ export default class Messager extends Block {
                     },
                     type: 'button',
                     id: 'button-send-message',
-                    class: 'button--icon button-send-message',
+                    class: 'button--icon button-send-message disabled',
                     text: IconBlueArrowRight,
+                    disabled: true,
                     '@click': (evt: Event) => this.onSendMessage(evt),
                 }),
                 '@submit': (evt: Event) => this.onSendMessage(evt),
@@ -147,6 +151,15 @@ export default class Messager extends Block {
                         text: 'Удалить пользователя',
                         '@click': (evt: MouseEvent) => this.onOpenModal(evt, EModalType.removeUser),
                     }),
+                    new Button('button', {
+                        settings: {
+                            isSimple: true,
+                        },
+                        id: 'context-menu-remove-user',
+                        class: 'button--tertary',
+                        text: 'Удалить чат',
+                        '@click': (evt: MouseEvent) => this.onOpenModal(evt, EModalType.removeChat),
+                    }),
                 ],
             }),
         };
@@ -188,25 +201,18 @@ export default class Messager extends Block {
         this._socket.sendMessage(value);
     }
 
-    updateChats(messages: IMessage[]) {
-        this.setProps({ messages });
+    updateMessages(messages: IMessage[], isRerender = true) {
+        this.setProps({ messages: messages }, isRerender);
     }
 
     hasUpdated(_: IMessagerProps, newProps: IMessagerProps): boolean {
-        if (newProps.isCurrentChat && !this._socket && newProps?.socket?.wssTransport) {
-            this._socket = newProps?.socket;
-            const wssTransport = this._socket.wssTransport!;
-
-            wssTransport.on(WSTransportEvents.Message, (data: Indexed[]) => {
-                window.store.addMessages(data);
-            });
-
-            this._socket.connectToChat().then(() => {
-                if (this._socket) {
-                    this._socket.getMessages();
-                }
-            });
+        if (newProps) {
+            console.log('*********** messager hasUpdated newProps', newProps);
+            if (newProps?.socket?.wssTransport) {
+                this._socket = newProps?.socket;
+            }
         }
+
         return true;
     }
 

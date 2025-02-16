@@ -6,6 +6,11 @@ import { IProps } from '@/types';
 
 export interface IModalProps<ModalType> extends IProps {
     title: string;
+    userList?: Array<{
+        display: string;
+        login: string;
+        isMe: boolean;
+    }>;
     isShow?: boolean;
     body?: unknown | string;
     type: ModalType;

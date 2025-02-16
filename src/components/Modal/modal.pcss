@@ -28,6 +28,32 @@
         margin-bottom: 50px;
     }
 
+    &__title:has(+ &__user-list) {
+        margin-bottom: 30px;
+    }
+
+    &__user-list {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 40px;
+
+        &-title {
+            margin: 0;
+            margin-bottom: 14px;
+        }
+
+        &-login {
+            margin: 0;
+            margin-bottom: 10px;
+
+            &:last-child {
+                margin-bottom: 0;
+            }
+        }
+    }
+
     &__actions {
         margin-top: 30px;
     }

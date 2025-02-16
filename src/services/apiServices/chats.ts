@@ -1,6 +1,7 @@
 import ChatsApi from '@/api/chats/chats.api';
 import * as ChatDTO from '@/api/chats/chats.model';
 import * as ChatTypes from '@/api/chats/types';
+import { ERouter } from '@/constants/router';
 
 const chatsApi = new ChatsApi();
 
@@ -12,10 +13,13 @@ export const getChats = async (): Promise<ChatDTO.IChatDTO[]> => {
             const chats = xhr.json<ChatDTO.IChatDTO[]>() || [];
             window.store.setState({ chats });
             return chats;
+        } else if (xhr.status === 401) {
+            window.router.go(ERouter.LOGIN);
         }
         return [];
     } catch (responsError: unknown) {
         console.error(responsError);
+        console.error('getChatUsers response error', responsError);
         return [];
     } finally {
         window.store.setState({ isLoading: false });

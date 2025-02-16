@@ -1,14 +1,13 @@
 .avatar {
-    width: 34px;
-    height: 34px;
+    position: relative;
 
     &__empty {
-        width: inherit;
-        height: inherit;
+        width: 130px;
+        height: 130px;
 
         &-svg {
-            width: inherit;
-            height: inherit;
+            width: 130px;
+            height: 130px;
         }
     }
 
@@ -16,17 +15,25 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        width: inherit;
-        height: inherit;
-        max-width: 200px;
-        border-radius: 1000px;
-        border: 2px solid black;
+        flex-shrink: 0;
+        width: 130px;
+        height: 130px;
+        background: transparent;
+        border-radius: 100%;
     }
 
     &__image {
-        width: inherit;
-        height: auto;
+        position: absolute;
+        max-width: 100%;
+        width: 130px;
+        height: 130px;
+
+        /* height: auto; */
+
         background-size: cover;
         background-position: center;
+        border-radius: 100%;
+        object-fit: cover;
+        border: 1px solid black;
     }
 }

@@ -28,7 +28,7 @@ export const register = async (registerForm: IUserRegistration): Promise<void> =
         const xhr = await authApi.registration(registerForm);
 
         if (xhr.ok) {
-            window.router.go(ERouter.LOGIN);
+            window.router.go(ERouter.MESSENGER);
         } else if (xhr.status >= 500) {
             window.router.go(ERouter.SERVER_ERROR);
         }

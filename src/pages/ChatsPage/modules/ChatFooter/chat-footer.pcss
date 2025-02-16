@@ -27,6 +27,12 @@
     }
 
     & .button-send-message {
+        color: var(--blue);
         padding: 0;
+
+        &.disabled {
+            color: var(--gray-700);
+            cursor: default;
+        }
     }
 }

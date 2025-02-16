@@ -12,7 +12,7 @@ export interface IChatFooterProps extends IProps {
     buttonSubmit: Button;
 }
 
-export default class ChatFooter extends Block<IChatFooterProps> {
+export default class ChatFooter extends Block {
     constructor(props: IChatFooterProps) {
         super('form', {
             attrs: {
@@ -21,6 +21,12 @@ export default class ChatFooter extends Block<IChatFooterProps> {
             settings: {
                 isSimple: true,
             },
+            ...props,
+        });
+    }
+
+    init() {
+        return {
             inputSendMessage: new Input('div', {
                 attrs: {
                     class: 'chat-footer__input input',
@@ -30,19 +36,42 @@ export default class ChatFooter extends Block<IChatFooterProps> {
                 type: 'text',
                 name: 'message',
                 required: true,
+                '@input': (evt: InputEvent) => this._onChangeInputSend(evt),
             }),
-            ...props,
-        });
+        };
+    }
+
+    toggleDisabledSendButton(isDisabled = true) {
+        const sendButton = this.getChildren().buttonSubmit as Button;
+        const $btn = sendButton.getContent() as HTMLButtonElement;
+        $btn.setAttribute('disabled', isDisabled.toString());
+
+        if (isDisabled) {
+            $btn.classList.add('disabled');
+        } else {
+            $btn.classList.remove('disabled');
+            $btn.removeAttribute('disabled');
+        }
+        this.setProps({});
+    }
+
+    private _onChangeInputSend(evt: InputEvent) {
+        const target = evt.target as HTMLInputElement;
+        window.store.setState({ hasSendMessageDidabled: !target.value.trim() });
     }
 
     clearSend() {
         const input = this.getChildren().inputSendMessage as Input;
-        return input.clear();
+        input.clear();
     }
 
     getSendValue() {
         const input = this.getChildren().inputSendMessage as Input;
         return input.getValue();
+    }
+
+    mounted() {
+        window.store.setState({ hasSendMessageDidabled: true });
     }
 
     render() {
