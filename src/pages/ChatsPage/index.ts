@@ -37,7 +37,7 @@ interface IChatPageProps extends IProps {
 }
 
 // eslint-disable-next-line prettier/prettier
-const { 
+const {
     initModalProps,
     getModalCreateChatProps,
     getModalAddUserProps,
