@@ -128,7 +128,7 @@ export default class Store extends EventBus {
             const formattedMessages = (data as IMessageOld[])
                 .map((msg) => ({
                     ...msg,
-                    id: msg.id.toString(),
+                    id: String(msg.id),
                     typeMessage: String(msg.user_id) === String(authUser?.id) ? 'me' : 'incomer',
                     localTime: formatTime(msg.time),
                     date: formatDate(msg.time),
@@ -143,6 +143,7 @@ export default class Store extends EventBus {
             const msgDto = data as unknown as IMessageDTO;
             const message = {
                 ...msgDto,
+                id: String(msgDto.id),
                 typeMessage: data.user_id === String(authUser?.id) ? 'me' : 'incomer',
                 localTime: formatTime(msgDto.time),
                 date: formatDate(msgDto.time),
@@ -171,7 +172,7 @@ export default class Store extends EventBus {
 
             if (isToday(day, isFormatedDate)) {
                 localDay = 'Сегодня';
-                if (message && bubblesForDay[0]?.id !== message.id) {
+                if (message && bubblesForDay[0]?.id?.toString() !== String(message.id)) {
                     bubblesForDay.push(message);
                 }
             } else if (isYesterday(day, isFormatedDate)) {

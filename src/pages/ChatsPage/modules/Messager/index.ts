@@ -202,52 +202,15 @@ export default class Messager extends Block {
     }
 
     updateMessages(messages: IMessage[], isRerender = true) {
-        console.log(' *********** Messanger updateMessages **********', messages);
-
         this.setProps({ messages: messages }, isRerender);
     }
 
-    // async updateSocket(newProps: IMessagerProps) {
-    //     console.log(' ********* messenger updateSocket newProps', newProps);
-
-    //     if (this._socket?.wssTransport) {
-    //         console.log(' ************* update socket STOP ****************');
-    //         await this._socket?.disconnectFromChat();
-    //         this._socket = null;
-    //         return;
-    //     }
-
-    //     if (newProps.isCurrentChat && newProps?.socket?.wssTransport) {
-    //         this._socket = newProps?.socket;
-    //         const wssTransport = this._socket.wssTransport!;
-
-    //         console.log('****** ================ upd Messanger 2222222 new socket ============== ********');
-    //         wssTransport.on(WSTransportEvents.Message, (data: Indexed[]) => {
-    //             console.log('****** ================ upd Messanger 33333 new message ============== ********');
-
-    //             window.store.addMessages(data);
-    //         });
-
-    //         this._socket.connectToChat().then(
-    //             () => {
-    //                 if (this._socket) {
-    //                     this._socket.getMessages();
-    //                 }
-    //             },
-    //             () => {
-    //                 console.log(' ============================= socket error ================');
-    //             },
-    //         );
-    //     }
-    // }
-
     hasUpdated(_: IMessagerProps, newProps: IMessagerProps): boolean {
-        console.log('$$$$$$$$$$$$ Messager hasUpdated newProos ************', newProps);
-
-        // this.updateSocket(newProps);
-        if (newProps.messages) {
-            console.log('$$$$$$$$$$$$ Messager hasUpdated newProos messages ************', newProps);
-            return true;
+        if (newProps) {
+            console.log('*********** messager hasUpdated newProps', newProps);
+            if (newProps?.socket?.wssTransport) {
+                this._socket = newProps?.socket;
+            }
         }
 
         return true;

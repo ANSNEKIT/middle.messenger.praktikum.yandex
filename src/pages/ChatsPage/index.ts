@@ -213,6 +213,7 @@ class ChatsPage extends Block<IChatPageProps> {
         } else {
             await serviceChats.deleteUser(userform);
         }
+        this.chatController(currentChat);
     }
 
     async chatController(currentChat: IChatDTO) {
@@ -232,59 +233,18 @@ class ChatsPage extends Block<IChatPageProps> {
 
         if (this._socket.wssTransport) {
             this._socket.wssTransport.on(WSTransportEvents.Message, (data: Indexed[]) => {
-                console.log('****** ================ upd Messanger 33333 new message ============== ********');
-
                 window.store.addMessages(data);
             });
 
-            this._socket.connectToChat().then(
-                () => {
-                    if (this._socket) {
-                        this._socket.getMessages();
-                    }
-                },
-                () => {
-                    console.log(' ============================= socket error ================');
-                },
-            );
+            this._socket.connectToChat().then(() => {
+                if (this._socket) {
+                    this._socket.getMessages();
+                }
+            });
         }
 
         window.store.setState({ currentSocket: this._socket });
     }
-
-    // async updateSocket(newProps: IMessagerProps) {
-    //     console.log(' ********* messenger updateSocket newProps', newProps);
-
-    //     if (this._socket?.wssTransport) {
-    //         console.log(' ************* update socket STOP ****************');
-    //         await this._socket?.disconnectFromChat();
-    //         this._socket = null;
-    //         return;
-    //     }
-
-    //     if (newProps.isCurrentChat && newProps?.socket?.wssTransport) {
-    //         this._socket = newProps?.socket;
-    //         const wssTransport = this._socket.wssTransport!;
-
-    //         console.log('****** ================ upd Messanger 2222222 new socket ============== ********');
-    //         wssTransport.on(WSTransportEvents.Message, (data: Indexed[]) => {
-    //             console.log('****** ================ upd Messanger 33333 new message ============== ********');
-
-    //             window.store.addMessages(data);
-    //         });
-
-    //         this._socket.connectToChat().then(
-    //             () => {
-    //                 if (this._socket) {
-    //                     this._socket.getMessages();
-    //                 }
-    //             },
-    //             () => {
-    //                 console.log(' ============================= socket error ================');
-    //             },
-    //         );
-    //     }
-    // }
 
     updateChats(chatList: IChatDTO[], isRerender = true) {
         const asideChats = this.getChildren().asideChats as AsideChats;
@@ -293,15 +253,13 @@ class ChatsPage extends Block<IChatPageProps> {
     }
 
     updateMessages(messages: IMessage[], isRerender = true) {
-        console.log('**************** Update Messages', messages);
-
         const messager = this.getChildren().messager as Messager;
         messager.updateMessages(messages);
         this.setProps({ messager }, isRerender);
     }
 
     updateCurrentChat(currentChat: IChatDTO, isRerender = true) {
-        console.log('********** chatsPage update currentChat **********');
+        console.log('update current chat', this._socket);
 
         const messager = this.getChildren().messager as Messager;
         const chatHeader = messager.getChildren().chatHeader as ChatHeader;
@@ -340,7 +298,7 @@ class ChatsPage extends Block<IChatPageProps> {
         this.loadChats();
 
         window.store.on(EStoreEvents.Updated, async (oldState: IStore, nextState: IStore) => {
-            const { modal = null, currentChat = null, messages, message = null, hasSendMessageDidabled } = nextState;
+            const { modal = null, currentChat = null, messages = [], message = null, hasSendMessageDidabled } = nextState;
 
             if (modal?.type) {
                 this.onOpenModal(modal.type);
@@ -351,14 +309,10 @@ class ChatsPage extends Block<IChatPageProps> {
                 this.updateCurrentChat(currentChat);
             }
 
-            if (typeof messages !== 'undefined') {
-                console.log(' ***** ====== ChatsPage watch messages ==== *****', messages);
-                console.log(' ***** ====== ChatsPage watch messages old ==== *****', oldState.messages);
-
+            // TODO Поправить баг, когда в новом стейте приходит пустой массив, то перерендер ломается
+            // Пока оставил обновления для не пустых массивов сообщений
+            if (messages.length) {
                 this.updateMessages(messages);
-                if (!messages.length) {
-                    this.updateMessages([{}]);
-                }
             }
             if (message && oldState?.message?.id !== message.id) {
                 this.clearSendInput();
