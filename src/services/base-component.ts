@@ -145,12 +145,6 @@ export class Block<P extends Record<string, any> = unknown> {
             Object.assign(this._events, events);
         }
 
-        if (this._props.messages) {
-            this._props.messages = props?.messages;
-
-            console.log('base component setProps', this._props);
-        }
-
         if (this._setUpdate) {
             this._eventBus.emit(Event.UPDATED, oldProps, this._props);
             this._setUpdate = false;
@@ -201,9 +195,9 @@ export class Block<P extends Record<string, any> = unknown> {
             propsAndStubs[key] = listItem.map((child) => `<div data-id="list-id-${child._id}"></div>`);
         });
 
-        // Object.entries(this._lists).forEach(([key, listItem]) => {
-        //     propsAndStubs[key] = listItem.map((child) => `<div data-id="list-id-${child._id}"></div>`);
-        // });
+        Object.entries(this._lists).forEach(([key, listItem]) => {
+            propsAndStubs[key] = listItem.map((child) => `<div data-id="list-id-${child._id}"></div>`);
+        });
 
         // Object.keys(propsAndStubs).forEach((key) => {
         //     if (Array.isArray(propsAndStubs[key])) {

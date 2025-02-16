@@ -26,10 +26,10 @@
         width: 100%;
         text-align: center;
         margin-bottom: 50px;
+    }
 
-        &:has(+ .modal__user-list) {
-            margin-bottom: 30px;
-        }
+    &__title:has(+ &__user-list) {
+        margin-bottom: 30px;
     }
 
     &__user-list {
