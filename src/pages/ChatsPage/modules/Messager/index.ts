@@ -194,7 +194,7 @@ export default class Messager extends Block {
         const chatFooter = this.getChildren().chatFooter as ChatFooter;
         const value = chatFooter.getSendValue();
 
-        if (!this._socket) {
+        if (!this._socket || !value.trim()) {
             return;
         }
 

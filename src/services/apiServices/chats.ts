@@ -14,12 +14,15 @@ export const getChats = async (): Promise<ChatDTO.IChatDTO[]> => {
             window.store.setState({ chats });
             return chats;
         } else if (xhr.status === 401) {
+            window.store.clearState();
             window.router.go(ERouter.LOGIN);
         }
         return [];
     } catch (responsError: unknown) {
         console.error(responsError);
         console.error('getChatUsers response error', responsError);
+        window.store.clearState();
+        window.router.go(ERouter.LOGIN);
         return [];
     } finally {
         window.store.setState({ isLoading: false });
