@@ -45,4 +45,27 @@ const formatTime = (time: string) => {
     return result || '';
 };
 
-export { formatChatsDate, formatTime };
+const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('ru-RU');
+};
+
+const isToday = (date: string, isLocaledFormatted = false) => {
+    const currentDate = new Date().toLocaleDateString('ru-RU');
+    const externalDate = new Date(date).toLocaleDateString('ru-RU');
+    if (isLocaledFormatted) {
+        return currentDate === date;
+    }
+    return currentDate === externalDate;
+};
+
+const isYesterday = (date: string, isLocaledFormatted = false) => {
+    const currentDate = new Date();
+    currentDate.setDate(currentDate.getDate() - 1);
+    const externalDate = new Date(date).toLocaleDateString('ru-RU');
+    if (isLocaledFormatted) {
+        return currentDate.toLocaleDateString('ru-RU') === date;
+    }
+    return currentDate.toLocaleDateString('ru-RU') === externalDate;
+};
+
+export { formatChatsDate, formatTime, formatDate, isToday, isYesterday };

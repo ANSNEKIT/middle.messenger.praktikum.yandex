@@ -261,7 +261,7 @@ class ProfilePage extends Block<IProfilePageProps> {
         const profileFields = PROFILE_FIELDS.map((field) => ({
             title: field.title,
             name: field.name,
-            value: authUser[field.name as keyof IUserDTO].toString(),
+            value: authUser[field.name]?.toString() ?? '-',
         }));
         const newProfile = {
             userName: `${authUser.first_name} ${authUser.second_name}`,
@@ -272,7 +272,7 @@ class ProfilePage extends Block<IProfilePageProps> {
     }
 
     mounted() {
-        const { authUser = null } = window.store.getState();
+        const { authUser } = window.store.getState();
 
         if (!authUser) {
             window.router.go(ERouter.LOGIN);

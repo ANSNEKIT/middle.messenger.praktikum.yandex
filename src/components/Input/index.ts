@@ -72,7 +72,7 @@ export default class Input extends Block<IInputProps> {
     }
 
     clear() {
-        this.setProps({ value: '', error: '' });
+        this.setProps({ value: '', error: '' }, true);
     }
 
     render() {
