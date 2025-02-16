@@ -4,7 +4,7 @@ import Input from '@/components/Input';
 import { ErrorText, regExpLogin, regExpMessage } from '@/constants/validate';
 import Button from '@/components/Button';
 
-export interface IComposableModalProps {
+export interface IComposableSubminBtnModalProps {
     '@click': () => Promise<void>;
 }
 
@@ -23,7 +23,7 @@ export const useChatPage = () => {
         };
     };
 
-    const getModalCreateChatProps = (props: IComposableModalProps) => {
+    const getModalCreateChatProps = (props: IComposableSubminBtnModalProps) => {
         return {
             settings: {
                 isSimple: true,
@@ -54,7 +54,7 @@ export const useChatPage = () => {
         };
     };
 
-    const getModalAddUserProps = (props: IComposableModalProps) => {
+    const getModalAddUserProps = (props: IComposableSubminBtnModalProps) => {
         return {
             settings: {
                 isSimple: true,
@@ -85,7 +85,7 @@ export const useChatPage = () => {
         };
     };
 
-    const getModalAttachMediaFileProps = (props: IComposableModalProps) => {
+    const getModalAttachMediaFileProps = (props: IComposableSubminBtnModalProps) => {
         return {
             settings: {
                 isSimple: true,
@@ -114,7 +114,7 @@ export const useChatPage = () => {
         };
     };
 
-    const getModalRemoveUserProps = (props: IComposableModalProps) => {
+    const getModalRemoveUserProps = (props: IComposableSubminBtnModalProps) => {
         return {
             settings: {
                 isSimple: true,
@@ -145,11 +145,31 @@ export const useChatPage = () => {
         };
     };
 
+    const getModalRemoveChatProps = (props: IComposableSubminBtnModalProps) => {
+        return {
+            settings: {
+                isSimple: true,
+            },
+            title: 'Удалить чат?',
+            type: EModalType.removeChat,
+            submitBtn: new Button('button', {
+                settings: {
+                    isSimple: true,
+                },
+                id: 'button-send-remove-user',
+                class: 'button--primary',
+                text: 'Удалить',
+                ...props,
+            }),
+        };
+    };
+
     return {
         initModalProps,
         getModalCreateChatProps,
         getModalAddUserProps,
         getModalAttachMediaFileProps,
         getModalRemoveUserProps,
+        getModalRemoveChatProps,
     };
 };

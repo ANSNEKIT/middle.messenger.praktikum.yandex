@@ -43,10 +43,7 @@ export default class ChatHeader extends Block<IChatHeaderProps> {
         }
     }
 
-    hasUpdated(_: IChatHeaderProps, newProps: IChatHeaderProps): boolean {
-        if (newProps.currentChat) {
-            this.updateChat(newProps.currentChat);
-        }
+    hasUpdated(): boolean {
         return true;
     }
 

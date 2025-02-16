@@ -52,8 +52,14 @@ export default class AsideChats extends Block<IAsideChatsProps> {
     }
 
     updateChats(chatList: IChatDTO[]) {
+        if (chatList.length === 0) {
+            return;
+        }
+
         const chats = adapterChatsPropsToChatsComponent(chatList);
+        chats[0].select();
         this.setProps({ chats });
+        window.store.setCurrentChat(chats[0].getId());
     }
 
     private _selectChat(chat: HTMLElement, currentChatId: string) {
@@ -85,6 +91,7 @@ export default class AsideChats extends Block<IAsideChatsProps> {
         const chatId = chat.getAttribute('id') || '';
         this._selectChat(chat, chatId);
         this.setProps({ currentChatId: chatId });
+
         window.store.setCurrentChat(chatId);
 
         // router.go(`${ERouter.MESSENGER}/${chatId}`, true);
