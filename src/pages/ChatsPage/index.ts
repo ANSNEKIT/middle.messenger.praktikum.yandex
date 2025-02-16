@@ -1,6 +1,6 @@
 import chatsPageTemplate from './chats.hbs?raw';
 import { Block } from '@/services/base-component';
-import { IProps } from '@/types';
+import { Indexed, IProps } from '@/types';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
 import { AsideChats, ChatFooter, ChatHeader } from '@/pages/ChatsPage/modules';
@@ -13,15 +13,16 @@ import Messager from './modules/Messager';
 import MessagesApi from '@/api/messages/messages.api';
 import { IChatDTO } from '@/api/chats/chats.model';
 import { useChatPage } from './composables/chat-page';
-import isEqualData from '@/utils/isEqualData';
 import { IMessage } from '@/api/messages/types';
 
 import './chats.pcss';
+import { WSTransportEvents } from '@/services/wsTransport';
 
 export enum EModalType {
     createChat = 'createChat',
     addUser = 'addUser',
     removeUser = 'removeUser',
+    removeChat = 'removeChat',
     loadMedia = 'loadMedia',
     loadFile = 'loadFile',
     loadLocation = 'loadLocation',
@@ -36,8 +37,14 @@ interface IChatPageProps extends IProps {
 }
 
 // eslint-disable-next-line prettier/prettier
-const { initModalProps, getModalCreateChatProps, getModalAddUserProps, getModalAttachMediaFileProps, getModalRemoveUserProps } =
-    useChatPage();
+const { 
+    initModalProps,
+    getModalCreateChatProps,
+    getModalAddUserProps,
+    getModalAttachMediaFileProps,
+    getModalRemoveUserProps,
+    getModalRemoveChatProps,
+} = useChatPage();
 
 class ChatsPage extends Block<IChatPageProps> {
     private _socket: MessagesApi | null = null;
@@ -70,10 +77,62 @@ class ChatsPage extends Block<IChatPageProps> {
         };
     }
 
+    async onOpenModal(type: EModalType) {
+        let props;
+
+        if (type === EModalType.createChat) {
+            props = getModalCreateChatProps({
+                '@click': () => this.onModalSend(EModalType.createChat),
+            });
+        } else if (type === EModalType.addUser) {
+            props = getModalAddUserProps({
+                '@click': () => this.onModalSend(EModalType.addUser),
+            });
+        } else if (type === EModalType.removeUser) {
+            props = getModalRemoveUserProps({
+                '@click': () => this.onModalSend(EModalType.removeUser),
+            });
+        } else if (type === EModalType.removeChat) {
+            props = getModalRemoveChatProps({
+                '@click': () => this.onModalSend(EModalType.removeChat),
+            });
+        } else if (type === EModalType.attachMedia) {
+            props = getModalAttachMediaFileProps({
+                '@click': () => this.onModalSend(EModalType.attachMedia),
+            });
+        }
+
+        if (!props) {
+            return;
+        }
+
+        const newModal = initModalProps(props).modal;
+
+        if (type === EModalType.removeUser) {
+            const { authUser } = window.store.getState();
+            const chatUsers = await this.loadChatUsers();
+            const formattedUsers = chatUsers.map((u) => ({
+                display: u.display_name ?? `${u.first_name} ${u.second_name}`,
+                login: u.login,
+                isMe: u.id === authUser?.id,
+            }));
+            newModal.setProps({ userList: formattedUsers });
+        }
+
+        newModal.show();
+        this.setProps({ modal: newModal });
+    }
+
     async onModalSend(modalType: EModalType) {
         const modal = this.getChildren().modal as Modal<EModalType>;
         const input = this.getChildren().modal.getChildren().body as Input;
         const isValid = input?.validate();
+
+        if (modalType === EModalType.removeChat) {
+            await this.controllerRemoveChat();
+            modal.hide();
+            return;
+        }
 
         if (!Input || !isValid) {
             return;
@@ -96,51 +155,18 @@ class ChatsPage extends Block<IChatPageProps> {
         input.clear();
     }
 
-    onOpenModal(type: EModalType) {
-        let props;
-
-        if (type === EModalType.createChat) {
-            props = getModalCreateChatProps({
-                '@click': () => this.onModalSend(EModalType.createChat),
-            });
-        } else if (type === EModalType.addUser) {
-            props = getModalAddUserProps({
-                '@click': () => this.onModalSend(EModalType.addUser),
-            });
-        } else if (type === EModalType.removeUser) {
-            props = getModalRemoveUserProps({
-                '@click': () => this.onModalSend(EModalType.attachMedia),
-            });
-        } else if (type === EModalType.attachMedia) {
-            props = getModalAttachMediaFileProps({
-                '@click': () => this.onModalSend(EModalType.attachMedia),
-            });
-        }
-
-        if (!props) {
-            return;
-        }
-
-        const newModal = initModalProps(props).modal;
-        newModal.show();
-        this.setProps({ modal: newModal });
-    }
-
     async loadChats() {
         const chatList = await serviceChats.getChats();
         this.updateChats(chatList);
     }
 
-    updateChats(chatList: IChatDTO[], isRerender = true) {
-        const asideChats = this.getChildren().asideChats as AsideChats;
-        asideChats.updateChats(chatList);
-        this.setProps({ asideChats: asideChats }, isRerender);
-    }
-
-    updateMessages(messages: IMessage[], isRerender = true) {
-        const messager = this.getChildren().messager as Messager;
-        messager.updateChats(messages);
-        this.setProps({ messager }, isRerender);
+    async loadChatUsers() {
+        const { currentChat, authUser } = window.store.getState();
+        const chatUsersForm = {
+            id: Number(currentChat!.id),
+            email: authUser?.email,
+        };
+        return await serviceChats.getChatUsers(chatUsersForm);
     }
 
     async controllerCreateChat(value: string) {
@@ -151,8 +177,24 @@ class ChatsPage extends Block<IChatPageProps> {
         await this.loadChats();
     }
 
+    async controllerRemoveChat() {
+        const { currentChat, currentSocket } = window.store.getState();
+
+        const chatDeleteForm = {
+            chatId: Number(currentChat!.id),
+        };
+
+        if (currentSocket && currentSocket instanceof MessagesApi) {
+            await currentSocket.disconnectFromChat();
+        }
+
+        await serviceChats.deleteChat(chatDeleteForm);
+        window.store.clearCurrentChat();
+        await this.loadChats();
+    }
+
     async controllerUserToChat(value: string, type: 'add' | 'remove') {
-        const { currentChat = null, currentSocket } = window.store.getState();
+        const { currentChat = null } = window.store.getState();
         const users = await serviceUser.search({ login: value });
 
         if (!Array.isArray(users) || users.length === 0 || !currentChat) {
@@ -165,59 +207,128 @@ class ChatsPage extends Block<IChatPageProps> {
             users: [chatUserId],
             chatId: Number(chatId),
         };
+
         if (type === 'add') {
             await serviceChats.addUser(userform);
         } else {
-            const chatUsersForm = {
-                id: Number(chatId),
-            };
-            const chatDeleteForm = {
-                chatId: Number(chatId),
-            };
-
             await serviceChats.deleteUser(userform);
-            const chatUsers = await serviceChats.getChatUsers(chatUsersForm);
-
-            if (chatUsers.length === 1 && currentSocket) {
-                await serviceChats.deleteChat(chatDeleteForm);
-                await currentSocket.disconnectFromChat();
-                window.store.setState({ currentChat: null, currentSocket: null });
-                await this.loadChats();
-            }
         }
     }
 
     async chatController(currentChat: IChatDTO) {
         const { authUser } = window.store.getState();
         const token = await serviceChats.getChatToken(currentChat.id);
-        const chatUsers = await serviceChats.getChatUsers({ id: currentChat.id });
 
-        if (!token || !authUser || chatUsers.length < 2) {
+        if (!token || !authUser) {
             return;
+        }
+
+        if (this._socket?.wssTransport) {
+            await this._socket.disconnectFromChat();
         }
 
         this._socket = new MessagesApi();
         await this._socket.getWSSTransport(authUser.id, currentChat.id, token);
+
+        if (this._socket.wssTransport) {
+            this._socket.wssTransport.on(WSTransportEvents.Message, (data: Indexed[]) => {
+                console.log('****** ================ upd Messanger 33333 new message ============== ********');
+
+                window.store.addMessages(data);
+            });
+
+            this._socket.connectToChat().then(
+                () => {
+                    if (this._socket) {
+                        this._socket.getMessages();
+                    }
+                },
+                () => {
+                    console.log(' ============================= socket error ================');
+                },
+            );
+        }
+
         window.store.setState({ currentSocket: this._socket });
     }
 
-    updateCurrentChat(_: IChatDTO | null, currentChat: IChatDTO, isRerender = true) {
+    // async updateSocket(newProps: IMessagerProps) {
+    //     console.log(' ********* messenger updateSocket newProps', newProps);
+
+    //     if (this._socket?.wssTransport) {
+    //         console.log(' ************* update socket STOP ****************');
+    //         await this._socket?.disconnectFromChat();
+    //         this._socket = null;
+    //         return;
+    //     }
+
+    //     if (newProps.isCurrentChat && newProps?.socket?.wssTransport) {
+    //         this._socket = newProps?.socket;
+    //         const wssTransport = this._socket.wssTransport!;
+
+    //         console.log('****** ================ upd Messanger 2222222 new socket ============== ********');
+    //         wssTransport.on(WSTransportEvents.Message, (data: Indexed[]) => {
+    //             console.log('****** ================ upd Messanger 33333 new message ============== ********');
+
+    //             window.store.addMessages(data);
+    //         });
+
+    //         this._socket.connectToChat().then(
+    //             () => {
+    //                 if (this._socket) {
+    //                     this._socket.getMessages();
+    //                 }
+    //             },
+    //             () => {
+    //                 console.log(' ============================= socket error ================');
+    //             },
+    //         );
+    //     }
+    // }
+
+    updateChats(chatList: IChatDTO[], isRerender = true) {
+        const asideChats = this.getChildren().asideChats as AsideChats;
+        asideChats.updateChats(chatList);
+        this.setProps({ asideChats: asideChats }, isRerender);
+    }
+
+    updateMessages(messages: IMessage[], isRerender = true) {
+        console.log('**************** Update Messages', messages);
+
+        const messager = this.getChildren().messager as Messager;
+        messager.updateMessages(messages);
+        this.setProps({ messager }, isRerender);
+    }
+
+    updateCurrentChat(currentChat: IChatDTO, isRerender = true) {
+        console.log('********** chatsPage update currentChat **********');
+
         const messager = this.getChildren().messager as Messager;
         const chatHeader = messager.getChildren().chatHeader as ChatHeader;
         chatHeader.updateChat(currentChat);
-        messager.setProps({
-            isCurrentChat: true,
-            chatHeader,
-            socket: this._socket,
-        });
+        messager.setProps(
+            {
+                isCurrentChat: true,
+                chatHeader,
+                socket: this._socket,
+            },
+            isRerender,
+        );
         this.setProps({ messager: messager }, isRerender);
     }
 
-    updateSendInput(isRerender = true) {
+    clearSendInput(isRerender = true) {
         const messager = this.getChildren().messager as Messager;
         const chatFooter = messager.getChildren().chatFooter as ChatFooter;
         chatFooter.clearSend();
 
+        this.setProps({ messager: messager }, isRerender);
+    }
+
+    updateSendMessageBtn(isDisabled: boolean, isRerender = true) {
+        const messager = this.getChildren().messager as Messager;
+        const chatFooter = messager.getChildren().chatFooter as ChatFooter;
+        chatFooter.toggleDisabledSendButton(isDisabled);
         this.setProps({ messager: messager }, isRerender);
     }
 
@@ -229,22 +340,36 @@ class ChatsPage extends Block<IChatPageProps> {
         this.loadChats();
 
         window.store.on(EStoreEvents.Updated, async (oldState: IStore, nextState: IStore) => {
-            const { modal = null, currentChat = null, messages = [], message = null } = nextState;
+            const { modal = null, currentChat = null, messages, message = null, hasSendMessageDidabled } = nextState;
 
-            if (modal?.type && oldState.modal?.type !== modal?.type) {
+            if (modal?.type) {
                 this.onOpenModal(modal.type);
             }
 
-            if (currentChat && oldState?.currentChat?.id !== currentChat.id) {
+            if (currentChat !== null) {
                 await this.chatController(currentChat);
-                this.updateCurrentChat(oldState?.currentChat, currentChat);
+                this.updateCurrentChat(currentChat);
             }
 
-            if (messages.length && !isEqualData(oldState.messages, messages)) {
-                this.updateMessages(nextState.messages);
+            if (typeof messages !== 'undefined') {
+                console.log(' ***** ====== ChatsPage watch messages ==== *****', messages);
+                console.log(' ***** ====== ChatsPage watch messages old ==== *****', oldState.messages);
+
+                this.updateMessages(messages);
+                if (!messages.length) {
+                    this.updateMessages([{}]);
+                }
             }
             if (message && oldState?.message?.id !== message.id) {
-                this.updateSendInput();
+                this.clearSendInput();
+            }
+
+            if (typeof hasSendMessageDidabled !== 'undefined') {
+                this.updateSendMessageBtn(hasSendMessageDidabled);
+                const sendMessageInput = document.getElementById('input-message');
+                if (sendMessageInput) {
+                    sendMessageInput.focus();
+                }
             }
         });
     }

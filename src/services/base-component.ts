@@ -145,6 +145,12 @@ export class Block<P extends Record<string, any> = unknown> {
             Object.assign(this._events, events);
         }
 
+        if (this._props.messages) {
+            this._props.messages = props?.messages;
+
+            console.log('base component setProps', this._props);
+        }
+
         if (this._setUpdate) {
             this._eventBus.emit(Event.UPDATED, oldProps, this._props);
             this._setUpdate = false;
@@ -185,7 +191,7 @@ export class Block<P extends Record<string, any> = unknown> {
 
     public compile(tmpl: string): DocumentFragment {
         const propsAndStubs = this._props;
-        const grandsons = [] as Block[];
+        // const grandsons = [] as Block[];
 
         Object.entries(this._children).forEach(([key, child]) => {
             propsAndStubs[key] = `<div data-id="${child._id}"></div>`;
@@ -195,27 +201,27 @@ export class Block<P extends Record<string, any> = unknown> {
             propsAndStubs[key] = listItem.map((child) => `<div data-id="list-id-${child._id}"></div>`);
         });
 
-        Object.entries(this._lists).forEach(([key, listItem]) => {
-            propsAndStubs[key] = listItem.map((child) => `<div data-id="list-id-${child._id}"></div>`);
-        });
+        // Object.entries(this._lists).forEach(([key, listItem]) => {
+        //     propsAndStubs[key] = listItem.map((child) => `<div data-id="list-id-${child._id}"></div>`);
+        // });
 
-        Object.keys(propsAndStubs).forEach((key) => {
-            if (Array.isArray(propsAndStubs[key])) {
-                propsAndStubs[key].forEach((el) => {
-                    if (el && typeof el === 'object') {
-                        Object.keys(el).forEach((childPropKey) => {
-                            if (Array.isArray(el[childPropKey]) && el[childPropKey].every((child) => child instanceof Block)) {
-                                el[childPropKey] = el[childPropKey].map((grandson) => {
-                                    grandsons.push(grandson);
+        // Object.keys(propsAndStubs).forEach((key) => {
+        //     if (Array.isArray(propsAndStubs[key])) {
+        //         propsAndStubs[key].forEach((el) => {
+        //             if (el && typeof el === 'object') {
+        //                 Object.keys(el).forEach((childPropKey) => {
+        //                     if (Array.isArray(el[childPropKey]) && el[childPropKey].every((child) => child instanceof Block)) {
+        //                         el[childPropKey] = el[childPropKey].map((grandson) => {
+        //                             grandsons.push(grandson);
 
-                                    return `<div data-id="list-grand-id-${grandson._id}"></div>`;
-                                });
-                            }
-                        });
-                    }
-                });
-            }
-        });
+        //                             return `<div data-id="list-grand-id-${grandson._id}"></div>`;
+        //                         });
+        //                     }
+        //                 });
+        //             }
+        //         });
+        //     }
+        // });
 
         const fragment = this.createDocumentElement('template') as HTMLTemplateElement;
         fragment.innerHTML = Handlebars.compile(tmpl)(propsAndStubs);
@@ -232,10 +238,10 @@ export class Block<P extends Record<string, any> = unknown> {
             });
         });
 
-        grandsons.forEach((grs) => {
-            const stub = fragment.content.querySelector(`[data-id="list-grand-id-${grs._id}"]`);
-            stub?.replaceWith(grs.getContent() || '');
-        });
+        // grandsons.forEach((grs) => {
+        //     const stub = fragment.content.querySelector(`[data-id="list-grand-id-${grs._id}"]`);
+        //     stub?.replaceWith(grs.getContent() || '');
+        // });
 
         return fragment.content;
     }

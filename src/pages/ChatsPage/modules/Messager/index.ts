@@ -1,6 +1,9 @@
 import { ChatHeader, ChatFooter } from '@/pages/ChatsPage/modules';
 import { Block } from '@/services/base-component';
-import { Indexed, IProps } from '@/types';
+import {
+    // Indexed,
+    IProps,
+} from '@/types';
 import messagerTemplate from './messager.hbs?raw';
 import { IconAttach, IconBlueArrowRight, IconDots } from '@/assets/icons';
 import { EModalType } from '../..';
@@ -10,7 +13,7 @@ import ContextMenu from '@/components/ContextMenu';
 
 import './messager.pcss';
 import MessagesAPI from '@/api/messages/messages.api';
-import { WSTransportEvents } from '@/services/wsTransport';
+// import { WSTransportEvents } from '@/services/wsTransport';
 import { IMessage } from '@/api/messages/types';
 
 export interface IMessagerProps extends IProps {
@@ -52,8 +55,9 @@ export default class Messager extends Block {
                     },
                     type: 'button',
                     id: 'button-send-message',
-                    class: 'button--icon button-send-message',
+                    class: 'button--icon button-send-message disabled',
                     text: IconBlueArrowRight,
+                    disabled: true,
                     '@click': (evt: Event) => this.onSendMessage(evt),
                 }),
                 '@submit': (evt: Event) => this.onSendMessage(evt),
@@ -147,6 +151,15 @@ export default class Messager extends Block {
                         text: 'Удалить пользователя',
                         '@click': (evt: MouseEvent) => this.onOpenModal(evt, EModalType.removeUser),
                     }),
+                    new Button('button', {
+                        settings: {
+                            isSimple: true,
+                        },
+                        id: 'context-menu-remove-user',
+                        class: 'button--tertary',
+                        text: 'Удалить чат',
+                        '@click': (evt: MouseEvent) => this.onOpenModal(evt, EModalType.removeChat),
+                    }),
                 ],
             }),
         };
@@ -188,25 +201,55 @@ export default class Messager extends Block {
         this._socket.sendMessage(value);
     }
 
-    updateChats(messages: IMessage[]) {
-        this.setProps({ messages });
+    updateMessages(messages: IMessage[], isRerender = true) {
+        console.log(' *********** Messanger updateMessages **********', messages);
+
+        this.setProps({ messages: messages }, isRerender);
     }
 
+    // async updateSocket(newProps: IMessagerProps) {
+    //     console.log(' ********* messenger updateSocket newProps', newProps);
+
+    //     if (this._socket?.wssTransport) {
+    //         console.log(' ************* update socket STOP ****************');
+    //         await this._socket?.disconnectFromChat();
+    //         this._socket = null;
+    //         return;
+    //     }
+
+    //     if (newProps.isCurrentChat && newProps?.socket?.wssTransport) {
+    //         this._socket = newProps?.socket;
+    //         const wssTransport = this._socket.wssTransport!;
+
+    //         console.log('****** ================ upd Messanger 2222222 new socket ============== ********');
+    //         wssTransport.on(WSTransportEvents.Message, (data: Indexed[]) => {
+    //             console.log('****** ================ upd Messanger 33333 new message ============== ********');
+
+    //             window.store.addMessages(data);
+    //         });
+
+    //         this._socket.connectToChat().then(
+    //             () => {
+    //                 if (this._socket) {
+    //                     this._socket.getMessages();
+    //                 }
+    //             },
+    //             () => {
+    //                 console.log(' ============================= socket error ================');
+    //             },
+    //         );
+    //     }
+    // }
+
     hasUpdated(_: IMessagerProps, newProps: IMessagerProps): boolean {
-        if (newProps.isCurrentChat && !this._socket && newProps?.socket?.wssTransport) {
-            this._socket = newProps?.socket;
-            const wssTransport = this._socket.wssTransport!;
+        console.log('$$$$$$$$$$$$ Messager hasUpdated newProos ************', newProps);
 
-            wssTransport.on(WSTransportEvents.Message, (data: Indexed[]) => {
-                window.store.addMessages(data);
-            });
-
-            this._socket.connectToChat().then(() => {
-                if (this._socket) {
-                    this._socket.getMessages();
-                }
-            });
+        // this.updateSocket(newProps);
+        if (newProps.messages) {
+            console.log('$$$$$$$$$$$$ Messager hasUpdated newProos messages ************', newProps);
+            return true;
         }
+
         return true;
     }
 
