@@ -36,6 +36,7 @@ export default class Router implements IRouter {
     }
 
     private _onRoute(pathName: string, isChild: boolean = false) {
+        const { authUser } = window.store.getState();
         let route = this.getRoute(pathName, isChild);
 
         if (!route) {
@@ -45,12 +46,12 @@ export default class Router implements IRouter {
             return;
         }
 
-        if (
-            [ERouter.MESSENGER, ERouter.SETTINGS, ERouter.PROFILE_EDIT].includes(pathName as ERouter) &&
-            !window.store.getState()?.authUser
-        ) {
+        if ([ERouter.MESSENGER, ERouter.SETTINGS, ERouter.PROFILE_EDIT].includes(pathName as ERouter) && !authUser) {
             this.history.pushState({}, '', ERouter.LOGIN);
             route = this.getRoute(ERouter.LOGIN);
+        } else if ([ERouter.LOGIN, ERouter.REGISTRATION].includes(pathName as ERouter) && authUser) {
+            this.history.pushState({}, '', ERouter.MESSENGER);
+            route = this.getRoute(ERouter.MESSENGER);
         }
 
         if (!!this._currentRoute && this._currentRoute !== route) {

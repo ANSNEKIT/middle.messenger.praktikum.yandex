@@ -83,6 +83,12 @@ export class HTTPTransport {
                 xhr.setRequestHeader(key, headers[key]);
             });
 
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    resolve(parseXHRResult(xhr));
+                }
+            };
+
             xhr.onload = () => {
                 resolve(parseXHRResult(xhr));
             };

@@ -18,7 +18,6 @@ export default class Avatar extends Block {
     }
 
     hasUpdated() {
-        console.log('================ Avarar has update ===============');
         return true;
     }
 
