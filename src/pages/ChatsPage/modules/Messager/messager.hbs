@@ -3,20 +3,24 @@
         {{{ chatHeader }}}
 
         <main class="messager__main">
-            {{#each messages }}
-                <section class="messager__bubbls-date-groups">
-                    <h3 class="messager__bubbles-group-title text-12-medium">{{this.day}}</h3>
-                    {{#each this.bubbles }}
-                        <div
-                            class="messager__bubble bubble text-12-medium 
-                            {{#if this.isMe}}bubble--me{{/if}}"
-                        >
-                            <div class="bubble__content">{{ this.content }}</div>
-                            <span class="bubble__time text-9">{{ this.localTime }}</span>
-                        </div>
+            <div class="messager__main-wrap">
+                <div class="messager__main-wrap-inner">
+                    {{#each messages }}
+                        <section class="messager__bubbls-date-groups">
+                            <h3 class="messager__bubbles-group-title text-12-medium">{{this.day}}</h3>
+                            {{#each this.bubbles }}
+                                <div
+                                    class="messager__bubble bubble text-12-medium 
+                                    {{#if this.isMe}}bubble--me{{/if}}"
+                                >
+                                    <div class="bubble__content">{{ this.content }}</div>
+                                    <span class="bubble__time text-9">{{ this.localTime }}</span>
+                                </div>
+                            {{/each }}
+                        </section>
                     {{/each }}
-                </section>
-            {{/each }}
+                </div>
+            </div>
         </main>
 
         {{{ chatFooter }}}

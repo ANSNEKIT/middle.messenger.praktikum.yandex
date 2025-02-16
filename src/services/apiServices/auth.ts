@@ -2,6 +2,7 @@ import AuthApi from '@/api/auth/auth.api';
 import { IUserLogin, IUserRegistration } from '@/api/auth/types';
 import { IUserDTO } from '@/api/user/user.model';
 import { ERouter } from '@/constants/router';
+import { Indexed } from '@/types';
 
 const authApi = new AuthApi();
 
@@ -12,10 +13,20 @@ export const login = async (loginForm: IUserLogin): Promise<void> => {
         if (xhr.ok) {
             await me();
             window.router.go(ERouter.MESSENGER);
+        } else if (xhr.status === 400 && xhr.data) {
+            const errData = JSON.parse(xhr.data);
+
+            if (errData?.reason === 'User already in system') {
+                await me();
+                window.router.go(ERouter.MESSENGER);
+            }
         } else if (xhr.status >= 500) {
             window.router.go(ERouter.SERVER_ERROR);
         }
     } catch (responsError: unknown) {
+        if ((responsError as Indexed)?.reason === 'User already in system') {
+            window.router.go(ERouter.MESSENGER);
+        }
         console.error(responsError);
     } finally {
         window.store.setState({ isLoading: false });
@@ -29,11 +40,19 @@ export const register = async (registerForm: IUserRegistration): Promise<void> =
 
         if (xhr.ok) {
             window.router.go(ERouter.MESSENGER);
+        } else if (xhr.status === 400 && xhr.data) {
+            const errData = JSON.parse(xhr.data);
+            if (errData?.reason === 'User already in system') {
+                window.router.go(ERouter.MESSENGER);
+            }
         } else if (xhr.status >= 500) {
             window.router.go(ERouter.SERVER_ERROR);
         }
     } catch (responsError: unknown) {
         console.error(responsError);
+        if ((responsError as Indexed)?.reason === 'User already in system') {
+            window.router.go(ERouter.MESSENGER);
+        }
     } finally {
         window.store.setState({ isLoading: false });
     }

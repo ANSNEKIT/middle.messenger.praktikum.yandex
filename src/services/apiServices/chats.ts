@@ -1,6 +1,7 @@
 import ChatsApi from '@/api/chats/chats.api';
 import * as ChatDTO from '@/api/chats/chats.model';
 import * as ChatTypes from '@/api/chats/types';
+import { IMG_BASE_URL } from '@/constants';
 import { ERouter } from '@/constants/router';
 
 const chatsApi = new ChatsApi();
@@ -11,15 +12,22 @@ export const getChats = async (): Promise<ChatDTO.IChatDTO[]> => {
         const xhr = await chatsApi.getChats();
         if (xhr.ok) {
             const chats = xhr.json<ChatDTO.IChatDTO[]>() || [];
-            window.store.setState({ chats });
-            return chats;
+            const adapterChats = chats.map((chat) => ({
+                ...chat,
+                avatar: chat?.avatar ? `${IMG_BASE_URL}${chat?.avatar}` : null,
+            }));
+            window.store.setState({ chats: adapterChats });
+            return adapterChats;
         } else if (xhr.status === 401) {
+            window.store.clearState();
             window.router.go(ERouter.LOGIN);
         }
         return [];
     } catch (responsError: unknown) {
         console.error(responsError);
         console.error('getChatUsers response error', responsError);
+        window.store.clearState();
+        window.router.go(ERouter.LOGIN);
         return [];
     } finally {
         window.store.setState({ isLoading: false });

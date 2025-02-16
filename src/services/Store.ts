@@ -28,7 +28,7 @@ export interface IStore {
     currentSocket: MessagesAPI | null;
     oldMessages: IMessage[];
     message: IMessage | null;
-    messages: IMessage[];
+    messages: IMessage[] | null;
     contentCount: number;
     hasSendMessageDidabled: boolean;
 }
@@ -70,7 +70,7 @@ export default class Store extends EventBus {
             currentSocket: null,
             oldMessages: [],
             message: null,
-            messages: [],
+            messages: null,
             contentCount: 0,
             hasSendMessageDidabled: true,
         } as IStore;
@@ -84,24 +84,28 @@ export default class Store extends EventBus {
     }
 
     setState<T extends IStore>(nextState = {}) {
-        const prevState = cloneDeep(this._state);
+        const prevState = { ...this._state };
         this._state = { ...prevState, ...nextState } as Partial<T>;
         LOCAL.setItem('store', this._state);
         this.emit(EStoreEvents.Updated, prevState, nextState);
     }
 
     getState<T extends IStore = IStore>() {
-        return this._state as T;
+        const tmp = JSON.parse(JSON.stringify(this._state));
+        return tmp as T;
     }
 
     setCurrentChat(chatId: string | null) {
-        const currentChat = this.getState().chats.find((el) => String(el.id) === String(chatId)) ?? null;
-        if (currentChat) {
-            const newCurrentChat = cloneDeep(currentChat);
-            const currentSocket = this.getState().currentSocket;
+        const { currentSocket, chats } = this.getState();
+        const chat = chats.find((el) => String(el.id) === String(chatId)) ?? null;
+
+        if (chat) {
+            const newCurrentChat = { ...chat };
             if (currentSocket?.connectToChat) {
                 currentSocket?.disconnectFromChat();
             }
+
+            this.clearCurrentChat();
             this.setState({ currentChat: newCurrentChat });
         } else if (chatId === null) {
             this.clearCurrentChat();
@@ -115,7 +119,7 @@ export default class Store extends EventBus {
             token: null,
             oldMessages: [],
             message: null,
-            messages: [],
+            messages: null,
             contentCount: 0,
         });
     }
@@ -157,7 +161,18 @@ export default class Store extends EventBus {
     }
 
     private _setMessages() {
-        const { oldMessages = [], message } = this.getState();
+        const { oldMessages = [], message = null } = this.getState();
+
+        if (oldMessages.length === 0 && message) {
+            const days = [
+                {
+                    day: 'Сегодня',
+                    bubbles: [message],
+                },
+            ];
+            this.setState({ messages: days });
+            return;
+        }
 
         const dateMap = new Map();
         oldMessages.forEach((msg, i) => {

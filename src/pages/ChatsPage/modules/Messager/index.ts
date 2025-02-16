@@ -1,9 +1,6 @@
 import { ChatHeader, ChatFooter } from '@/pages/ChatsPage/modules';
 import { Block } from '@/services/base-component';
-import {
-    // Indexed,
-    IProps,
-} from '@/types';
+import { IProps } from '@/types';
 import messagerTemplate from './messager.hbs?raw';
 import { IconAttach, IconBlueArrowRight, IconDots } from '@/assets/icons';
 import { EModalType } from '../..';
@@ -13,8 +10,8 @@ import ContextMenu from '@/components/ContextMenu';
 
 import './messager.pcss';
 import MessagesAPI from '@/api/messages/messages.api';
-// import { WSTransportEvents } from '@/services/wsTransport';
 import { IMessage } from '@/api/messages/types';
+import { IChatDTO } from '@/api/chats/chats.model';
 
 export interface IMessagerProps extends IProps {
     isCurrentChat: boolean;
@@ -40,12 +37,12 @@ export default class Messager extends Block {
     }
 
     init() {
-        const currentChat = window.store.getState()?.currentChat ?? null;
         return {
-            isCurrentChat: !!currentChat,
+            isCurrentChat: true,
+            messages: null,
             chatHeader: new ChatHeader({
                 ...this.initUserContextMenu(),
-                currentChat,
+                currentChat: null,
             }),
             chatFooter: new ChatFooter({
                 ...this.initAttachContextMenu(),
@@ -194,20 +191,26 @@ export default class Messager extends Block {
         const chatFooter = this.getChildren().chatFooter as ChatFooter;
         const value = chatFooter.getSendValue();
 
-        if (!this._socket) {
+        if (!this._socket || !value.trim()) {
             return;
         }
 
         this._socket.sendMessage(value);
     }
 
-    updateMessages(messages: IMessage[], isRerender = true) {
-        this.setProps({ messages: messages }, isRerender);
+    updateCurrentChat(currentChat: IChatDTO | null = null) {
+        const header = this.getChildren().chatHeader as ChatHeader;
+        header.updateChat(currentChat);
+        this.setProps({ header, currentChat, isCurrentChat: !!currentChat }, true);
+    }
+
+    updateMessages(messageList: IMessage[] | null, isRerender = true) {
+        const newMessages = Array.isArray(messageList) && messageList.length === 0 ? null : messageList;
+        this.setProps({ isCurrentChat: true, messages: newMessages }, isRerender);
     }
 
     hasUpdated(_: IMessagerProps, newProps: IMessagerProps): boolean {
         if (newProps) {
-            console.log('*********** messager hasUpdated newProps', newProps);
             if (newProps?.socket?.wssTransport) {
                 this._socket = newProps?.socket;
             }
