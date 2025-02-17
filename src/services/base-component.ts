@@ -113,10 +113,7 @@ export class Block<P extends Record<string, any> = unknown> {
         }
     }
 
-    public hasUpdated(oldProps: P, newProps: P) {
-        console.log('hasUpdate old', oldProps);
-        console.log('hasUpdate new', newProps);
-
+    public hasUpdated(_: P, __: P) {
         return true;
     }
 
