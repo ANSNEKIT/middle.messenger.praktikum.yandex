@@ -90,10 +90,13 @@ export default class AsideChats extends Block<IAsideChatsProps> {
         }
 
         const chatId = chat.getAttribute('id') || '';
-        this._selectChat(chat, chatId);
-        this.setProps({ currentChatId: chatId });
+        if (chatId) {
+            this._selectChat(chat, chatId);
+            this.setProps({ currentChatId: chatId });
 
-        window.store.setCurrentChat(chatId);
+            window.store.clearCurrentChat();
+            window.store.setCurrentChat(chatId);
+        }
 
         // router.go(`${ERouter.MESSENGER}/${chatId}`, true);
     }

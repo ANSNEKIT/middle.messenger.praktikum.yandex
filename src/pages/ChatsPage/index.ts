@@ -295,7 +295,7 @@ class ChatsPage extends Block<IChatPageProps> {
         this.loadChats();
 
         window.store.on(EStoreEvents.Updated, async (oldState: IStore, nextState: IStore) => {
-            const { modal = null, currentChat = null, messages, message = null, hasSendMessageDidabled } = nextState;
+            const { modal = null, currentChat = null, messages = null, message = null, hasSendMessageDidabled } = nextState;
 
             if (modal?.type) {
                 this.onOpenModal(modal.type);

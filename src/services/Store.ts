@@ -27,6 +27,7 @@ export interface IStore {
     modal: TModal | null;
     currentSocket: MessagesAPI | null;
     oldMessages: IMessage[];
+    newMessages: IMessage[];
     message: IMessage | null;
     messages: IMessage[] | null;
     contentCount: number;
@@ -69,6 +70,7 @@ export default class Store extends EventBus {
             currentChat: null,
             currentSocket: null,
             oldMessages: [],
+            newMessages: [],
             message: null,
             messages: null,
             contentCount: 0,
@@ -104,11 +106,7 @@ export default class Store extends EventBus {
             if (currentSocket?.connectToChat) {
                 currentSocket?.disconnectFromChat();
             }
-
-            this.clearCurrentChat();
             this.setState({ currentChat: newCurrentChat });
-        } else if (chatId === null) {
-            this.clearCurrentChat();
         }
     }
 
@@ -118,6 +116,7 @@ export default class Store extends EventBus {
             currentSocket: null,
             token: null,
             oldMessages: [],
+            newMessages: [],
             message: null,
             messages: null,
             contentCount: 0,
@@ -125,7 +124,7 @@ export default class Store extends EventBus {
     }
 
     addMessages(data: IMessageOld[] | IMessageDTO | unknown) {
-        const { authUser, contentCount = 0 } = this.getState();
+        const { authUser, newMessages = [], contentCount = 0 } = this.getState();
 
         if (isArray(data)) {
             const content = contentCount < 20 ? 0 : contentCount + data.length + 1;
@@ -153,19 +152,21 @@ export default class Store extends EventBus {
                 date: formatDate(msgDto.time),
                 isMe: String(msgDto.user_id) === String(authUser?.id),
             } as IMessage;
+            const updatedMessages = [...newMessages, message];
 
-            this.setState({ message, contentCount: contentCount + 1 });
+            this.setState({ message, newMessages: updatedMessages, contentCount: contentCount + 1 });
         }
 
         this._setMessages();
     }
 
     private _setMessages() {
-        const { oldMessages = [], message = null } = this.getState();
+        const { oldMessages = [], newMessages = [], message = null } = this.getState();
         const dateMap = new Map();
         const isFormatedDate = true;
+        const allMessages = [...oldMessages, ...newMessages];
 
-        if (oldMessages.length === 0 && message) {
+        if (allMessages.length === 0 && message) {
             const days = [
                 {
                     day: 'Сегодня',
@@ -176,20 +177,17 @@ export default class Store extends EventBus {
             return;
         }
 
-        oldMessages.forEach((msg, i) => {
+        allMessages.forEach((msg, i) => {
             dateMap.set(msg.date, i);
         });
 
-        const obj = Object.fromEntries(dateMap.entries());
-        const days = Object.keys(obj).map((day) => {
+        const objDays = Object.fromEntries(dateMap.entries());
+        const days = Object.keys(objDays).map((day) => {
             let localDay = day;
-            const bubblesForDay = oldMessages.filter((msg) => msg.date === day);
+            const bubblesForDay = allMessages.filter((msg) => msg.date === day);
 
             if (isToday(day, isFormatedDate)) {
                 localDay = 'Сегодня';
-                if (message && bubblesForDay[0]?.id?.toString() !== String(message.id)) {
-                    bubblesForDay.push(message);
-                }
             } else if (isYesterday(day, isFormatedDate)) {
                 localDay = 'Вчера';
             }
@@ -199,13 +197,6 @@ export default class Store extends EventBus {
                 bubbles: bubblesForDay,
             };
         });
-
-        if (days.filter((d) => d.day === 'Сегодня').length === 0 && message && isToday(message.date, isFormatedDate)) {
-            days.push({
-                day: 'Сегодня',
-                bubbles: [message],
-            });
-        }
 
         this.setState({ messages: days });
     }
