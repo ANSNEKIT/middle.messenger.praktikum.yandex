@@ -162,6 +162,8 @@ export default class Store extends EventBus {
 
     private _setMessages() {
         const { oldMessages = [], message = null } = this.getState();
+        const dateMap = new Map();
+        const isFormatedDate = true;
 
         if (oldMessages.length === 0 && message) {
             const days = [
@@ -174,7 +176,6 @@ export default class Store extends EventBus {
             return;
         }
 
-        const dateMap = new Map();
         oldMessages.forEach((msg, i) => {
             dateMap.set(msg.date, i);
         });
@@ -183,7 +184,6 @@ export default class Store extends EventBus {
         const days = Object.keys(obj).map((day) => {
             let localDay = day;
             const bubblesForDay = oldMessages.filter((msg) => msg.date === day);
-            const isFormatedDate = true;
 
             if (isToday(day, isFormatedDate)) {
                 localDay = 'Сегодня';
@@ -199,6 +199,13 @@ export default class Store extends EventBus {
                 bubbles: bubblesForDay,
             };
         });
+
+        if (days.filter((d) => d.day === 'Сегодня').length === 0 && message && isToday(message.date, isFormatedDate)) {
+            days.push({
+                day: 'Сегодня',
+                bubbles: [message],
+            });
+        }
 
         this.setState({ messages: days });
     }

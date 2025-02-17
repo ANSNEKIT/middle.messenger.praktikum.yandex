@@ -12,6 +12,9 @@ export const useAsideChats = () => {
                 id: chat.id,
                 class: 'aside-chats__chat chat',
             },
+            settings: {
+                isSimple: true,
+            },
             avatarMini: new AvatarMini('div', {
                 class: 'chat__avatar',
                 settings: {
