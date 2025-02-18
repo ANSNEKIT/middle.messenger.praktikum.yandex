@@ -1,74 +1,96 @@
-import { setInputValidationState, validate } from '@/utils';
+import { validate } from '@/utils';
 import Input from '@/components/Input';
 import { ErrorText, InputRegExp, TInputName } from '@/constants/validate';
-import { LoginFormInputs } from '@/types';
+import { IProps, RequiredKeys } from '@/types';
 import { validateWithMessage } from '.';
+import { Block } from '@/services/base-component';
+import { ERouter } from '@/constants/router';
 
-export const onSubmit = (evt: MouseEvent, inputs: Input[]) => {
-    evt.preventDefault();
+export const prepareSubmitForm = (form: HTMLFormElement, inputs: Input[]): Record<string, string | File> | null => {
+    const formData = new FormData(form);
+    const rules = getFormRules(formData, inputs);
 
-    const target = evt.target as HTMLElement;
-    const $form = document.getElementById('form') as HTMLFormElement | null;
-    if ($form) {
-        const formData = new FormData($form, target);
-        const formEntries = Object.fromEntries(formData) as Record<LoginFormInputs, string | File>;
-        const rules: Record<string, string | true> = {};
+    setFormErrors(formData, rules, inputs);
 
-        for (const [key, value] of formData.entries()) {
-            rules[key] = validateWithMessage(value, InputRegExp[key as TInputName], ErrorText[key as TInputName]);
+    return validate(rules) ? Object.fromEntries(formData) : null;
+};
+
+const getFormRules = (formData: FormData, inputs: Input[]) => {
+    const rules: Record<string, string | true> = {};
+
+    for (const [key, value] of formData.entries()) {
+        const inputComponent = inputs.find((input) => input.getName() === key);
+        const isRequired = inputComponent?.getProps()?.required;
+        const val = inputComponent?.getValue();
+
+        if (!isRequired && !val) {
+            rules[key] = true;
+            continue;
         }
 
-        const isValid = validate(rules);
-
-        Object.entries(rules).forEach(([key, value]) => {
-            const errText = typeof value === 'string' ? ErrorText[key as TInputName] : '';
-            const inputComponent = inputs.find((input) => input.getProps().name === key);
-
-            if (inputComponent) {
-                const inputValue = typeof formData.get(key) === 'string' ? (formData.get(key) as string) : '';
-                setInputValidationState(inputComponent, inputValue, errText);
-            }
-        });
-
-        if (isValid) {
-            console.log('submitForm', formEntries);
+        if (!InputRegExp[key as TInputName]) {
+            rules[key] = 'Ошибка валидации';
+            continue;
         }
+
+        rules[key] = validateWithMessage(value, InputRegExp[key as TInputName], ErrorText[key as TInputName]);
     }
+
+    return rules;
+};
+
+const setFormErrors = (formData: FormData, rules: Record<string, string | true> = {}, inputs: Input[]): void => {
+    Object.keys(rules).forEach((key) => {
+        const inputComponent = inputs.find((input) => input.getName() === key);
+
+        if (!inputComponent) {
+            return;
+        }
+
+        const isRequired = inputComponent.getProps()?.required;
+
+        if (!isRequired && !inputComponent.getValue()) {
+            inputComponent.setProps({ value: '', errText: '' });
+            return;
+        }
+
+        const inputValue = (formData.get(key) as string) || '';
+        const errText = typeof rules[key] === 'string' ? rules[key] : '';
+        inputComponent.setProps({ value: inputValue, errText });
+        inputComponent.validate();
+    });
 };
 
 export const onblur = (evt: MouseEvent, inputs: Input[]) => {
     if ((evt.target as HTMLElement).tagName === 'INPUT') {
         const target = evt.target as HTMLInputElement;
-        const targetName = target.name as TInputName;
-        const targetValue = target.value;
-        const validateState = validateWithMessage(targetValue, InputRegExp[targetName], ErrorText[targetName]);
-        const errorText = validateState === true ? '' : validateState;
-        const inputComponent = inputs.find((input) => input.getProps().name === targetName);
+        const inputComponent = inputs.find((input) => input.getName() === target.name);
 
         if (inputComponent) {
-            setInputValidationState(inputComponent, targetValue, errorText);
+            const isRequired = inputComponent.getProps()?.required;
+
+            if (!isRequired && !target.value) {
+                inputComponent.setProps({ value: '', errText: '' });
+                return;
+            }
+
+            inputComponent.setProps({ value: target.value });
+            inputComponent.validate();
         }
     }
 };
 
-const validateInput = (input: Input) => {
-    if (input instanceof Input) {
-        const inputValue = (input.getProps()?.value as string) ?? '';
-        const validateState = validateWithMessage(inputValue, InputRegExp.message, ErrorText.message);
-        const errorText = validateState === true ? '' : validateState;
-        setInputValidationState(input, inputValue, errorText);
-
-        return typeof validateState === 'string' ? '' : inputValue;
-    }
-    return '';
+export const onLinkClick = (evt: Event, props: RequiredKeys<IProps, 'router'>) => {
+    evt.preventDefault();
+    props.router.go(ERouter.LOGIN);
 };
 
-export const onSendMessage = (evt: MouseEvent, input: Input) => {
-    evt.preventDefault();
-
-    const inputValue = validateInput(input);
-
-    if (inputValue) {
-        console.log('sendMessage', inputValue);
-    }
+export const withRouter = <Cls extends typeof Block>(SomeBlock: Cls) => {
+    // @ts-expect-error is ok typeClass
+    return class extends SomeBlock {
+        constructor(props: IProps) {
+            // @ts-expect-error props extended
+            super({ ...props, router: window.router });
+        }
+    };
 };

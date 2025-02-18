@@ -1,23 +1,40 @@
 .avatar {
-    width: 34px;
-    height: 34px;
-    border-radius: 1000px;
+    position: relative;
 
     &__empty {
-        width: inherit;
-        height: inherit;
+        width: 130px;
+        height: 130px;
 
         &-svg {
-            width: inherit;
-            height: inherit;
+            width: 130px;
+            height: 130px;
         }
     }
 
+    &__image-wrap {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-shrink: 0;
+        width: 130px;
+        height: 130px;
+        background: transparent;
+        border-radius: 100%;
+    }
+
     &__image {
-        width: inherit;
-        height: auto;
-        border-radius: 1000px;
+        position: absolute;
+        z-index: 2;
+        max-width: 100%;
+        width: 130px;
+        height: 130px;
+
+        /* height: auto; */
+
         background-size: cover;
         background-position: center;
+        border-radius: 100%;
+        object-fit: cover;
+        border: 1px solid black;
     }
 }
