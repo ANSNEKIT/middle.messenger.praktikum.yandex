@@ -16,7 +16,8 @@ import ChangePasswordForm from './modules/ChangePasswordForm';
 import { IUserDTO } from '@/api/user/user.model';
 import { IUserAvatar, IUserChangePassword } from '@/api/user/types';
 import { logout } from '@/composables/events';
-import { EDIT_PASSWORD_INPUTS, IMG_BASE_URL, PROFILE_FIELDS } from '@/constants';
+import { EDIT_PASSWORD_INPUTS, PROFILE_FIELDS } from '@/constants';
+import { IMG_BASE_URL } from '@/constants/constants';
 
 import './profile.pcss';
 

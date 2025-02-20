@@ -1,7 +1,7 @@
 import ChatsApi from '@/api/chats/chats.api';
 import * as ChatDTO from '@/api/chats/chats.model';
 import * as ChatTypes from '@/api/chats/types';
-import { IMG_BASE_URL } from '@/constants';
+import { IMG_BASE_URL } from '@/constants/constants';
 import { ERouter } from '@/constants/router';
 
 const chatsApi = new ChatsApi();
