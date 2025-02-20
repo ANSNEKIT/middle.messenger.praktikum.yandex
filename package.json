@@ -15,7 +15,7 @@
     "fix-code": "npm-run-all -s lint:**",
     "validate": "npm-run-all -s fix-code test",
     "prepare": "husky install",
-    "pre-commit": "npm run validate"
+    "pre-commit": "npm-run-all -s validate && tsc --noEmit"
   },
   "engines": {
     "node": "~20.18.3",
