@@ -1,4 +1,4 @@
-import { BASE_URL } from '@/constants';
+import { BASE_URL } from '@/constants/constants';
 import { IRequestResult } from '@/types';
 import { queryStringify } from '@/utils';
 
@@ -18,6 +18,7 @@ interface IOptions {
     headers?: Record<string, string>;
     data?: FormData | object;
     timeout?: number;
+    withCredentials?: boolean;
 }
 
 const parseXHRResult = (xhr: XMLHttpRequest): IRequestResult => {

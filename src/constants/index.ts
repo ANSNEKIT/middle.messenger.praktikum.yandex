@@ -4,10 +4,6 @@ import { ErrorText, InputRegExp } from '@/constants/validate';
 
 export * from './header-props';
 
-const BASE_WSS_URL = 'wss://ya-praktikum.tech/ws/chats';
-const BASE_URL = 'https://ya-praktikum.tech/api/v2';
-const IMG_BASE_URL = 'https://ya-praktikum.tech/api/v2/resources';
-
 const PROFILE_INPUTS = [
     new Input('div', {
         attrs: {
@@ -159,4 +155,4 @@ const PROFILE_FIELDS: Array<{
     },
 ];
 
-export { BASE_WSS_URL, BASE_URL, IMG_BASE_URL, PROFILE_INPUTS, EDIT_PASSWORD_INPUTS, PROFILE_FIELDS };
+export { PROFILE_INPUTS, EDIT_PASSWORD_INPUTS, PROFILE_FIELDS };
