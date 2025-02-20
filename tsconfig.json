@@ -24,7 +24,7 @@
     "noImplicitAny": true,
     "strictNullChecks": true,
 
-    "types": ["node", "jest"],
+    "types": ["node", "jest"]
   },
   "include": ["src", "jest.config.js"]
 }
