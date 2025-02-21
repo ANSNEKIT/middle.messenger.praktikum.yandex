@@ -4,3 +4,6 @@ node_modules
 public
 .vscode
 .idea
+
+# Jest tests
+coverage

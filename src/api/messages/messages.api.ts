@@ -1,5 +1,5 @@
 import { WSTransport } from '@/services/wsTransport';
-import { BASE_WSS_URL } from '@/constants';
+import { BASE_WSS_URL } from '@/constants/constants';
 
 class MessagesAPI {
     private _baseWSSURL: string;
